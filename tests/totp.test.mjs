@@ -38,3 +38,43 @@ test("setup page base32 encoder round-trips with the Worker decoder", async () =
     assert.deepEqual(base32Decode(base32(bytes)), bytes);
   }
 });
+
+test("normalizeSecret tolerates common paste mistakes", async () => {
+  const { normalizeSecret } = await import("../src/worker.js");
+  assert.equal(normalizeSecret(`"${SECRET}"`), SECRET);
+  assert.equal(normalizeSecret(`  '${SECRET.toLowerCase()}'\n`), SECRET);
+  assert.equal(normalizeSecret("GEZD GNBV-GY3T QOJQ GEZD GNBV GY3T QOJQ=="), SECRET);
+  assert.equal(normalizeSecret(`otpauth://totp/Mari%20Vault:Mari?secret=${SECRET}&issuer=Mari%20Vault`), SECRET);
+});
+
+// Minimal in-memory KV so the login route can run without Cloudflare.
+function memoryKV() {
+  const m = new Map();
+  return {
+    async get(k) { return m.has(k) ? m.get(k) : null; },
+    async put(k, v) { m.set(k, String(v)); },
+    async delete(k) { m.delete(k); }
+  };
+}
+const post = (code) => new Request("https://vault.test/api/auth", { method: "POST", headers: { "X-Vault": "1", "Content-Type": "application/json", "CF-Connecting-IP": "1.2.3.4" }, body: JSON.stringify({ code }) });
+
+test("login works when the secret was pasted with quotes", async () => {
+  const worker = (await import("../src/worker.js")).default;
+  const env = { TOTP_SECRET: `"${SECRET}"`, VAULT: memoryKV() };
+  const code = await hotp(base32Decode(SECRET), Math.floor(Date.now() / 30000));
+  const r = await worker.fetch(post(code), env);
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("Set-Cookie"), /__Host-mv=[a-f0-9]{64}; Path=\/; Secure; HttpOnly; SameSite=Strict/);
+});
+
+test("misconfiguration gives a clear 503 instead of a server error", async () => {
+  const worker = (await import("../src/worker.js")).default;
+  let r = await worker.fetch(post("123456"), { TOTP_SECRET: "not a secret!!", VAULT: memoryKV() });
+  assert.equal(r.status, 503);
+  assert.match((await r.json()).error, /not a valid authenticator secret/);
+  r = await worker.fetch(post("123456"), { TOTP_SECRET: SECRET });
+  assert.equal(r.status, 503);
+  assert.match((await r.json()).error, /VAULT KV binding/);
+  const h = await (await worker.fetch(new Request("https://vault.test/api/health"), { TOTP_SECRET: "bad!", VAULT: memoryKV() })).json();
+  assert.deepEqual([h.vault, h.secretValid, h.storageReady], [true, false, true]);
+});

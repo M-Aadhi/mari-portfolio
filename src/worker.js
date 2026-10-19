@@ -30,7 +30,7 @@ export default {
       return await api(req, env, url);
     } catch (err) {
       console.error(err);
-      return json({ error: "Server error" }, 500);
+      return json({ error: `Server error: ${err && err.message ? err.message : "unexpected failure"}` }, 500);
     }
   }
 };
@@ -40,7 +40,15 @@ async function api(req, env, url) {
   const method = req.method;
 
   if (path === "/api/health" && method === "GET") {
-    return json({ ok: true, vault: Boolean(env.TOTP_SECRET), storage: env.FILES ? "r2" : "kv", maxFile: fileLimit(env) });
+    // Setup diagnostics only: says whether each piece is configured, never the secret itself.
+    return json({
+      ok: true,
+      vault: Boolean(env.TOTP_SECRET),
+      secretValid: Boolean(secretBytes(env)),
+      storageReady: Boolean(env.VAULT),
+      storage: env.FILES ? "r2" : "kv",
+      maxFile: fileLimit(env)
+    });
   }
 
   // CSRF: every state-changing call must be same-origin and carry the custom header
@@ -93,7 +101,10 @@ async function api(req, env, url) {
 /* ---------- authentication ---------- */
 
 async function login(req, env) {
-  if (!env.TOTP_SECRET) return json({ error: "Vault is not configured (TOTP_SECRET missing)" }, 503);
+  if (!env.TOTP_SECRET) return json({ error: "Vault is not configured: add the TOTP_SECRET secret to the Worker." }, 503);
+  if (!env.VAULT) return json({ error: "Vault storage is not connected: the Worker has no VAULT KV binding." }, 503);
+  const key = secretBytes(env);
+  if (!key) return json({ error: "TOTP_SECRET is not a valid authenticator secret. Re-create it with tools/totp-setup.html and paste only the letters and digits." }, 503);
   const ip = req.headers.get("CF-Connecting-IP") || "unknown";
   const ipKey = `rl:ip:${ip}`;
   const fails = Number(await env.VAULT.get(ipKey)) || 0;
@@ -103,7 +114,7 @@ async function login(req, env) {
   }
 
   const { code } = await req.json().catch(() => ({}));
-  const counter = /^\d{6}$/.test(code || "") ? await verifyTotp(env.TOTP_SECRET, code, Date.now()) : null;
+  const counter = /^\d{6}$/.test(code || "") ? await verifyTotpBytes(key, code, Date.now()) : null;
   const last = Number(await env.VAULT.get("totp:last")) || 0;
   if (counter === null || counter <= last) {           // wrong code, or a code that was already used
     await env.VAULT.put(ipKey, String(fails + 1), { expirationTtl: LOCK_SECONDS });
@@ -156,9 +167,34 @@ export async function hotp(secretBytes, counter) {
   return String(n % 1e6).padStart(6, "0");
 }
 
+/**
+ * Cleans up a pasted secret: surrounding quotes, spaces, dashes and padding are ignored, and a full
+ * otpauth:// link (what a QR code contains) is accepted too. Returns the base32 text, uppercased.
+ */
+export function normalizeSecret(raw) {
+  let s = String(raw || "").trim().replace(/^["'`]+|["'`]+$/g, "").trim();
+  if (/^otpauth:\/\//i.test(s)) {
+    try { s = new URL(s).searchParams.get("secret") || ""; } catch { s = ""; }
+  }
+  return s.replace(/[\s=-]/g, "").toUpperCase();
+}
+
+/** Decoded TOTP key, or null when TOTP_SECRET is missing or not valid base32 (at least 80 bits). */
+function secretBytes(env) {
+  try {
+    const bytes = base32Decode(normalizeSecret(env.TOTP_SECRET));
+    return bytes.length >= 10 ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Returns the matching time-step counter (current step ±1 for clock drift), or null. */
 export async function verifyTotp(secret, code, now) {
-  const bytes = base32Decode(secret);
+  return verifyTotpBytes(base32Decode(normalizeSecret(secret)), code, now);
+}
+
+async function verifyTotpBytes(bytes, code, now) {
   const step = Math.floor(now / 30000);
   for (const d of [0, -1, 1]) {
     if (safeEqual(await hotp(bytes, step + d), code)) return step + d;
