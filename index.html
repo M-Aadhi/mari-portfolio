@@ -248,11 +248,13 @@ form.cform{background:var(--card);border:1px solid var(--line);border-radius:20p
    (pink/violet haze, rain, a giant AI hologram, a cloaked figure on the ledge)
    ========================================================================== */
 #world{position:fixed;inset:0;z-index:30;overflow-y:auto;overflow-x:hidden;color:#f6eaff;font-family:var(--font);background:#0c0416;overscroll-behavior:contain;scroll-behavior:smooth}
-.w-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:
-  radial-gradient(60% 50% at 50% 34%,#c2309a59,transparent 70%),
-  radial-gradient(55% 45% at 12% 82%,#5b1d9a4d,transparent 70%),
-  radial-gradient(45% 40% at 90% 72%,#ff3fa438,transparent 70%),
-  linear-gradient(#150623,#2c0b3d 42%,#3d0f48 68%,#14051f)}
+.w-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#14051f}
+/* The city picture is the whole background. Scroll drives it (custom properties set in onWorldScroll):
+   --bs zoom, --bx horizontal focus (matters on portrait screens), --by drift, --shade darkening behind content */
+.w-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--bx,50%) 50%;transform:translateY(var(--by,0px)) scale(var(--bs,1));transform-origin:50% 40%;will-change:transform,object-position;opacity:0;transition:opacity 1.6s ease}
+body.world-on .w-bg img{opacity:1}
+.w-shade{position:absolute;inset:0;background:linear-gradient(#0c0416e6,#1a0628d9 50%,#0c0416f2);opacity:var(--shade,0)}
+.w-glow{position:absolute;inset:0;background:radial-gradient(70% 55% at 50% 40%,#ff4fd826,transparent 70%);mix-blend-mode:screen}
 .w-fx{position:fixed;inset:0;z-index:1;pointer-events:none}
 #rain{position:fixed;inset:0;z-index:4;width:100%;height:100%;pointer-events:none}
 .fog{position:absolute;left:-10%;right:-10%;height:42%;bottom:12%;background:radial-gradient(60% 50% at 50% 60%,#ff4fd826,transparent 70%),radial-gradient(40% 40% at 20% 70%,#8b5cff1f,transparent 70%);filter:blur(10px);animation:drift 26s ease-in-out infinite alternate}
@@ -264,48 +266,25 @@ form.cform{background:var(--card);border:1px solid var(--line);border-radius:20p
 body.world-on .w-stage{opacity:1}
 
 /* --- Rooftop hero ------------------------------------------------------- */
-.w-hero{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden}
-.pan{position:absolute;inset:0;overflow:hidden}
-#scene{position:absolute;inset:0;width:100%;height:100%}
-body.pannable .pan{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-body.pannable .pan::-webkit-scrollbar{display:none}
-body.pannable #scene{position:relative;width:calc(max(100svh,520px) * 16 / 9);height:100%;max-width:none}
-.hero-copy{position:absolute;left:0;right:0;top:clamp(78px,13vh,130px);z-index:4;text-align:center;pointer-events:none;padding:0 16px;transition:opacity .2s}
+/* The rooftop is a pinned "scene" you scroll through: zoom out from the hologram, the city opens up,
+   then the levels arrive. Height = how long the scene lasts. */
+.w-hero{position:relative;height:280vh;height:280svh}
+.hero-pin{position:sticky;top:0;height:100vh;height:100svh;min-height:520px;overflow:hidden}
+.hero-pin::after{content:"";position:absolute;inset:auto 0 0;height:46%;background:linear-gradient(#0c041600,#0c0416b3 60%,#0c0416e6);pointer-events:none}
+.hero-copy{position:absolute;left:0;right:0;bottom:clamp(92px,15vh,150px);z-index:4;text-align:center;padding:0 16px;opacity:var(--c1,1);transform:translateY(calc((1 - var(--c1,1)) * -24px));pointer-events:none}
 .hero-copy h2{font:300 clamp(1.7rem,1rem + 3.2vw,3.4rem)/1.18 var(--font);letter-spacing:.01em;color:#fff;text-shadow:0 0 32px #ff4fd8b3,0 2px 18px #000}
 .hero-copy p{margin-bottom:12px;font:600 .74rem var(--mono);letter-spacing:.34em;color:#ffb8ec;text-transform:uppercase;text-shadow:0 0 12px #000}
-.scroll-cue{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;display:inline-flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;padding:6px 16px;border:0;background:none;color:#ffd6f3;font:600 .7rem var(--mono);letter-spacing:.3em;cursor:pointer;text-shadow:0 0 10px #000}
+.hero-beat{position:absolute;left:0;right:0;bottom:clamp(92px,15vh,150px);z-index:5;text-align:center;padding:0 16px;opacity:var(--c2,0);transform:translateY(calc((1 - var(--c2,0)) * 24px))}
+.hero-beat h2{font:300 clamp(1.5rem,1rem + 2.4vw,2.7rem)/1.2 var(--font);color:#fff;text-shadow:0 0 28px #ff4fd8a6,0 2px 16px #000}
+.hero-beat p{margin:10px auto 18px;max-width:34em;color:#f3dcff;text-shadow:0 1px 10px #000}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;list-style:none;margin:0;padding:0}
+.chips button{min-height:42px;padding:0 15px;border-radius:999px;border:1px solid #ff6ad577;background:#1a0626cc;color:#ffd9f4;font:600 .78rem var(--mono);letter-spacing:.1em;cursor:pointer;backdrop-filter:blur(4px);transition:border-color .2s,box-shadow .2s}
+.chips button:hover,.chips button:focus-visible{border-color:#ff9be4;box-shadow:0 0 18px #ff6ad566}
+.scroll-cue{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;display:inline-flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;padding:6px 16px;border:0;background:none;color:#ffd6f3;font:600 .7rem var(--mono);letter-spacing:.3em;cursor:pointer;text-shadow:0 0 10px #000;opacity:var(--c1,1)}
 .scroll-cue i{display:block;width:2px;height:28px;background:linear-gradient(#ff6ad5,transparent);animation:cue 1.8s ease-in-out infinite}
 @keyframes cue{0%,100%{opacity:.3;transform:translateY(-4px)}50%{opacity:1;transform:translateY(4px)}}
-.swipe-hint{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);z-index:6;font:600 .76rem var(--mono);letter-spacing:.14em;color:#ffe3f6;background:#2a0a33cc;border:1px solid #ff6ad566;border-radius:999px;padding:8px 14px;pointer-events:none;opacity:0;transition:opacity .6s;white-space:nowrap}
-.swipe-hint.show{opacity:1}
-
-/* SVG scene */
-#scene .loc{cursor:pointer;outline:none}
-#scene .loc .glow{opacity:0;transition:opacity .3s}
-#scene .loc:hover .glow,#scene .loc:focus-visible .glow,#scene .loc.hot .glow{opacity:1}
-#scene .loc:focus-visible .focus-ring{stroke:#fff;stroke-width:3;stroke-dasharray:6 5}
-#scene .loc .body{transition:filter .3s}
-#scene .loc:hover .body,#scene .loc:focus-visible .body,#scene .loc.hot .body{filter:brightness(1.7)}
-#scene .sign{animation:neon 5s infinite}
-#scene .sign.s2{animation-delay:1.7s}#scene .sign.s3{animation-delay:3.1s}
-@keyframes neon{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.35}}
-#scene .marker{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-@keyframes bob{50%{transform:translateY(-8px)}}
-#scene .loc-label{font:600 15px var(--mono);letter-spacing:.12em;fill:#ffd9f4;opacity:.75;pointer-events:none;transition:opacity .3s}
-#scene .loc:hover .loc-label,#scene .loc:focus-visible .loc-label{opacity:1}
-#scene .lab.dormant{opacity:.25}
-#scene .lab.awake .lab-light{animation:labflick 1.4s steps(2) infinite}
-@keyframes labflick{50%{opacity:.2}}
-#nami,#far-city{will-change:transform}
-#nami .nami-holo{opacity:0;transition:opacity 1.4s}
-#nami.on .nami-holo{opacity:1;animation:holo 7s infinite}
-@keyframes holo{0%,94%,100%{opacity:.92}95%{opacity:.5}96%{opacity:.96}97%{opacity:.6}}
-#nami .nami-scan{animation:scan 6s linear infinite}
-@keyframes scan{from{transform:translateY(0)}to{transform:translateY(560px)}}
-.blink-win{animation:winblink 7s infinite}
-@keyframes winblink{0%,40%,100%{opacity:.9}45%,60%{opacity:.15}}
-#scene .cape{transform-box:fill-box;transform-origin:100% 0;animation:cape 4.5s ease-in-out infinite}
-@keyframes cape{50%{transform:skewX(7deg) scaleX(1.07)}}
+.progress{position:fixed;right:clamp(8px,1.4vw,18px);top:50%;z-index:7;width:3px;height:min(40vh,320px);transform:translateY(-50%);background:#ffffff1f;border-radius:2px;pointer-events:none}
+.progress i{position:absolute;inset:0 0 auto;height:calc(var(--prog,0) * 100%);background:linear-gradient(#ff6ad5,#8fa8ff);border-radius:2px;box-shadow:0 0 10px #ff6ad5}
 
 /* --- Scrolling city sections ------------------------------------------- */
 .w-sec{position:relative;padding:clamp(72px,10vw,128px) 0}
@@ -425,7 +404,8 @@ body.world-on .chat-suggest button{border-color:#ff6ad544;color:#ffc9ee}
   .map{max-width:calc(100vw - 92px)}
   .w-logo{font-size:.72rem;letter-spacing:.14em}
   .idcard{grid-template-columns:84px 1fr}.idcard .ph{width:84px;height:84px}
-  .hero-copy{top:168px}
+  .hero-copy,.hero-beat{bottom:200px}
+  .progress{display:none}
   .luffy-bubble{max-width:220px}
 }
 
@@ -600,7 +580,9 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .js .reveal{opacity:1;transform:none}
-  #nami.on{opacity:.88}
+  .w-hero{height:auto}
+  .hero-pin{position:relative}
+  .hero-copy{bottom:auto;top:clamp(80px,14vh,130px)}
 }
 </style>
 </head>
@@ -714,10 +696,11 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 
 <!-- ======================================================================
      MARI WORLD — a scrolling neon-noir city
-     Rooftop hero (interactive skyline) → scroll down through the city's levels.
+     Rooftop scene (the city picture, driven by scroll) → scroll down through the city's levels.
      ====================================================================== -->
 <div id="world" hidden aria-label="Mari's World — interactive creative portfolio">
-  <div class="w-bg" aria-hidden="true"></div>
+  <div class="w-bg" aria-hidden="true"><img src="assets/world-bg.webp" alt="" decoding="async"><div class="w-glow"></div><div class="w-shade"></div></div>
+  <div class="progress" aria-hidden="true"><i></i></div>
 
   <div class="hud-top" id="hud">
     <p class="w-logo" aria-hidden="true">MARI<span>://</span>WORLD</p>
@@ -726,90 +709,24 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 
   <div class="w-stage">
     <section class="w-hero" id="w-rooftop" aria-labelledby="world-title">
-      <h1 class="sr-only" id="world-title" tabindex="-1">Mari’s World — a rainy rooftop above a neon city. Scroll down to descend through Mari’s missions, career, systems, archive, records and communication channel.</h1>
-      <div class="pan" id="pan">
-        <!-- One SVG so the skyline scales cleanly on every screen. Sky is transparent: the haze behind it is .w-bg -->
-        <svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="group" aria-label="Neon city skyline seen from a rooftop">
-          <defs>
-            <radialGradient id="cityglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".35"/><stop offset=".5" stop-color="#8b3cff" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-            <linearGradient id="bld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1040"/><stop offset="1" stop-color="#0e0518"/></linearGradient>
-            <linearGradient id="bld2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1550" stop-opacity=".85"/><stop offset="1" stop-color="#140620"/></linearGradient>
-            <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#110717"/><stop offset="1" stop-color="#050208"/></linearGradient>
-            <linearGradient id="wet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".2"/><stop offset=".5" stop-color="#b04fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
-            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc2e6" stop-opacity=".75"/><stop offset=".7" stop-color="#e46bbd" stop-opacity=".55"/><stop offset="1" stop-color="#b03a95" stop-opacity="0"/></linearGradient>
-            <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9c8ff" stop-opacity=".85"/><stop offset=".6" stop-color="#8f9dff" stop-opacity=".75"/><stop offset="1" stop-color="#7b6cf0" stop-opacity=".55"/></linearGradient>
-            <linearGradient id="shoulders" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e46bbd" stop-opacity=".5"/><stop offset="1" stop-color="#7a1f6e" stop-opacity="0"/></linearGradient>
-            <pattern id="win" width="14" height="18" patternUnits="userSpaceOnUse"><rect x="3" y="4" width="5" height="7" fill="#ffb3e6" opacity=".55"/></pattern>
-            <pattern id="win2" width="10" height="14" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="3" height="5" fill="#ff8be6" opacity=".35"/><rect x="6" y="8" width="3" height="4" fill="#9fb4ff" opacity=".3"/></pattern>
-            <pattern id="win3" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="9" height="4" fill="#ff4f7b" opacity=".45"/></pattern>
-            <pattern id="scanpat" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.2" fill="#ffe1f4"/></pattern>
-            <clipPath id="nami-clip">
-              <path d="M800 112 C690 112 640 190 640 300 C640 380 650 440 660 470 L940 470 C950 440 960 380 960 300 C960 190 910 112 800 112 Z"/>
-              <path d="M720 430 C700 480 600 520 540 640 L1060 640 C1000 520 900 480 880 430 Z"/>
-            </clipPath>
-            <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
-            <filter id="blur14"><feGaussianBlur stdDeviation="14"/></filter>
-          </defs>
-
-          <rect y="380" width="1600" height="520" fill="url(#cityglow)"/>
-
-          <!-- NAMI — original giant hologram: lavender-blue bob with bangs, pink light, calm half-closed eyes -->
-          <g id="nami" aria-hidden="true">
-            <ellipse cx="800" cy="340" rx="300" ry="300" fill="#ff4fd8" opacity=".12" filter="url(#blur14)"/>
-            <g class="nami-holo">
-              <path d="M720 430 C700 480 600 520 540 640 L1060 640 C1000 520 900 480 880 430 Z" fill="url(#shoulders)"/>
-              <path d="M768 404 C772 432 770 458 760 486 C786 494 814 494 840 486 C830 458 828 432 832 404 Z" fill="url(#skin)" opacity=".7"/>
-              <ellipse cx="800" cy="305" rx="98" ry="128" fill="url(#skin)"/>
-              <!-- hair: bob silhouette + straight bangs -->
-              <path d="M800 116 C690 116 642 194 644 300 C646 370 652 430 664 468 C690 470 708 450 712 410 C704 360 704 300 716 250 L884 250 C896 300 896 360 888 410 C892 450 910 470 936 468 C948 430 954 370 956 300 C958 194 910 116 800 116 Z" fill="url(#hair)"/>
-              <path d="M708 250 C716 200 750 176 800 176 C850 176 884 200 892 250 L892 262 L708 262 Z" fill="#a9b8ff" opacity=".9"/>
-              <g stroke="#e8edff" stroke-width="1" opacity=".35" fill="none">
-                <path d="M730 262 L728 210 M760 262 L760 190 M790 262 L790 182 M820 262 L822 182 M850 262 L852 190 M876 262 L876 214"/>
-                <path d="M670 300 C668 360 676 420 690 460 M930 300 C932 360 924 420 910 460"/>
-              </g>
-              <!-- face -->
-              <path d="M748 298 q22 -10 44 0 q-22 8 -44 0 Z M808 298 q22 -10 44 0 q-22 8 -44 0 Z" fill="#2a0b2e" opacity=".85"/>
-              <path d="M752 296 q20 -8 38 0 M812 296 q20 -8 38 0" stroke="#ffe8f6" stroke-width="1.6" fill="none" opacity=".7"/>
-              <circle cx="772" cy="298" r="2" fill="#ffd1f0"/><circle cx="832" cy="298" r="2" fill="#ffd1f0"/>
-              <path d="M797 336 q3 6 6 0" stroke="#7a2a6a" stroke-width="1.5" fill="none" opacity=".6"/>
-              <path d="M782 366 q18 8 36 0 q-18 4 -36 0 Z" fill="#d4428f" opacity=".7"/>
-              <g clip-path="url(#nami-clip)">
-                <rect x="520" y="100" width="560" height="560" fill="url(#scanpat)" opacity=".28"/>
-                <rect class="nami-scan" x="520" y="96" width="560" height="10" fill="#fff" opacity=".22"/>
-              </g>
-              <ellipse cx="800" cy="186" rx="150" ry="16" fill="none" stroke="#c9d3ff" stroke-width="1.2" opacity=".5" stroke-dasharray="3 9"/>
-              <text x="800" y="666" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" letter-spacing="6" fill="#ffd6f3" opacity=".7">N · A · M · I</text>
-            </g>
-          </g>
-
-          <g id="far-city" aria-hidden="true"></g>
-          <g id="mid-city"></g>
-
-          <!-- rooftop foreground -->
-          <g aria-hidden="true">
-            <rect y="742" width="1600" height="158" fill="url(#roof)"/>
-            <rect y="742" width="1600" height="3" fill="#ff4fd8" opacity=".3"/>
-            <rect y="745" width="1600" height="60" fill="url(#wet)"/>
-            <line x1="0" y1="712" x2="1360" y2="712" stroke="#2a1838" stroke-width="5"/>
-            <g stroke="#2a1838" stroke-width="4" id="rails"></g>
-            <ellipse cx="520" cy="842" rx="190" ry="14" fill="#ff4fd8" opacity=".14"/>
-            <ellipse cx="1060" cy="862" rx="230" ry="16" fill="#b04fff" opacity=".12"/>
-          </g>
-          <g id="ledge" aria-hidden="true"></g>
-          <g id="rooftop-objects"></g>
-        </svg>
+      <h1 class="sr-only" id="world-title" tabindex="-1">Mari’s World — a rainy neon city under a giant AI hologram. Scroll down to descend through Mari’s missions, career, systems, archive, records and communication channel.</h1>
+      <div class="hero-pin">
+        <div class="hero-copy" id="hero-copy">
+          <p>Mari’s World · rooftop level</p>
+          <h2>Every city keeps a record.<br>This one keeps mine.</h2>
+        </div>
+        <div class="hero-beat" id="hero-beat">
+          <h2>Below the rain, six levels.</h2>
+          <p>Keep scrolling to descend through the city, or jump straight to a level.</p>
+          <ul class="chips" id="chips"></ul>
+        </div>
+        <button class="scroll-cue" type="button" id="scroll-cue"><span>SCROLL TO DESCEND</span><i aria-hidden="true"></i></button>
       </div>
-      <div class="hero-copy" id="hero-copy">
-        <p>Mari’s World · rooftop level</p>
-        <h2>Every city keeps a record.<br>This one keeps mine.</h2>
-      </div>
-      <button class="scroll-cue" type="button" id="scroll-cue"><span>DESCEND</span><i aria-hidden="true"></i></button>
-      <p class="swipe-hint" id="swipe-hint" aria-hidden="true">← swipe to look around →</p>
     </section>
 
     <section class="w-sec" id="w-missions" data-level="Level 01" aria-labelledby="w-missions-h">
       <div class="w-wrap">
-        <div class="w-head w-reveal"><p class="w-level">Level 01 · Mission district</p><h2 id="w-missions-h">Missions</h2><p>Every glowing tower on the skyline is a mission Mari has run. Open a dossier for the full brief.</p></div>
+        <div class="w-head w-reveal"><p class="w-level">Level 01 · Mission district</p><h2 id="w-missions-h">Missions</h2><p>Every lit window in this city is a mission Mari has run. Open a dossier for the full brief.</p></div>
         <div class="dossiers" id="dossiers"></div>
       </div>
     </section>
@@ -823,7 +740,7 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 
     <section class="w-sec" id="w-console" aria-labelledby="w-console-h">
       <div class="w-wrap">
-        <div class="w-head w-reveal"><p class="w-level">Level 03 · System Console</p><h2 id="w-console-h">System modules online</h2><p>The console on the roof is still humming. Each module is a skill area Mari has installed.</p></div>
+        <div class="w-head w-reveal"><p class="w-level">Level 03 · System Console</p><h2 id="w-console-h">System modules online</h2><p>Somewhere below the rooftops a console is still humming. Each module is a skill area Mari has installed.</p></div>
         <div class="console w-reveal"><p class="ln" id="console-ln" aria-hidden="true"></p><div class="modules" id="modules"></div></div>
       </div>
     </section>
@@ -1081,7 +998,7 @@ const portfolioData = {
     { title: "Placeholder milestone", note: "e.g. hackathon, award or promotion.", year: "20XX" }
   ],
   lab: [
-    { name: "Neon skyline generator", note: "Procedural city silhouettes for this world.", state: "RUNNING" },
+    { name: "Scroll camera", note: "The rooftop scene that zooms and pans as you scroll.", state: "RUNNING" },
     { name: "Voice-to-SQL notebook", note: "Ask a question out loud, get a query back.", state: "PROTOTYPE" },
     { name: "Data-quality radar", note: "A strange circular chart for pipeline health.", state: "UNSTABLE" },
     { name: "Luffy’s nap tracker", note: "Highly classified. Results inconclusive.", state: "CLASSIFIED" },
@@ -1350,9 +1267,9 @@ const PERSONAS = {
       greeting: () => "Oh. Hello. You may pet the screen. Gently.",
       who: () => `My human. ${CONFIG.name} builds data platforms by day and strange neon cities by night. I supervise both.`,
       tech: () => `A dangerous amount. ${P.about.enjoys.slice(0, 5).join(", ")}… humans apparently enjoy collecting frameworks. I collect naps.`,
-      projects: () => "Ah, snooping around the city already? Fine. The glowing towers over there are Mari’s projects. Pick one before I change my mind. 🐾",
+      projects: () => "Ah, snooping around the city already? Fine. Scroll down to the Mission district. Every dossier there is one of Mari’s projects. Pick one before I change my mind. 🐾",
       current: () => `Currently Mari is “${P.currentWork[0].title.toLowerCase()}” instead of refilling my bowl. Priorities, apparently.`,
-      experience: () => "See the tall tower with the floors? Every floor is a job. The top one is where Mari is now. The elevator is fake. Take the stairs.",
+      experience: () => "Scroll down to the Career Tower. Every floor is a job. The top one is where Mari is now. The elevator is fake. Take the stairs.",
       contact: () => "I suppose I can allow that. Give me your details and I’ll make sure the human sees them.",
       achievements: () => "There’s a vault on the rooftop with the trophies. I’d show you, but I’m lying on it.",
       location: () => "Here. Obviously. This rooftop. Mind the puddles.",
@@ -1451,7 +1368,7 @@ async function routeMessage(text) {
   }
   // Per-project questions ("tell me about the lakehouse")
   const proj = P.projects.find((p) => text.toLowerCase().includes(p.sign.toLowerCase()) || text.toLowerCase().includes(p.name.toLowerCase().split(" ")[0].toLowerCase()));
-  if (proj) return { text: persona === "luffy" ? `${proj.name}. ${proj.result} Click its tower if you want the full mission brief.` : `${proj.name}: ${proj.description}\nResult: ${proj.result}` };
+  if (proj) return { text: persona === "luffy" ? `${proj.name}. ${proj.result} Open its dossier in the Mission district for the full brief.` : `${proj.name}: ${proj.description}\nResult: ${proj.result}` };
 
   // 4. FUTURE LLM (returns null in the prototype)
   const llm = await askLLM(persona, text, chatState.history[persona]);
@@ -1519,174 +1436,14 @@ function initChat() {
 }
 
 /* ==========================================================================
-   MARI WORLD — scene construction (rooftop hero)
+   MARI WORLD — the city picture is the background; scroll moves through it
    ========================================================================== */
-const SVGNS = "http://www.w3.org/2000/svg";
-function svg(tag, attrs = {}, parent) {
-  const el = document.createElementNS(SVGNS, tag);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  if (parent) parent.appendChild(el);
-  return el;
-}
-// small deterministic PRNG so the skyline looks the same on every visit
-function rng(seed) { return () => ((seed = (seed * 16807) % 2147483647) / 2147483647); }
 const worldEl = () => $("#world");
-
-function buildFarCity() {
-  const g = $("#far-city"), r = rng(11);
-  let x = -20;
-  while (x < 1620) {
-    const centre = x > 560 && x < 1040;             // keep the middle low so Nami rises above it
-    const w = 30 + r() * 70, h = (centre ? 90 : 140) + r() * (centre ? 120 : 280), y = 650 - h;
-    svg("rect", { x, y, width: w, height: h, fill: "url(#bld2)" }, g);
-    svg("rect", { x: x + 4, y: y + 8, width: w - 8, height: h - 16, fill: r() > .5 ? "url(#win2)" : "url(#win3)", opacity: (.35 + r() * .5).toFixed(2), class: r() > .8 ? "blink-win" : "" }, g);
-    if (r() > .72) { svg("rect", { x: x + w / 2 - 1, y: y - 30, width: 2, height: 30, fill: "#5a2b66" }, g); svg("circle", { cx: x + w / 2, cy: y - 32, r: 2.5, fill: "#ff3f6d", class: "blink-win" }, g); }
-    x += w + 4 + r() * 10;
-  }
-}
-
-/* PROJECT MISSIONS — each featured project becomes a tower with a neon sign.
-   Positions keep the centre clear for Nami and stay inside the safe area (x 80–1520). */
-const TOWERS = [
-  { x: 92, w: 140, h: 430, hue: "#ff4fd8" },
-  { x: 262, w: 124, h: 330, hue: "#8fa8ff" },
-  { x: 1064, w: 140, h: 400, hue: "#c084fc" },
-  { x: 1232, w: 120, h: 310, hue: "#ff7a9c" }
-];
-const locations = []; // registry used by keyboard navigation and hover reactions
-
-function addLoc(g, { id, type, label, ref, hidden: isHidden }) {
-  g.classList.add("loc");
-  g.setAttribute("tabindex", isHidden ? "-1" : "0");
-  g.setAttribute("role", "button");
-  g.setAttribute("aria-label", label);
-  g.dataset.type = type; g.dataset.ref = ref ?? "";
-  g.id = `loc-${id}`;
-  g.addEventListener("click", () => openLocation(type, ref, g));
-  g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLocation(type, ref, g); } });
-  g.addEventListener("mouseenter", () => hoverLocation(type, ref));
-  g.addEventListener("focus", () => hoverLocation(type, ref));
-  locations.push({ id, type, ref, label, el: g, hidden: !!isHidden });
-}
-
-function buildMidCity() {
-  const g = $("#mid-city");
-  // low filler blocks (non-interactive); the centre stays low so the hologram reads
-  [[0, 90, 250], [400, 110, 200], [610, 120, 150], [760, 90, 120], [880, 130, 160], [1360, 110, 230], [1480, 120, 260]].forEach(([x, w, h]) => {
-    svg("rect", { x, y: 712 - h, width: w, height: h, fill: "url(#bld)" }, g);
-    svg("rect", { x: x + 6, y: 712 - h + 10, width: w - 12, height: h - 20, fill: "url(#win)", opacity: .3 }, g);
-  });
-
-  P.projects.filter((p) => p.featured).slice(0, TOWERS.length).forEach((p, i) => {
-    const t = TOWERS[i], y = 712 - t.h;
-    const tg = svg("g", {}, g);
-    svg("rect", { class: "glow", x: t.x - 14, y: y - 14, width: t.w + 28, height: t.h + 28, rx: 8, fill: t.hue, opacity: .28, filter: "url(#blur6)" }, tg);
-    const body = svg("g", { class: "body" }, tg);
-    svg("rect", { x: t.x, y, width: t.w, height: t.h, fill: "url(#bld)", stroke: t.hue, "stroke-opacity": .35 }, body);
-    svg("rect", { x: t.x + 8, y: y + 70, width: t.w - 16, height: t.h - 80, fill: "url(#win)", opacity: .55 }, body);
-    svg("rect", { class: "focus-ring", x: t.x - 6, y: y - 6, width: t.w + 12, height: t.h + 12, fill: "none", stroke: "none", rx: 6 }, tg);
-    const sign = svg("g", { class: `sign s${(i % 3) + 1}` }, tg);
-    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: "#13061d", stroke: t.hue, "stroke-width": 2 }, sign);
-    const fs = Math.min(16, ((t.w - 30) / p.sign.length - 3) / 0.6).toFixed(1);
-    svg("text", { x: t.x + t.w / 2, y: y + 41, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-weight": 700, "font-size": fs, "letter-spacing": 3, fill: t.hue }, sign).textContent = p.sign;
-    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: t.hue, opacity: .14, filter: "url(#blur6)" }, sign);
-    const mk = svg("g", { class: "marker" }, tg);
-    svg("path", { d: `M${t.x + t.w / 2} ${y - 46} l12 14 l-12 14 l-12 -14 z`, fill: "none", stroke: t.hue, "stroke-width": 2.5 }, mk);
-    svg("circle", { cx: t.x + t.w / 2, cy: y - 32, r: 3, fill: t.hue }, mk);
-    addLoc(tg, { id: p.id, type: "project", ref: p.id, label: `Mission: ${p.name}` });
-  });
-
-  // CAREER TIMELINE TOWER — one lit floor per role (top floor = current)
-  const cx = 418, cw = 110, floorH = 62, base = 712, exp = P.experience;
-  const ctg = svg("g", {}, g);
-  const top = base - exp.length * floorH - 80;
-  svg("rect", { x: cx + cw / 2 - 2, y: top - 60, width: 4, height: 60, fill: "#7a3b8a" }, ctg);
-  svg("circle", { cx: cx + cw / 2, cy: top - 64, r: 4, fill: "#ff3f6d", class: "blink-win" }, ctg);
-  svg("rect", { x: cx, y: top, width: cw, height: 80, fill: "url(#bld)", stroke: "#ff9be4", "stroke-opacity": .45 }, ctg);
-  svg("text", { x: cx + cw / 2, y: top + 46, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 13, "font-weight": 700, "letter-spacing": 2, fill: "#ffd6f3", class: "sign s2" }, ctg).textContent = "CAREER";
-  exp.forEach((e, i) => {
-    const fy = top + 80 + i * floorH;
-    const fg = svg("g", {}, ctg);
-    svg("rect", { class: "glow", x: cx - 10, y: fy - 4, width: cw + 20, height: floorH + 8, fill: "#ff9be4", opacity: .3, filter: "url(#blur6)" }, fg);
-    const b = svg("g", { class: "body" }, fg);
-    svg("rect", { x: cx, y: fy, width: cw, height: floorH - 4, fill: "#1a0a26", stroke: e.current ? "#5eead4" : "#c084fc", "stroke-opacity": e.current ? .9 : .45 }, b);
-    for (let k = 0; k < 4; k++) svg("rect", { x: cx + 12 + k * 24, y: fy + 16, width: 13, height: 24, fill: e.current ? "#5eead4" : "#ffb3e6", opacity: e.current ? .7 : .4 }, b);
-    svg("rect", { class: "focus-ring", x: cx - 4, y: fy - 3, width: cw + 8, height: floorH + 2, fill: "none", stroke: "none" }, fg);
-    addLoc(fg, { id: `floor-${i}`, type: "career", ref: i, label: `Career tower, floor ${exp.length - i}: ${e.role}, ${e.dates}` });
-  });
-}
-
-/* The lone cloaked figure on the rooftop ledge (original silhouette — no logos, no franchise likeness). */
-function buildLedge() {
-  const g = $("#ledge");
-  svg("path", { d: "M1360 652 L1600 652 L1600 900 L1360 900 Z", fill: "#07030c" }, g);
-  svg("rect", { x: 1360, y: 646, width: 240, height: 8, fill: "#1d0f28" }, g);
-  svg("rect", { x: 1360, y: 646, width: 240, height: 2, fill: "#ff4fd8", opacity: .45 }, g);
-  svg("ellipse", { cx: 1452, cy: 654, rx: 60, ry: 5, fill: "#ff4fd8", opacity: .18 }, g);
-  const fig = svg("g", { transform: "translate(1452 646) scale(1.4)" }, g);
-  // cape billowing to the left in the wind
-  svg("path", { class: "cape", d: "M-10 -96 C-40 -70 -78 -40 -96 -6 C-70 -14 -52 -8 -36 0 C-30 -30 -22 -60 -10 -96 Z", fill: "#0a0510", stroke: "#ff4fd8", "stroke-opacity": .35, "stroke-width": 1.2 }, fig);
-  // body
-  svg("path", { d: "M-14 -100 C-18 -80 -18 -50 -12 -30 L-10 0 L-3 0 L0 -28 L3 0 L10 0 L12 -30 C18 -50 18 -80 14 -100 Z", fill: "#0a0510" }, fig);
-  // shoulders + hood
-  svg("path", { d: "M-22 -96 C-14 -108 14 -108 22 -96 L14 -92 L-14 -92 Z", fill: "#0a0510" }, fig);
-  svg("path", { d: "M-9 -106 C-10 -122 10 -122 9 -106 C6 -100 -6 -100 -9 -106 Z", fill: "#0a0510" }, fig);
-  // pink rim light
-  svg("path", { d: "M14 -100 C18 -80 18 -50 12 -30 L10 0", fill: "none", stroke: "#ff6ad5", "stroke-width": 1.4, opacity: .7 }, fig);
-  svg("path", { d: "M9 -106 C10 -118 4 -121 0 -121", fill: "none", stroke: "#ff6ad5", "stroke-width": 1.2, opacity: .7 }, fig);
-}
-
-function buildRooftop() {
-  const g = $("#rooftop-objects");
-  const rails = $("#rails");
-  for (let x = 20; x < 1360; x += 60) svg("line", { x1: x, y1: 712, x2: x, y2: 742 }, rails);
-  const obj = (id, type, label, draw, lx, ly, text, extra = {}) => {
-    const og = svg("g", extra.cls ? { class: extra.cls } : {}, g);
-    draw(og);
-    if (text) svg("text", { class: "loc-label", x: lx, y: ly, "text-anchor": "middle" }, og).textContent = text;
-    addLoc(og, { id, type, ref: null, label, hidden: extra.hidden });
-  };
-  obj("archive", "archive", "Mission Archive terminal: smaller projects and experiments", (o) => {
-    svg("rect", { class: "glow", x: 150, y: 640, width: 150, height: 130, fill: "#5fd4a0", opacity: .3, filter: "url(#blur6)" }, o);
-    const b = svg("g", { class: "body" }, o);
-    svg("rect", { x: 170, y: 700, width: 110, height: 70, rx: 4, fill: "#0b1410", stroke: "#1f6b4f" }, b);
-    svg("rect", { x: 182, y: 650, width: 86, height: 58, rx: 4, fill: "#03140d", stroke: "#5fd4a0", "stroke-width": 2 }, b);
-    for (let k = 0; k < 4; k++) svg("rect", { x: 190, y: 660 + k * 11, width: 30 + ((k * 23) % 40), height: 4, fill: "#5fd4a0", opacity: .8 }, b);
-    svg("rect", { class: "focus-ring", x: 160, y: 642, width: 130, height: 136, fill: "none", stroke: "none" }, o);
-  }, 225, 800, "MISSION ARCHIVE");
-  obj("console", "console", "System Console: skills and system modules", (o) => {
-    svg("rect", { class: "glow", x: 470, y: 650, width: 190, height: 120, fill: "#8b5cff", opacity: .35, filter: "url(#blur6)" }, o);
-    const b = svg("g", { class: "body" }, o);
-    svg("path", { d: "M480 770 L500 700 L630 700 L650 770 Z", fill: "#110a1f", stroke: "#8b5cff" }, b);
-    svg("rect", { x: 505, y: 655, width: 120, height: 50, rx: 3, fill: "#0a061a", stroke: "#b49bff", "stroke-width": 2 }, b);
-    [[515, 668, "#5eead4"], [515, 680, "#b49bff"], [515, 692, "#ff6ad5"]].forEach(([x, y, c], k) => svg("rect", { x, y, width: 50 + k * 18, height: 5, fill: c, opacity: .85 }, b));
-    for (let k = 0; k < 6; k++) svg("circle", { cx: 515 + k * 20, cy: 735, r: 4, fill: ["#5eead4", "#ff6ad5", "#b49bff"][k % 3], class: k % 2 ? "blink-win" : "" }, b);
-    svg("rect", { class: "focus-ring", x: 475, y: 650, width: 180, height: 126, fill: "none", stroke: "none" }, o);
-  }, 565, 800, "SYSTEM CONSOLE");
-  obj("vault", "achievements", "Achievement Vault: encrypted records", (o) => {
-    svg("rect", { class: "glow", x: 790, y: 680, width: 150, height: 100, fill: "#f5c26b", opacity: .3, filter: "url(#blur6)" }, o);
-    const b = svg("g", { class: "body" }, o);
-    svg("rect", { x: 805, y: 700, width: 120, height: 70, rx: 6, fill: "#15100a", stroke: "#f5c26b", "stroke-opacity": .7 }, b);
-    svg("circle", { cx: 865, cy: 735, r: 16, fill: "none", stroke: "#f5c26b", "stroke-width": 3 }, b);
-    svg("path", { d: "M865 735 l8 -8", stroke: "#f5c26b", "stroke-width": 3 }, b);
-    svg("rect", { class: "focus-ring", x: 798, y: 694, width: 134, height: 82, fill: "none", stroke: "none" }, o);
-  }, 865, 800, "ACHIEVEMENT VAULT");
-  obj("comms", "comms", "Communication Channel: contact Mari", (o) => {
-    svg("rect", { class: "glow", x: 1150, y: 560, width: 170, height: 210, fill: "#ff6ad5", opacity: .3, filter: "url(#blur6)" }, o);
-    const b = svg("g", { class: "body" }, o);
-    svg("path", { d: "M1235 770 L1220 640 L1250 640 Z", fill: "#160b20", stroke: "#ff6ad5", "stroke-opacity": .6 }, b);
-    svg("path", { d: "M1180 630 Q1235 560 1290 630 Z", fill: "#1a0b24", stroke: "#ff6ad5", "stroke-width": 2 }, b);
-    svg("line", { x1: 1235, y1: 610, x2: 1235, y2: 575, stroke: "#ff6ad5", "stroke-width": 2 }, b);
-    svg("circle", { cx: 1235, cy: 572, r: 5, fill: "#ff6ad5", class: "blink-win" }, b);
-    svg("rect", { class: "focus-ring", x: 1170, y: 560, width: 130, height: 214, fill: "none", stroke: "none" }, o);
-  }, 1235, 800, "COMMS CHANNEL");
-  obj("lab", "lab", "A flickering hatch: The Lab", (o) => {
-    const b = svg("g", { class: "body" }, o);
-    svg("rect", { x: 1010, y: 760, width: 80, height: 34, rx: 3, fill: "#0b0d06", stroke: "#c6ff3d", "stroke-opacity": .6 }, b);
-    svg("rect", { class: "lab-light", x: 1018, y: 768, width: 64, height: 6, fill: "#c6ff3d", opacity: .8 }, b);
-    svg("text", { x: 1050, y: 788, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 10, fill: "#c6ff3d", opacity: .8 }, b).textContent = "? ? ?";
-    svg("rect", { class: "focus-ring", x: 1004, y: 754, width: 92, height: 46, fill: "none", stroke: "none" }, o);
-  }, 0, 0, "", { cls: "lab dormant", hidden: true });
+let labAwake = false;
+const CHIP_LEVELS = [["w-missions", "MISSIONS"], ["w-career", "CAREER"], ["w-console", "CONSOLE"], ["w-archive", "ARCHIVE"], ["w-vault", "VAULT"], ["w-comms", "COMMS"]];
+function buildHero() {
+  $("#chips").innerHTML = CHIP_LEVELS.map(([id, n]) => `<li><button type="button" data-level="${id}">${n}</button></li>`).join("");
+  $("#chips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) goToLevel(b.dataset.level); });
 }
 
 /* ==========================================================================
@@ -1702,6 +1459,7 @@ function renderWorldSections() {
       <span class="open">OPEN MISSION BRIEF →</span>
     </button>`).join("");
   $("#dossiers").addEventListener("click", (e) => { const d = e.target.closest("[data-mission]"); if (d) openLocation("project", d.dataset.mission, d); });
+  $$("#dossiers [data-mission]").forEach((d) => ["mouseenter", "focus"].forEach((ev) => d.addEventListener(ev, () => hoverLocation("project", d.dataset.mission))));
 
   const exp = P.experience;
   $("#tower").innerHTML = exp.map((e, i) => `
@@ -1788,7 +1546,7 @@ function luffySay(text, ms = 4200) {
 
 /* ==========================================================================
    PROJECT MISSIONS + LOCATIONS
-   Towers open a cinematic Mission Brief; rooftop objects take you down to
+   Dossiers open a cinematic Mission Brief; level buttons take you down to
    their level of the city; the Lab opens its own (hidden) dialog.
    ========================================================================== */
 let lastHover = "", visited = new Set(), lastTrigger = null;
@@ -1881,11 +1639,8 @@ function typeLines(el, lines) {
 }
 
 function wakeLab() {
-  const lab = locations.find((l) => l.type === "lab");
-  if (!lab || !lab.hidden) return;
-  lab.hidden = false;
-  lab.el.classList.remove("dormant"); lab.el.classList.add("awake");
-  lab.el.setAttribute("tabindex", "0");
+  if (labAwake) return;
+  labAwake = true;
   const door = $("#sealed");
   door.classList.add("awake"); door.removeAttribute("aria-disabled");
   door.textContent = "⌁ SUB-LEVEL UNSEALED · ENTER THE LAB";
@@ -1896,9 +1651,8 @@ function wakeLab() {
 /* City levels — quick navigation (keyboard + mobile friendly) */
 const LEVELS = [["w-rooftop", "ROOFTOP"], ["w-missions", "MISSIONS"], ["w-career", "CAREER"], ["w-console", "CONSOLE"], ["w-archive", "ARCHIVE"], ["w-vault", "VAULT"], ["w-comms", "COMMS"]];
 function renderMap(labNew = false) {
-  const lab = locations.find((l) => l.type === "lab");
   $("#map-list").innerHTML = LEVELS.map(([id, n]) => `<li><button type="button" class="loc-btn" data-level="${id}">${n}</button></li>`).join("") +
-    (lab && !lab.hidden ? `<li><button type="button" class="loc-btn ${labNew ? "new" : ""}" data-lab="1">THE LAB</button></li>` : "");
+    (labAwake ? `<li><button type="button" class="loc-btn ${labNew ? "new" : ""}" data-lab="1">THE LAB</button></li>` : "");
 }
 function initMap() {
   renderMap();
@@ -1931,32 +1685,34 @@ function initLevels() {
   LEVELS.forEach(([id]) => levels.observe($("#" + id)));
 }
 
-/* Parallax: hologram and far skyline drift slower than the page; hero text fades */
-let parallaxRaf = 0;
+/* Scroll-driven scene. Rooftop (pinned): zoom out from the hologram while the camera
+   drifts toward the cloaked figure, then the level menu appears. Below it the city keeps
+   moving behind the content: slow push-in, drift back across the skyline, darker for reading. */
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const smooth = (v) => { v = clamp01(v); return v * v * (3 - 2 * v); };
+let sceneRaf = 0;
 function onWorldScroll() {
-  if (parallaxRaf) return;
-  parallaxRaf = requestAnimationFrame(() => {
-    parallaxRaf = 0;
-    const y = worldEl().scrollTop, h = innerHeight;
-    $("#hud").classList.toggle("solid", y > h * .6);
-    if (reduceMotion || y > h * 1.2) return;
-    $("#nami").setAttribute("transform", `translate(0 ${(y * .28).toFixed(1)})`);
-    $("#far-city").setAttribute("transform", `translate(0 ${(y * .14).toFixed(1)})`);
-    $("#hero-copy").style.opacity = String(Math.max(0, 1 - y / (h * .45)));
+  if (sceneRaf) return;
+  sceneRaf = requestAnimationFrame(() => {
+    sceneRaf = 0;
+    const w = worldEl(), y = w.scrollTop, vh = innerHeight;
+    const span = Math.max(1, $("#w-rooftop").offsetHeight - vh);
+    const p = clamp01(y / span);                                          // progress through the rooftop scene
+    const rest = clamp01((y - span) / Math.max(1, w.scrollHeight - vh - span)); // progress through the levels
+    $("#hud").classList.toggle("solid", y > vh * .6);
+    const v = (k, val) => w.style.setProperty(k, val);
+    v("--prog", (y / Math.max(1, w.scrollHeight - vh)).toFixed(4));
+    v("--shade", (smooth((y - span * .85) / (vh * .7)) * .6).toFixed(3));
+    const beat = smooth((p - .42) / .2) * (1 - smooth((p - .9) / .1));
+    $("#hero-beat").inert = beat < .5;
+    if (reduceMotion) { v("--c1", 1); v("--c2", 1); $("#hero-beat").inert = false; return; }
+    v("--c1", (1 - smooth((p - .22) / .18)).toFixed(3));
+    v("--c2", beat.toFixed(3));
+    const zoom = 1.3 - .3 * smooth(p / .7);                              // 1.3 → 1.0 on the rooftop
+    v("--bs", (p < 1 ? zoom : 1 + .12 * rest).toFixed(4));              // then a slow push-in
+    v("--bx", `${(p < 1 ? 50 + 38 * smooth((p - .3) / .7) : 88 - 70 * smooth(rest)).toFixed(2)}%`);
+    v("--by", `${(-rest * vh * .05).toFixed(1)}px`);
   });
-}
-
-function centerPan() {
-  requestAnimationFrame(() => { const pan = $("#pan"); pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; });
-}
-/* Fit the skyline: fill wide screens; on portrait screens keep full height and let visitors swipe */
-function fitScene() {
-  const a = innerWidth / innerHeight;
-  const pannable = a < 1.05;
-  const was = document.body.classList.contains("pannable");
-  document.body.classList.toggle("pannable", pannable);
-  if (pannable) { $("#scene").setAttribute("preserveAspectRatio", "xMidYMax slice"); if (!was) centerPan(); return; }
-  $("#scene").setAttribute("preserveAspectRatio", a >= 1.6 ? "xMidYMax slice" : "xMidYMid meet");
 }
 
 /* ==========================================================================
@@ -1974,7 +1730,7 @@ function initRain() {
     rain.drops = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, l: 10 + Math.random() * 18, v: 9 + Math.random() * 9, o: .12 + Math.random() * .3 }));
   };
   size();
-  addEventListener("resize", () => { size(); fitScene(); });
+  addEventListener("resize", () => { size(); onWorldScroll(); });
 }
 function rainFrame() {
   const { ctx, drops } = rain;
@@ -1998,7 +1754,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) stopR
 let mode = "pro", worldBuilt = false;
 function buildWorld() {
   if (worldBuilt) return;
-  buildFarCity(); buildMidCity(); buildLedge(); buildRooftop(); renderWorldSections(); initMap(); initRain();
+  buildHero(); renderWorldSections(); initMap(); initRain();
   worldEl().addEventListener("scroll", onWorldScroll, { passive: true });
   $("#scroll-cue").addEventListener("click", () => goToLevel("w-missions"));
   $("#sealed").addEventListener("click", (e) => { if (e.currentTarget.classList.contains("awake")) openLocation("lab", null, e.currentTarget); else namiSay("Sealed. Explore the city first.", 2600); });
@@ -2020,22 +1776,20 @@ async function enterWorld() {
   $("#world").hidden = false;
   document.body.style.overflow = "hidden";
   scrollTo(0, 0); worldEl().scrollTop = 0;
-  fitScene(); centerPan();
+  onWorldScroll();
   if (!worldEl().dataset.levels) { initLevels(); worldEl().dataset.levels = "1"; }
   startRain();                                    // 3. rain appears
   $("#veil").classList.remove("on");
-  document.body.classList.add("world-on");        // 4. neon skyline fades in
+  document.body.classList.add("world-on");        // 4. the city fades in
   chatState.persona = "luffy"; renderChatPersona();
   $("#chat-fab").style.opacity = "0";
   $("#world-title").focus({ preventScroll: true });
   await wait(1300);
-  $("#nami").classList.add("on");                 // 5. Nami hologram activates
-  namiSay(NAMI_LINES[0]);
+  namiSay(NAMI_LINES[0]);                         // 5. Nami (the hologram) speaks
   await wait(1400);
   $("#chat-fab").style.transition = "opacity .6s"; // 6. Luffy appears
   $("#chat-fab").style.opacity = "1";
   luffySay("Mrrp. Another one. Scroll down if you want the tour. Or click me. I’m more interesting. 🐾", 5200);
-  if (document.body.classList.contains("pannable")) { const h = $("#swipe-hint"); h.classList.add("show"); setTimeout(() => h.classList.remove("show"), 5000); }
   startNami();
 }
 
@@ -2046,7 +1800,6 @@ async function exitWorld() {
   setChatOpen(false);
   $("#nami-say").classList.remove("show");
   $("#luffy-bubble").classList.remove("show");
-  $("#nami").classList.remove("on");
   await wait(300);
   $("#veil").classList.add("on");
   $("#boot-text").textContent = "RETURNING TO PUBLIC RECORDS";
