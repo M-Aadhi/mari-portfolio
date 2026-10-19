@@ -96,7 +96,7 @@ body.leaving-pro #pro{opacity:0;filter:blur(6px)}
 .hero-meta svg{width:16px;height:16px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px;align-items:center}
 .hero-card{background:linear-gradient(180deg,var(--card),var(--bg-2));border:1px solid var(--line);border-radius:22px;padding:26px;position:relative;overflow:hidden}
-.avatar{width:132px;height:132px;border-radius:30px;display:grid;place-items:center;font-size:2.6rem;font-weight:650;letter-spacing:-.03em;color:var(--accent-2);background:radial-gradient(circle at 30% 25%,#2b3046,#151821);border:1px solid var(--line-2);overflow:hidden}
+.avatar{width:100%;aspect-ratio:1/1;height:auto;border-radius:18px;display:grid;place-items:center;font-size:2.6rem;font-weight:650;letter-spacing:-.03em;color:var(--accent-2);background:radial-gradient(circle at 30% 25%,#2b3046,#151821);border:1px solid var(--line-2);overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .now{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
 .label{font-size:.75rem;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -244,95 +244,190 @@ form.cform{background:var(--card);border:1px solid var(--line);border-radius:20p
 .chat-form button{min-width:44px;min-height:44px;border-radius:12px;border:0;background:var(--text);color:#0b0c10;cursor:pointer;font-weight:700}
 
 /* ==========================================================================
-   MARI WORLD
+   MARI WORLD — a scrolling neon-noir city
+   (pink/violet haze, rain, a giant AI hologram, a cloaked figure on the ledge)
    ========================================================================== */
-#world{position:fixed;inset:0;z-index:30;background:linear-gradient(#05030f 0 50%,#020106 50%);color:#e8e6ff;overflow:hidden;font-family:var(--font)}
-#world .scene-wrap{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
-body.world-on #world .scene-wrap{opacity:1}
+#world{position:fixed;inset:0;z-index:30;overflow-y:auto;overflow-x:hidden;color:#f6eaff;font-family:var(--font);background:#0c0416;overscroll-behavior:contain;scroll-behavior:smooth}
+.w-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(60% 50% at 50% 34%,#c2309a59,transparent 70%),
+  radial-gradient(55% 45% at 12% 82%,#5b1d9a4d,transparent 70%),
+  radial-gradient(45% 40% at 90% 72%,#ff3fa438,transparent 70%),
+  linear-gradient(#150623,#2c0b3d 42%,#3d0f48 68%,#14051f)}
+.w-fx{position:fixed;inset:0;z-index:1;pointer-events:none}
+#rain{position:fixed;inset:0;z-index:4;width:100%;height:100%;pointer-events:none}
+.fog{position:absolute;left:-10%;right:-10%;height:42%;bottom:12%;background:radial-gradient(60% 50% at 50% 60%,#ff4fd826,transparent 70%),radial-gradient(40% 40% at 20% 70%,#8b5cff1f,transparent 70%);filter:blur(10px);animation:drift 26s ease-in-out infinite alternate}
+.fog.f2{bottom:-4%;height:30%;opacity:.8;animation-duration:34s;animation-direction:alternate-reverse;background:radial-gradient(50% 60% at 70% 50%,#c084fc1f,transparent 70%)}
+@keyframes drift{to{transform:translateX(5%)}}
+.vignette{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,#05010acc 100%)}
+.scanlines{position:absolute;inset:0;opacity:.05;background:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.w-stage{position:relative;z-index:2;opacity:0;transition:opacity 1.6s ease}
+body.world-on .w-stage{opacity:1}
+
+/* --- Rooftop hero ------------------------------------------------------- */
+.w-hero{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden}
 .pan{position:absolute;inset:0;overflow:hidden}
 #scene{position:absolute;inset:0;width:100%;height:100%}
-/* Portrait phones/tablets: full-height skyline you can swipe across */
 body.pannable .pan{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 body.pannable .pan::-webkit-scrollbar{display:none}
-body.pannable #scene{position:relative;width:calc(100dvh * 16 / 9);height:100%;max-width:none}
-.swipe-hint{position:absolute;left:50%;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 60px);transform:translateX(-50%);z-index:6;font:600 .78rem var(--mono);letter-spacing:.14em;color:#c9fff6;background:#071a24cc;border:1px solid #5eead455;border-radius:999px;padding:8px 14px;pointer-events:none;opacity:0;transition:opacity .6s;white-space:nowrap}
+body.pannable #scene{position:relative;width:calc(max(100svh,520px) * 16 / 9);height:100%;max-width:none}
+.hero-copy{position:absolute;left:0;right:0;top:clamp(78px,13vh,130px);z-index:4;text-align:center;pointer-events:none;padding:0 16px;transition:opacity .2s}
+.hero-copy h2{font:300 clamp(1.7rem,1rem + 3.2vw,3.4rem)/1.18 var(--font);letter-spacing:.01em;color:#fff;text-shadow:0 0 32px #ff4fd8b3,0 2px 18px #000}
+.hero-copy p{margin-bottom:12px;font:600 .74rem var(--mono);letter-spacing:.34em;color:#ffb8ec;text-transform:uppercase;text-shadow:0 0 12px #000}
+.scroll-cue{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;display:inline-flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;padding:6px 16px;border:0;background:none;color:#ffd6f3;font:600 .7rem var(--mono);letter-spacing:.3em;cursor:pointer;text-shadow:0 0 10px #000}
+.scroll-cue i{display:block;width:2px;height:28px;background:linear-gradient(#ff6ad5,transparent);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%,100%{opacity:.3;transform:translateY(-4px)}50%{opacity:1;transform:translateY(4px)}}
+.swipe-hint{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);z-index:6;font:600 .76rem var(--mono);letter-spacing:.14em;color:#ffe3f6;background:#2a0a33cc;border:1px solid #ff6ad566;border-radius:999px;padding:8px 14px;pointer-events:none;opacity:0;transition:opacity .6s;white-space:nowrap}
 .swipe-hint.show{opacity:1}
-#rain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.fog{position:absolute;left:-10%;right:-10%;height:46%;bottom:18%;pointer-events:none;background:radial-gradient(60% 50% at 50% 60%,#7a5cff22,transparent 70%),radial-gradient(40% 40% at 20% 70%,#ff4fd81a,transparent 70%);filter:blur(8px);animation:drift 26s ease-in-out infinite alternate}
-.fog.f2{bottom:6%;height:30%;opacity:.7;animation-duration:34s;animation-direction:alternate-reverse;background:radial-gradient(50% 60% at 70% 50%,#2ee6ff1a,transparent 70%)}
-@keyframes drift{to{transform:translateX(5%)}}
-.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,#000c 100%)}
-.scanlines{position:absolute;inset:0;pointer-events:none;opacity:.06;background:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
 
-/* SVG scene styling */
+/* SVG scene */
 #scene .loc{cursor:pointer;outline:none}
 #scene .loc .glow{opacity:0;transition:opacity .3s}
 #scene .loc:hover .glow,#scene .loc:focus-visible .glow,#scene .loc.hot .glow{opacity:1}
 #scene .loc:focus-visible .focus-ring{stroke:#fff;stroke-width:3;stroke-dasharray:6 5}
 #scene .loc .body{transition:filter .3s}
-#scene .loc:hover .body,#scene .loc:focus-visible .body,#scene .loc.hot .body{filter:brightness(1.6)}
+#scene .loc:hover .body,#scene .loc:focus-visible .body,#scene .loc.hot .body{filter:brightness(1.7)}
 #scene .sign{animation:neon 5s infinite}
 #scene .sign.s2{animation-delay:1.7s}#scene .sign.s3{animation-delay:3.1s}
 @keyframes neon{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.35}}
 #scene .marker{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes bob{50%{transform:translateY(-8px)}}
-#scene .loc-label{font:600 15px var(--mono);letter-spacing:.12em;fill:#d6d2ff;opacity:.72;pointer-events:none;transition:opacity .3s}
+#scene .loc-label{font:600 15px var(--mono);letter-spacing:.12em;fill:#ffd9f4;opacity:.75;pointer-events:none;transition:opacity .3s}
 #scene .loc:hover .loc-label,#scene .loc:focus-visible .loc-label{opacity:1}
 #scene .lab.dormant{opacity:.25}
 #scene .lab.awake .lab-light{animation:labflick 1.4s steps(2) infinite}
 @keyframes labflick{50%{opacity:.2}}
-#nami{opacity:0;transition:opacity 1.2s}
-#nami.on{opacity:1;animation:holo 7s infinite}
-@keyframes holo{0%,94%,100%{opacity:.88}95%{opacity:.45}96%{opacity:.95}97%{opacity:.55}}
-#nami .nami-scan{animation:scan 5s linear infinite}
-@keyframes scan{from{transform:translateY(0)}to{transform:translateY(500px)}}
+#nami,#far-city{will-change:transform}
+#nami .nami-holo{opacity:0;transition:opacity 1.4s}
+#nami.on .nami-holo{opacity:1;animation:holo 7s infinite}
+@keyframes holo{0%,94%,100%{opacity:.92}95%{opacity:.5}96%{opacity:.96}97%{opacity:.6}}
+#nami .nami-scan{animation:scan 6s linear infinite}
+@keyframes scan{from{transform:translateY(0)}to{transform:translateY(560px)}}
 .blink-win{animation:winblink 7s infinite}
 @keyframes winblink{0%,40%,100%{opacity:.9}45%,60%{opacity:.15}}
+#scene .cape{transform-box:fill-box;transform-origin:100% 0;animation:cape 4.5s ease-in-out infinite}
+@keyframes cape{50%{transform:skewX(7deg) scaleX(1.07)}}
 
-/* World HUD */
-.hud-top{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:max(14px,env(safe-area-inset-top)) clamp(14px,3vw,28px) 14px;pointer-events:none}
+/* --- Scrolling city sections ------------------------------------------- */
+.w-sec{position:relative;padding:clamp(72px,10vw,128px) 0}
+.w-sec::before{content:"";position:absolute;inset:0;background:linear-gradient(#0c041600,#0c0416b3 18%,#0c0416b3 82%,#0c041600);pointer-events:none}
+.w-wrap{position:relative;width:min(100% - 32px,1120px);margin-inline:auto}
+.w-head{margin-bottom:clamp(26px,4vw,42px)}
+.w-level{font:600 .72rem var(--mono);letter-spacing:.3em;color:#5eead4;text-transform:uppercase}
+.w-head h2{font:600 clamp(1.9rem,1.3rem + 2.2vw,3rem)/1.1 var(--font);margin-top:10px;letter-spacing:-.02em;text-shadow:0 0 26px #ff4fd866}
+.w-head p{margin-top:12px;max-width:42em;color:#e2cdf0}
+.glass{background:linear-gradient(160deg,#1c0a2ce6,#130721f0);border:1px solid #ff6ad540;border-radius:16px;box-shadow:0 0 40px #ff4fd812,inset 0 1px 0 #ffffff0d}
+.js .w-reveal{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.js .w-reveal.in{opacity:1;transform:none}
+.w-sec .panel{border:1px solid #6c5cff3d;background:#0a071680;border-radius:12px;padding:14px}
+.w-sec .panel h4{font:600 .7rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:#ff9be4;margin-bottom:8px}
+.w-sec .panel li{color:#e2cdf0;font-size:.93rem;margin:4px 0;padding-left:14px;position:relative}
+.w-sec .panel li::before{content:"›";position:absolute;left:0;color:#5eead4}
+.w-sec .tags{display:flex;flex-wrap:wrap;gap:6px}
+.w-sec .tag{font:500 .76rem var(--mono);padding:4px 9px;border-radius:6px;background:#ff6ad512;border:1px solid #ff6ad544;color:#ffd6f3}
+
+/* Mission dossiers */
+.dossiers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.dossier{position:relative;display:flex;flex-direction:column;text-align:left;padding:24px;overflow:hidden;cursor:pointer;color:inherit;font:inherit;transition:transform .3s var(--ease),border-color .3s}
+.dossier::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--hue);box-shadow:0 0 20px var(--hue)}
+.dossier:hover,.dossier:focus-visible{transform:translateY(-3px);border-color:var(--hue)}
+.dossier .code{font:600 .72rem var(--mono);letter-spacing:.24em;color:var(--hue)}
+.dossier h3{font-size:1.3rem;margin:10px 0 8px;letter-spacing:-.01em}
+.dossier p{color:#e2cdf0;font-size:.95rem}
+.dossier .open{margin-top:auto;padding-top:18px;font:600 .78rem var(--mono);letter-spacing:.14em;color:#fff}
+
+/* Career tower */
+.tower{display:grid;gap:12px;max-width:860px}
+.t-floor{padding:0;overflow:hidden}
+.t-floor > button{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;width:100%;padding:18px 20px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:64px}
+.t-floor .lvl{font:700 .76rem var(--mono);letter-spacing:.12em;color:#ff9be4;border:1px solid #ff6ad555;border-radius:8px;padding:6px 8px;white-space:nowrap}
+.t-floor h3{font-size:1.08rem}
+.t-floor .co{font:500 .8rem var(--mono);color:#c9b2ff;margin-top:2px}
+.t-floor .chev{color:#ffb8ec;transition:transform .3s}
+.t-floor > button[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.t-floor .t-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 20px 20px}
+.t-floor.current{border-color:#5eead4aa;box-shadow:0 0 30px #5eead41f}
+.t-floor.flash{animation:flash 1.6s ease}
+@keyframes flash{30%{box-shadow:0 0 0 2px #5eead4,0 0 40px #5eead466}}
+
+/* Communication channel */
+.comms-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:20px;align-items:start}
+.idcard{display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:center;padding:16px;margin-bottom:14px}
+.idcard .ph{position:relative;width:112px;height:112px;border-radius:12px;overflow:hidden;border:1px solid #ff6ad566}
+.idcard .ph img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.15) brightness(1.05)}
+.idcard .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,#ff4fd8,#5b2bff);mix-blend-mode:multiply;opacity:.85}
+.idcard .ph::before{content:"";position:absolute;inset:0;z-index:1;background:repeating-linear-gradient(0deg,#ffffff1a 0 1px,transparent 1px 3px)}
+.idcard small{font:600 .68rem var(--mono);letter-spacing:.2em;color:#5eead4}
+.idcard b{display:block;font-size:1.15rem;margin:4px 0 2px}
+.idcard span{font:500 .8rem var(--mono);color:#e2cdf0}
+.luffy-note{display:flex;gap:12px;align-items:center;padding:12px 14px;margin-bottom:14px;font:500 .86rem var(--mono);color:#ffe6f7}
+.w-sec .field label{color:#e2cdf0}
+.w-sec .field input,.w-sec .field textarea{background:#08040fe6;border-color:#ff6ad544;color:#f6eaff}
+.w-sec .field input:focus,.w-sec .field textarea:focus{border-color:#5eead4;box-shadow:0 0 0 3px #5eead422}
+.w-sec form.cform{background:linear-gradient(160deg,#1c0a2ce6,#130721f0);border-color:#ff6ad540}
+.w-submit{min-height:46px;padding:0 20px;border-radius:999px;border:0;background:#ff6ad5;color:#1a0420;font-weight:700;cursor:pointer}
+.w-sec .success{background:linear-gradient(160deg,#1c0a2ce6,#130721f0);border:1px solid #5eead466;border-radius:16px}
+
+/* Footer of the world + sealed door */
+.w-end{text-align:center;padding:clamp(60px,9vw,110px) 16px clamp(110px,12vw,150px)}
+.w-end h2{font:300 clamp(1.5rem,1rem + 2vw,2.4rem)/1.2 var(--font);text-shadow:0 0 26px #ff4fd866}
+.sealed{display:inline-flex;align-items:center;gap:10px;margin-top:26px;min-height:46px;padding:0 18px;border-radius:4px;border:1px dashed #c6ff3d55;background:#0b0d06cc;color:#c6ff3d99;font:600 .78rem var(--mono);letter-spacing:.2em;cursor:not-allowed}
+.sealed.awake{color:#e6ff9e;border-color:#c6ff3d;cursor:pointer;animation:labpulse 2s infinite}
+@keyframes labpulse{50%{box-shadow:0 0 22px #c6ff3d55}}
+.w-end .back{margin-top:22px}
+
+/* --- HUD ---------------------------------------------------------------- */
+.hud-top{position:fixed;left:0;right:0;top:0;z-index:7;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:max(14px,env(safe-area-inset-top)) clamp(14px,3vw,28px) 14px;pointer-events:none;transition:background .3s}
+.hud-top.solid{background:linear-gradient(#0c0416f2,#0c041600)}
 .hud-top > *{pointer-events:auto}
-.w-logo{font:700 .9rem var(--mono);letter-spacing:.22em;color:#cfc9ff;text-shadow:0 0 12px #9b7bff}
-.w-logo span{color:#ff6ad5}
-.w-btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 15px;border-radius:999px;border:1px solid #6c5cff66;background:#0d0a1fcc;color:#e8e6ff;font:600 .85rem var(--font);letter-spacing:.02em;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 0 18px #6c5cff33}
-.w-btn:hover{border-color:#a99bff;box-shadow:0 0 24px #8b7bff66}
+.w-logo{font:700 .9rem var(--mono);letter-spacing:.22em;color:#ffd6f3;text-shadow:0 0 12px #ff4fd8}
+.w-logo span{color:#5eead4}
+.w-btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 15px;border-radius:999px;border:1px solid #ff6ad566;background:#1a0626cc;color:#ffeefa;font:600 .85rem var(--font);letter-spacing:.02em;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 0 18px #ff4fd82e;text-decoration:none}
+.w-btn:hover{border-color:#ff9be4;box-shadow:0 0 24px #ff4fd855}
 .w-btn:focus-visible{outline-color:#5eead4}
-
-/* Nami dialogue */
-.nami-say{position:absolute;z-index:6;top:clamp(80px,16vh,150px);right:calc(34% + 10px);max-width:min(320px,70vw);padding:12px 16px;border:1px solid #5eead466;background:linear-gradient(135deg,#071a24cc,#1a0b2acc);color:#d9fbff;font:500 .92rem/1.45 var(--mono);border-radius:4px 14px 14px 14px;box-shadow:0 0 28px #2ee6ff26,inset 0 0 18px #2ee6ff14;backdrop-filter:blur(4px);opacity:0;transform:translateY(-6px);transition:opacity .5s,transform .5s;pointer-events:none}
+.nami-say{position:fixed;z-index:7;top:clamp(80px,15vh,140px);right:clamp(14px,4vw,48px);max-width:min(320px,70vw);padding:12px 16px;border:1px solid #9fb4ff66;background:linear-gradient(135deg,#12133acc,#2a0a33cc);color:#eef0ff;font:500 .9rem/1.45 var(--mono);border-radius:4px 14px 14px 14px;box-shadow:0 0 28px #8fa8ff2e,inset 0 0 18px #8fa8ff14;backdrop-filter:blur(4px);opacity:0;transform:translateY(-6px);transition:opacity .5s,transform .5s;pointer-events:none}
 .nami-say.show{opacity:1;transform:none}
-.nami-say b{display:block;font-size:.68rem;letter-spacing:.24em;color:#5eead4;margin-bottom:4px}
-
-/* City map (accessible list of every location; primary navigation on phones) */
-.map{position:absolute;left:clamp(10px,2vw,24px);bottom:max(16px,env(safe-area-inset-bottom));z-index:6;max-width:min(560px,calc(100vw - 120px))}
+.nami-say b{display:block;font-size:.66rem;letter-spacing:.26em;color:#b9c6ff;margin-bottom:4px}
+.map{position:fixed;left:clamp(10px,2vw,24px);bottom:max(16px,env(safe-area-inset-bottom));z-index:7;max-width:min(560px,calc(100vw - 120px))}
 .map-toggle{margin-bottom:8px}
 .map ul{display:flex;flex-wrap:wrap;gap:8px}
-.map button.loc-btn{min-height:40px;padding:0 13px;border-radius:999px;border:1px solid #ff6ad555;background:#12061bd9;color:#ffd9f4;font:600 .8rem var(--mono);letter-spacing:.06em;cursor:pointer}
+.map button.loc-btn{min-height:40px;padding:0 13px;border-radius:999px;border:1px solid #ff6ad555;background:#1a0626e6;color:#ffd9f4;font:600 .78rem var(--mono);letter-spacing:.06em;cursor:pointer}
 .map button.loc-btn:hover,.map button.loc-btn:focus-visible{border-color:#ff9be4;box-shadow:0 0 16px #ff6ad555}
-.map button.loc-btn.new{border-color:#5eead4;color:#c9fff6;animation:pulseb 2s infinite}
-@keyframes pulseb{50%{box-shadow:0 0 18px #5eead466}}
+.map button.loc-btn[aria-current="true"]{border-color:#5eead4;color:#d9fffa}
+.map button.loc-btn.new{border-color:#c6ff3d;color:#e6ff9e;animation:labpulse 2s infinite}
 
 /* Luffy chat skin (same widget, different persona) */
-body.world-on .chat-fab{background:#120a1f;border-color:#ff6ad566;color:#ffe6f7;box-shadow:0 0 30px #ff6ad533,0 18px 40px -16px #000;padding-left:6px}
-body.world-on .chat-fab .fab-ico{width:44px;height:44px;background:#1e1230;padding:2px}
-body.world-on .chat-fab{animation:catbob 4s ease-in-out infinite}
+body.world-on .chat-fab{background:#1a0826;border-color:#ff6ad566;color:#ffe6f7;box-shadow:0 0 30px #ff6ad533,0 18px 40px -16px #000;padding-left:6px;animation:catbob 4s ease-in-out infinite}
+body.world-on .chat-fab .fab-ico{width:44px;height:44px;background:#2a1238;padding:2px}
 @keyframes catbob{50%{transform:translateY(-4px)}}
-body.world-on .chat{background:#0e0818f2;border-color:#ff6ad555;box-shadow:0 0 40px #ff6ad526,0 30px 70px -20px #000;font-family:var(--mono)}
+body.world-on .chat{background:#13071ff2;border-color:#ff6ad555;box-shadow:0 0 40px #ff6ad526,0 30px 70px -20px #000;font-family:var(--mono)}
 body.world-on .chat-head{border-color:#ff6ad533}
-body.world-on .msg.bot{background:#1d1030;border-color:#ff6ad533;color:#ffe6f7}
+body.world-on .msg.bot{background:#241034;border-color:#ff6ad533;color:#ffe6f7}
 body.world-on .msg.user{background:#5eead4;color:#041312}
 body.world-on .chat-form{border-color:#ff6ad533}
-body.world-on .chat-form input{background:#08040f;border-color:#ff6ad544}
+body.world-on .chat-form input{background:#0a040f;border-color:#ff6ad544}
 body.world-on .chat-form button{background:#ff6ad5;color:#1a0420}
 body.world-on .chat-suggest button{border-color:#ff6ad544;color:#ffc9ee}
-.luffy-bubble{position:fixed;right:20px;bottom:86px;z-index:59;max-width:min(260px,70vw);padding:10px 13px;border-radius:14px 14px 4px 14px;background:#1d1030;border:1px solid #ff6ad555;color:#ffe6f7;font:500 .84rem/1.4 var(--mono);box-shadow:0 0 22px #ff6ad533;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;pointer-events:none}
+.luffy-bubble{position:fixed;right:20px;bottom:86px;z-index:59;max-width:min(260px,70vw);padding:10px 13px;border-radius:14px 14px 4px 14px;background:#241034;border:1px solid #ff6ad555;color:#ffe6f7;font:500 .84rem/1.4 var(--mono);box-shadow:0 0 22px #ff6ad533;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;pointer-events:none}
 .luffy-bubble.show{opacity:1;transform:none}
 
 /* Transition overlay */
 #veil{position:fixed;inset:0;z-index:80;pointer-events:none;background:#000;opacity:0;transition:opacity .7s ease}
 #veil.on{opacity:1}
-#veil .boot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 .85rem var(--mono);letter-spacing:.3em;color:#9b8cff;text-shadow:0 0 14px #7b5cff;opacity:0;transition:opacity .4s;white-space:nowrap}
+#veil .boot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 .85rem var(--mono);letter-spacing:.3em;color:#ff9be4;text-shadow:0 0 14px #ff4fd8;opacity:0;transition:opacity .4s;white-space:nowrap}
 #veil.on .boot{opacity:1}
+
+@media (max-width:860px){
+  .dossiers,.comms-grid{grid-template-columns:1fr}
+  .t-floor .t-body{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .nami-say{top:70px;right:12px;left:12px;max-width:none}
+  .map{max-width:calc(100vw - 92px)}
+  .w-logo{font-size:.72rem;letter-spacing:.14em}
+  .idcard{grid-template-columns:84px 1fr}.idcard .ph{width:84px;height:84px}
+  .hero-copy{top:168px}
+  .luffy-bubble{max-width:220px}
+}
 
 /* ==========================================================================
    WORLD DIALOGS (missions, archive, console, career, comms, vault, lab)
@@ -618,108 +713,166 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 </div>
 
 <!-- ======================================================================
-     MARI WORLD
+     MARI WORLD — a scrolling neon-noir city
+     Rooftop hero (interactive skyline) → scroll down through the city's levels.
      ====================================================================== -->
 <div id="world" hidden aria-label="Mari's World — interactive creative portfolio">
-  <h1 class="sr-only" id="world-title" tabindex="-1">Mari’s World — a rooftop above a rainy neon city. Locations in the skyline lead to projects, career, skills, archive, achievements and contact.</h1>
-  <div class="scene-wrap">
-    <!-- The whole scene is one SVG so it scales cleanly on every screen. -->
-    <div class="pan" id="pan">
-    <svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="group" aria-label="Neon city skyline seen from a rooftop">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05030f"/><stop offset=".45" stop-color="#140a33"/><stop offset=".75" stop-color="#2a0f45"/><stop offset="1" stop-color="#3d1240"/></linearGradient>
-        <radialGradient id="cityglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".35"/><stop offset=".5" stop-color="#6c3cff" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-        <linearGradient id="bld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1238"/><stop offset="1" stop-color="#0a0718"/></linearGradient>
-        <linearGradient id="bld2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120c28"/><stop offset="1" stop-color="#05040d"/></linearGradient>
-        <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0a16"/><stop offset="1" stop-color="#020106"/></linearGradient>
-        <linearGradient id="wet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".18"/><stop offset=".5" stop-color="#2ee6ff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
-        <linearGradient id="holo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff6ff" stop-opacity=".9"/><stop offset=".55" stop-color="#b08cff" stop-opacity=".55"/><stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/></linearGradient>
-        <pattern id="win" width="14" height="18" patternUnits="userSpaceOnUse"><rect width="14" height="18" fill="none"/><rect x="3" y="4" width="5" height="7" fill="#ffd27a" opacity=".55"/></pattern>
-        <pattern id="win2" width="10" height="14" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="3" height="5" fill="#7ff6ff" opacity=".35"/><rect x="6" y="8" width="3" height="4" fill="#ff8be6" opacity=".25"/></pattern>
-        <pattern id="win3" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="9" height="4" fill="#b8a6ff" opacity=".45"/></pattern>
-        <pattern id="scanpat" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.2" fill="#c8fbff"/></pattern>
-        <clipPath id="nami-clip">
-          <ellipse cx="1210" cy="300" rx="78" ry="102"/>
-          <path d="M1176 392 C1180 410 1180 432 1176 452 C1130 462 1096 500 1084 640 L1336 640 C1324 500 1290 462 1244 452 C1240 432 1240 410 1244 392 Z"/>
-          <path d="M1210 192 C1140 190 1112 250 1118 320 C1124 400 1104 470 1092 540 L1112 540 C1132 470 1150 400 1146 320 Z"/>
-          <path d="M1210 192 C1280 190 1308 250 1302 320 C1296 400 1318 470 1330 540 L1310 540 C1290 470 1272 400 1276 320 Z"/>
-        </clipPath>
-        <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
-        <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
-      </defs>
+  <div class="w-bg" aria-hidden="true"></div>
 
-      <rect width="1600" height="900" fill="url(#sky)"/>
-      <!-- distant moon haze -->
-      <circle cx="380" cy="150" r="70" fill="#ff9be4" opacity=".08" filter="url(#blur6)"/>
-      <rect y="420" width="1600" height="480" fill="url(#cityglow)"/>
-
-      <!-- NAMI — hologram presence in the distance (original figure: translucent wireframe + scanlines) -->
-      <g id="nami" aria-hidden="true">
-        <ellipse cx="1210" cy="340" rx="250" ry="320" fill="#2ee6ff" opacity=".06" filter="url(#blur6)"/>
-        <g clip-path="url(#nami-clip)">
-          <rect x="1040" y="150" width="340" height="500" fill="url(#holo)" opacity=".32"/>
-          <rect x="1040" y="150" width="340" height="500" fill="url(#scanpat)" opacity=".55"/>
-          <rect class="nami-scan" x="1040" y="140" width="340" height="10" fill="#bffaff" opacity=".35"/>
-        </g>
-        <!-- contours -->
-        <g fill="none" stroke-linecap="round">
-          <ellipse cx="1210" cy="300" rx="78" ry="102" stroke="#9ff8ff" stroke-width="1.6" opacity=".75"/>
-          <path d="M1176 392 C1180 410 1180 432 1176 452 M1244 392 C1240 410 1240 432 1244 452" stroke="#9ff8ff" stroke-width="1.4" opacity=".6"/>
-          <path d="M1176 452 C1130 462 1096 500 1084 560 M1244 452 C1290 462 1324 500 1336 560" stroke="#b9a4ff" stroke-width="1.4" opacity=".55"/>
-          <!-- long flowing hair -->
-          <path d="M1210 192 C1140 190 1112 250 1118 320 C1124 400 1104 470 1092 540" stroke="#7ff6ff" stroke-width="2" opacity=".6"/>
-          <path d="M1210 192 C1280 190 1308 250 1302 320 C1296 400 1318 470 1330 540" stroke="#7ff6ff" stroke-width="2" opacity=".6"/>
-          <path d="M1150 220 C1120 300 1132 380 1112 470 M1270 220 C1300 300 1288 380 1308 470" stroke="#d1b8ff" stroke-width="1.2" opacity=".45"/>
-          <path d="M1166 205 C1190 230 1236 232 1262 210" stroke="#e6fdff" stroke-width="1.2" opacity=".5"/>
-          <!-- calm, closed eyes -->
-          <path d="M1176 302 q12 7 24 0 M1220 302 q12 7 24 0" stroke="#f0feff" stroke-width="2.2" opacity=".9"/>
-          <path d="M1207 338 q3 3 6 0" stroke="#e6fdff" stroke-width="1.3" opacity=".55"/>
-          <path d="M1199 360 q11 5 22 0" stroke="#ffd1f5" stroke-width="1.8" opacity=".65"/>
-          <!-- data circlet + nodes -->
-          <ellipse cx="1210" cy="196" rx="112" ry="15" stroke="#7ff6ff" stroke-width="1.2" opacity=".55" stroke-dasharray="3 8"/>
-        </g>
-        <circle cx="1098" cy="196" r="3" fill="#7ff6ff" opacity=".8"/><circle cx="1322" cy="196" r="3" fill="#ff8be6" opacity=".8"/>
-        <text x="1210" y="625" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" letter-spacing="6" fill="#7ff6ff" opacity=".7">N · A · M · I</text>
-      </g>
-
-      <!-- far city (generated) -->
-      <g id="far-city" aria-hidden="true"></g>
-      <!-- mid city: project towers + career tower are injected here by JS -->
-      <g id="mid-city"></g>
-
-      <!-- rooftop foreground -->
-      <g aria-hidden="true">
-        <rect y="742" width="1600" height="158" fill="url(#roof)"/>
-        <rect y="742" width="1600" height="4" fill="#ff4fd8" opacity=".25"/>
-        <rect y="746" width="1600" height="60" fill="url(#wet)"/>
-        <!-- railing -->
-        <g stroke="#1d1830" stroke-width="5"><line x1="0" y1="712" x2="1600" y2="712"/></g>
-        <g stroke="#1d1830" stroke-width="4" id="rails"></g>
-        <!-- puddles reflecting neon -->
-        <ellipse cx="520" cy="840" rx="180" ry="14" fill="#ff4fd8" opacity=".12"/>
-        <ellipse cx="1120" cy="860" rx="220" ry="16" fill="#2ee6ff" opacity=".10"/>
-        <!-- water tank + vents silhouettes -->
-        <rect x="1380" y="630" width="70" height="112" rx="6" fill="#0a0814"/>
-        <rect x="1372" y="620" width="86" height="16" rx="4" fill="#120e22"/>
-      </g>
-      <g id="rooftop-objects"></g>
-    </svg>
-    </div>
-    <canvas id="rain" aria-hidden="true"></canvas>
-    <div class="fog" aria-hidden="true"></div><div class="fog f2" aria-hidden="true"></div>
-    <div class="vignette" aria-hidden="true"></div><div class="scanlines" aria-hidden="true"></div>
-  </div>
-
-  <div class="hud-top">
+  <div class="hud-top" id="hud">
     <p class="w-logo" aria-hidden="true">MARI<span>://</span>WORLD</p>
     <button class="w-btn" type="button" id="back-pro">← Professional Portfolio</button>
   </div>
 
-  <p class="swipe-hint" id="swipe-hint" aria-hidden="true">← swipe to explore the city →</p>
+  <div class="w-stage">
+    <section class="w-hero" id="w-rooftop" aria-labelledby="world-title">
+      <h1 class="sr-only" id="world-title" tabindex="-1">Mari’s World — a rainy rooftop above a neon city. Scroll down to descend through Mari’s missions, career, systems, archive, records and communication channel.</h1>
+      <div class="pan" id="pan">
+        <!-- One SVG so the skyline scales cleanly on every screen. Sky is transparent: the haze behind it is .w-bg -->
+        <svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="group" aria-label="Neon city skyline seen from a rooftop">
+          <defs>
+            <radialGradient id="cityglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".35"/><stop offset=".5" stop-color="#8b3cff" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+            <linearGradient id="bld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1040"/><stop offset="1" stop-color="#0e0518"/></linearGradient>
+            <linearGradient id="bld2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1550" stop-opacity=".85"/><stop offset="1" stop-color="#140620"/></linearGradient>
+            <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#110717"/><stop offset="1" stop-color="#050208"/></linearGradient>
+            <linearGradient id="wet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".2"/><stop offset=".5" stop-color="#b04fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc2e6" stop-opacity=".75"/><stop offset=".7" stop-color="#e46bbd" stop-opacity=".55"/><stop offset="1" stop-color="#b03a95" stop-opacity="0"/></linearGradient>
+            <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9c8ff" stop-opacity=".85"/><stop offset=".6" stop-color="#8f9dff" stop-opacity=".75"/><stop offset="1" stop-color="#7b6cf0" stop-opacity=".55"/></linearGradient>
+            <linearGradient id="shoulders" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e46bbd" stop-opacity=".5"/><stop offset="1" stop-color="#7a1f6e" stop-opacity="0"/></linearGradient>
+            <pattern id="win" width="14" height="18" patternUnits="userSpaceOnUse"><rect x="3" y="4" width="5" height="7" fill="#ffb3e6" opacity=".55"/></pattern>
+            <pattern id="win2" width="10" height="14" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="3" height="5" fill="#ff8be6" opacity=".35"/><rect x="6" y="8" width="3" height="4" fill="#9fb4ff" opacity=".3"/></pattern>
+            <pattern id="win3" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="9" height="4" fill="#ff4f7b" opacity=".45"/></pattern>
+            <pattern id="scanpat" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.2" fill="#ffe1f4"/></pattern>
+            <clipPath id="nami-clip">
+              <path d="M800 112 C690 112 640 190 640 300 C640 380 650 440 660 470 L940 470 C950 440 960 380 960 300 C960 190 910 112 800 112 Z"/>
+              <path d="M720 430 C700 480 600 520 540 640 L1060 640 C1000 520 900 480 880 430 Z"/>
+            </clipPath>
+            <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+            <filter id="blur14"><feGaussianBlur stdDeviation="14"/></filter>
+          </defs>
+
+          <rect y="380" width="1600" height="520" fill="url(#cityglow)"/>
+
+          <!-- NAMI — original giant hologram: lavender-blue bob with bangs, pink light, calm half-closed eyes -->
+          <g id="nami" aria-hidden="true">
+            <ellipse cx="800" cy="340" rx="300" ry="300" fill="#ff4fd8" opacity=".12" filter="url(#blur14)"/>
+            <g class="nami-holo">
+              <path d="M720 430 C700 480 600 520 540 640 L1060 640 C1000 520 900 480 880 430 Z" fill="url(#shoulders)"/>
+              <path d="M768 404 C772 432 770 458 760 486 C786 494 814 494 840 486 C830 458 828 432 832 404 Z" fill="url(#skin)" opacity=".7"/>
+              <ellipse cx="800" cy="305" rx="98" ry="128" fill="url(#skin)"/>
+              <!-- hair: bob silhouette + straight bangs -->
+              <path d="M800 116 C690 116 642 194 644 300 C646 370 652 430 664 468 C690 470 708 450 712 410 C704 360 704 300 716 250 L884 250 C896 300 896 360 888 410 C892 450 910 470 936 468 C948 430 954 370 956 300 C958 194 910 116 800 116 Z" fill="url(#hair)"/>
+              <path d="M708 250 C716 200 750 176 800 176 C850 176 884 200 892 250 L892 262 L708 262 Z" fill="#a9b8ff" opacity=".9"/>
+              <g stroke="#e8edff" stroke-width="1" opacity=".35" fill="none">
+                <path d="M730 262 L728 210 M760 262 L760 190 M790 262 L790 182 M820 262 L822 182 M850 262 L852 190 M876 262 L876 214"/>
+                <path d="M670 300 C668 360 676 420 690 460 M930 300 C932 360 924 420 910 460"/>
+              </g>
+              <!-- face -->
+              <path d="M748 298 q22 -10 44 0 q-22 8 -44 0 Z M808 298 q22 -10 44 0 q-22 8 -44 0 Z" fill="#2a0b2e" opacity=".85"/>
+              <path d="M752 296 q20 -8 38 0 M812 296 q20 -8 38 0" stroke="#ffe8f6" stroke-width="1.6" fill="none" opacity=".7"/>
+              <circle cx="772" cy="298" r="2" fill="#ffd1f0"/><circle cx="832" cy="298" r="2" fill="#ffd1f0"/>
+              <path d="M797 336 q3 6 6 0" stroke="#7a2a6a" stroke-width="1.5" fill="none" opacity=".6"/>
+              <path d="M782 366 q18 8 36 0 q-18 4 -36 0 Z" fill="#d4428f" opacity=".7"/>
+              <g clip-path="url(#nami-clip)">
+                <rect x="520" y="100" width="560" height="560" fill="url(#scanpat)" opacity=".28"/>
+                <rect class="nami-scan" x="520" y="96" width="560" height="10" fill="#fff" opacity=".22"/>
+              </g>
+              <ellipse cx="800" cy="186" rx="150" ry="16" fill="none" stroke="#c9d3ff" stroke-width="1.2" opacity=".5" stroke-dasharray="3 9"/>
+              <text x="800" y="666" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" letter-spacing="6" fill="#ffd6f3" opacity=".7">N · A · M · I</text>
+            </g>
+          </g>
+
+          <g id="far-city" aria-hidden="true"></g>
+          <g id="mid-city"></g>
+
+          <!-- rooftop foreground -->
+          <g aria-hidden="true">
+            <rect y="742" width="1600" height="158" fill="url(#roof)"/>
+            <rect y="742" width="1600" height="3" fill="#ff4fd8" opacity=".3"/>
+            <rect y="745" width="1600" height="60" fill="url(#wet)"/>
+            <line x1="0" y1="712" x2="1360" y2="712" stroke="#2a1838" stroke-width="5"/>
+            <g stroke="#2a1838" stroke-width="4" id="rails"></g>
+            <ellipse cx="520" cy="842" rx="190" ry="14" fill="#ff4fd8" opacity=".14"/>
+            <ellipse cx="1060" cy="862" rx="230" ry="16" fill="#b04fff" opacity=".12"/>
+          </g>
+          <g id="ledge" aria-hidden="true"></g>
+          <g id="rooftop-objects"></g>
+        </svg>
+      </div>
+      <div class="hero-copy" id="hero-copy">
+        <p>Mari’s World · rooftop level</p>
+        <h2>Every city keeps a record.<br>This one keeps mine.</h2>
+      </div>
+      <button class="scroll-cue" type="button" id="scroll-cue"><span>DESCEND</span><i aria-hidden="true"></i></button>
+      <p class="swipe-hint" id="swipe-hint" aria-hidden="true">← swipe to look around →</p>
+    </section>
+
+    <section class="w-sec" id="w-missions" data-level="Level 01" aria-labelledby="w-missions-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 01 · Mission district</p><h2 id="w-missions-h">Missions</h2><p>Every glowing tower on the skyline is a mission Mari has run. Open a dossier for the full brief.</p></div>
+        <div class="dossiers" id="dossiers"></div>
+      </div>
+    </section>
+
+    <section class="w-sec" id="w-career" aria-labelledby="w-career-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 02 · Career Timeline Tower</p><h2 id="w-career-h">The tower</h2><p>One floor per chapter. The top floor is where Mari works now.</p></div>
+        <ol class="tower" id="tower" style="list-style:none;margin:0;padding:0"></ol>
+      </div>
+    </section>
+
+    <section class="w-sec" id="w-console" aria-labelledby="w-console-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 03 · System Console</p><h2 id="w-console-h">System modules online</h2><p>The console on the roof is still humming. Each module is a skill area Mari has installed.</p></div>
+        <div class="console w-reveal"><p class="ln" id="console-ln" aria-hidden="true"></p><div class="modules" id="modules"></div></div>
+      </div>
+    </section>
+
+    <section class="w-sec" id="w-archive" aria-labelledby="w-archive-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 04 · Rooftop terminal</p><h2 id="w-archive-h">Mission Archive</h2><p>Smaller missions, research and experiments.</p></div>
+        <div class="term w-reveal"><p class="prompt">ls ./missions --small --experiments</p><div class="arch-grid" id="archive"></div></div>
+      </div>
+    </section>
+
+    <section class="w-sec" id="w-vault" aria-labelledby="w-vault-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 05 · Encrypted records</p><h2 id="w-vault-h">Achievement Vault</h2><p>Partially decrypted for visitors.</p></div>
+        <div class="vault-grid" id="records"></div>
+      </div>
+    </section>
+
+    <section class="w-sec" id="w-comms" aria-labelledby="w-comms-h">
+      <div class="w-wrap">
+        <div class="w-head w-reveal"><p class="w-level">Level 06 · Communication Channel</p><h2 id="w-comms-h">Open a channel to Mari</h2></div>
+        <div class="comms-grid">
+          <div class="w-reveal">
+            <div class="idcard glass" id="idcard"></div>
+            <div class="luffy-note glass" id="luffy-note"></div>
+            <div class="comms-links" id="comms-links"></div>
+          </div>
+          <div class="w-reveal" id="world-form-slot"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-end" aria-labelledby="w-end-h">
+      <h2 id="w-end-h">The city sleeps. The record stays.</h2>
+      <button class="sealed" type="button" id="sealed" aria-disabled="true">⌁ SEALED · SUB-LEVEL</button>
+      <div class="back"><button class="w-btn" type="button" id="back-pro-2">← Return to Professional Portfolio</button></div>
+    </section>
+  </div>
+
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <div class="w-fx" aria-hidden="true">
+    <div class="fog"></div><div class="fog f2"></div>
+    <div class="vignette"></div><div class="scanlines"></div>
+  </div>
+
   <div class="nami-say" id="nami-say" role="status" aria-live="polite"><b>NAMI</b><span id="nami-text"></span></div>
 
-  <nav class="map" aria-label="City map: all locations">
-    <button class="w-btn map-toggle" type="button" aria-expanded="false" aria-controls="map-list" id="map-toggle">⌖ City map</button>
+  <nav class="map" aria-label="City levels">
+    <button class="w-btn map-toggle" type="button" aria-expanded="false" aria-controls="map-list" id="map-toggle">⌖ City levels</button>
     <ul id="map-list" hidden></ul>
   </nav>
 </div>
@@ -786,9 +939,10 @@ const CONFIG = {
   title: "Data Lead · Databricks, Power BI & Data Platforms",
   intro: "I build data platforms that business teams trust: governed pipelines, a clean warehouse and dashboards people actually open on Monday morning.",
   location: "Chennai, India · working remotely",           // TODO: confirm
-  employer: "Data Lead at a Texas real estate company",   // TODO: add company name if you want it public
+  company: "Zeb",
+  employer: "Data Lead at Zeb · real estate client in Texas",
   availability: "Open to data engineering & analytics opportunities",
-  photo: "",                 // e.g. "images/mari.jpg" — leave empty to show initials
+  photo: "assets/mari.webp", // leave empty ("") to show initials instead
   resume: "",                // e.g. "resume.pdf" — leave empty to use the email fallback below
   github: "https://github.com/M-Aadhi",
   linkedin: "https://www.linkedin.com/in/zeb-mari",
@@ -813,7 +967,7 @@ const portfolioData = {
   ],
   about: {
     summary: "I’m Mari, a Data Lead who turns scattered operational data into a single, reliable picture of the business.",
-    story: "I look after the data warehouse, pipelines, dashboards and Power BI for a real estate business in Texas, working mostly in Databricks. I like work where engineering discipline (tests, idempotent loads, clear lineage) meets a business question someone actually needs answered.",
+    story: "At Zeb I lead data for a real estate client in Texas: the data warehouse, pipelines, dashboards and Power BI, working mostly in Databricks. I like work where engineering discipline (tests, idempotent loads, clear lineage) meets a business question someone actually needs answered.",
     interests: ["Lakehouse architecture", "Data quality & testing", "Analytics engineering", "AI-assisted workflows", "Automation"],
     focus: "Building a production-grade medallion lakehouse and learning how far AI assistants can take everyday data work.",
     enjoys: ["Databricks", "PySpark", "SQL", "Delta Lake", "Power BI", "Python", "GitHub Actions", "Claude"]
@@ -830,7 +984,7 @@ const portfolioData = {
   ],
   experience: [
     {
-      company: "Texas real estate company (name on request)", role: "Data Lead", dates: "2024 — Present", current: true,
+      company: "Zeb · real estate client, Texas", role: "Data Lead", dates: "2024 — Present", current: true,
       responsibilities: ["Own the data warehouse, ETL pipelines and Power BI reporting", "Design Databricks pipelines for properties, leases, payments and maintenance data", "Partner with operations and finance on KPIs: occupancy, collections, delinquency"],
       technologies: ["Databricks", "PySpark", "SQL", "Power BI", "Delta Lake"],
       achievements: ["Replaced spreadsheet reporting with a single governed data model", "Built data-quality checks that quarantine bad records instead of hiding them"]
@@ -985,7 +1139,7 @@ function bindText() {
   if (CONFIG.resume) resume.href = CONFIG.resume;
   else { resume.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent("Resume request")}`; resume.removeAttribute("target"); resume.textContent = "Request resume"; }
   const av = $("#avatar");
-  if (CONFIG.photo) av.innerHTML = `<img src="${esc(CONFIG.photo)}" alt="Photo of ${esc(CONFIG.name)}" width="132" height="132">`;
+  if (CONFIG.photo) { av.innerHTML = `<img src="${esc(CONFIG.photo)}" alt="Portrait of ${esc(CONFIG.fullName)}" width="720" height="720">`; av.removeAttribute("role"); av.removeAttribute("aria-label"); }
   else av.textContent = CONFIG.name.slice(0, 1) + (CONFIG.fullName.split(" ")[1] || "").slice(0, 1);
   $("#yr").textContent = new Date().getFullYear();
 }
@@ -1170,7 +1324,7 @@ const PERSONAS = {
     suggestions: ["Who is Mari?", "What projects has Mari built?", "What technologies does Mari use?", "What is Mari working on?", "I want to hire Mari"],
     replies: {
       greeting: () => "Hello! What would you like to know about Mari?",
-      who: () => `${CONFIG.fullName} (${CONFIG.name}) is a ${CONFIG.title}. ${P.about.summary.replace(/^I’m Mari, a /, "Mari is a ")}`,
+      who: () => `${CONFIG.fullName} (${CONFIG.name}) is a ${CONFIG.title}, currently ${CONFIG.employer}. ${P.about.summary.replace(/^I’m Mari, a /, "Mari is a ")}`,
       tech: () => `Mari works mostly with ${topTech()}. Strongest areas: ${P.skills.slice(0, 3).map((s) => s.category).join(", ")}.`,
       projects: () => `Featured projects:\n${listProjects()}\n\nAsk about any one of them for details, or see the Projects section.`,
       current: () => `Right now Mari is working on:\n${P.currentWork.map((w) => `• ${w.title}: ${w.detail}`).join("\n")}`,
@@ -1365,7 +1519,7 @@ function initChat() {
 }
 
 /* ==========================================================================
-   MARI WORLD — scene construction
+   MARI WORLD — scene construction (rooftop hero)
    ========================================================================== */
 const SVGNS = "http://www.w3.org/2000/svg";
 function svg(tag, attrs = {}, parent) {
@@ -1376,27 +1530,30 @@ function svg(tag, attrs = {}, parent) {
 }
 // small deterministic PRNG so the skyline looks the same on every visit
 function rng(seed) { return () => ((seed = (seed * 16807) % 2147483647) / 2147483647); }
+const worldEl = () => $("#world");
 
 function buildFarCity() {
-  const g = $("#far-city"), r = rng(7);
+  const g = $("#far-city"), r = rng(11);
   let x = -20;
   while (x < 1620) {
-    const w = 30 + r() * 70, h = 120 + r() * 260, y = 640 - h;
+    const centre = x > 560 && x < 1040;             // keep the middle low so Nami rises above it
+    const w = 30 + r() * 70, h = (centre ? 90 : 140) + r() * (centre ? 120 : 280), y = 650 - h;
     svg("rect", { x, y, width: w, height: h, fill: "url(#bld2)" }, g);
     svg("rect", { x: x + 4, y: y + 8, width: w - 8, height: h - 16, fill: r() > .5 ? "url(#win2)" : "url(#win3)", opacity: (.35 + r() * .5).toFixed(2), class: r() > .8 ? "blink-win" : "" }, g);
-    if (r() > .75) svg("rect", { x: x + w / 2 - 1, y: y - 30, width: 2, height: 30, fill: "#3a2b66" }, g), svg("circle", { cx: x + w / 2, cy: y - 32, r: 2.5, fill: "#ff4fd8", class: "blink-win" }, g);
+    if (r() > .72) { svg("rect", { x: x + w / 2 - 1, y: y - 30, width: 2, height: 30, fill: "#5a2b66" }, g); svg("circle", { cx: x + w / 2, cy: y - 32, r: 2.5, fill: "#ff3f6d", class: "blink-win" }, g); }
     x += w + 4 + r() * 10;
   }
 }
 
-/* PROJECT MISSIONS — each featured project becomes a tower with a neon sign */
+/* PROJECT MISSIONS — each featured project becomes a tower with a neon sign.
+   Positions keep the centre clear for Nami and stay inside the safe area (x 80–1520). */
 const TOWERS = [
-  { x: 120, w: 150, h: 380, hue: "#ff4fd8" },
-  { x: 420, w: 130, h: 300, hue: "#2ee6ff" },
-  { x: 640, w: 160, h: 420, hue: "#b08cff" },
-  { x: 1340, w: 150, h: 340, hue: "#5eead4" }
+  { x: 92, w: 140, h: 430, hue: "#ff4fd8" },
+  { x: 262, w: 124, h: 330, hue: "#8fa8ff" },
+  { x: 1064, w: 140, h: 400, hue: "#c084fc" },
+  { x: 1232, w: 120, h: 310, hue: "#ff7a9c" }
 ];
-const locations = []; // registry used by the city map and keyboard navigation
+const locations = []; // registry used by keyboard navigation and hover reactions
 
 function addLoc(g, { id, type, label, ref, hidden: isHidden }) {
   g.classList.add("loc");
@@ -1414,70 +1571,82 @@ function addLoc(g, { id, type, label, ref, hidden: isHidden }) {
 
 function buildMidCity() {
   const g = $("#mid-city");
-  // filler mid buildings (non-interactive)
-  [[0, 90, 260], [300, 100, 220], [560, 70, 250], [830, 110, 200], [1150, 90, 240], [1280, 100, 180], [1560, 60, 280]].forEach(([x, w, h]) => {
+  // low filler blocks (non-interactive); the centre stays low so the hologram reads
+  [[0, 90, 250], [400, 110, 200], [610, 120, 150], [760, 90, 120], [880, 130, 160], [1360, 110, 230], [1480, 120, 260]].forEach(([x, w, h]) => {
     svg("rect", { x, y: 712 - h, width: w, height: h, fill: "url(#bld)" }, g);
-    svg("rect", { x: x + 6, y: 712 - h + 10, width: w - 12, height: h - 20, fill: "url(#win)", opacity: .35 }, g);
+    svg("rect", { x: x + 6, y: 712 - h + 10, width: w - 12, height: h - 20, fill: "url(#win)", opacity: .3 }, g);
   });
 
   P.projects.filter((p) => p.featured).slice(0, TOWERS.length).forEach((p, i) => {
     const t = TOWERS[i], y = 712 - t.h;
     const tg = svg("g", {}, g);
-    svg("rect", { class: "glow", x: t.x - 14, y: y - 14, width: t.w + 28, height: t.h + 28, rx: 8, fill: t.hue, opacity: .25, filter: "url(#blur6)" }, tg);
+    svg("rect", { class: "glow", x: t.x - 14, y: y - 14, width: t.w + 28, height: t.h + 28, rx: 8, fill: t.hue, opacity: .28, filter: "url(#blur6)" }, tg);
     const body = svg("g", { class: "body" }, tg);
     svg("rect", { x: t.x, y, width: t.w, height: t.h, fill: "url(#bld)", stroke: t.hue, "stroke-opacity": .35 }, body);
     svg("rect", { x: t.x + 8, y: y + 70, width: t.w - 16, height: t.h - 80, fill: "url(#win)", opacity: .55 }, body);
     svg("rect", { class: "focus-ring", x: t.x - 6, y: y - 6, width: t.w + 12, height: t.h + 12, fill: "none", stroke: "none", rx: 6 }, tg);
-    // neon sign
     const sign = svg("g", { class: `sign s${(i % 3) + 1}` }, tg);
-    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: "#0b0618", stroke: t.hue, "stroke-width": 2 }, sign);
-    const txt = svg("text", { x: t.x + t.w / 2, y: y + 41, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-weight": 700, "font-size": Math.min(16, ((t.w - 30) / p.sign.length - 3) / 0.6).toFixed(1), "letter-spacing": 3, fill: t.hue }, sign);
-    txt.textContent = p.sign;
-    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: t.hue, opacity: .12, filter: "url(#blur6)" }, sign);
-    // mission marker
+    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: "#13061d", stroke: t.hue, "stroke-width": 2 }, sign);
+    const fs = Math.min(16, ((t.w - 30) / p.sign.length - 3) / 0.6).toFixed(1);
+    svg("text", { x: t.x + t.w / 2, y: y + 41, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-weight": 700, "font-size": fs, "letter-spacing": 3, fill: t.hue }, sign).textContent = p.sign;
+    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: t.hue, opacity: .14, filter: "url(#blur6)" }, sign);
     const mk = svg("g", { class: "marker" }, tg);
     svg("path", { d: `M${t.x + t.w / 2} ${y - 46} l12 14 l-12 14 l-12 -14 z`, fill: "none", stroke: t.hue, "stroke-width": 2.5 }, mk);
     svg("circle", { cx: t.x + t.w / 2, cy: y - 32, r: 3, fill: t.hue }, mk);
     addLoc(tg, { id: p.id, type: "project", ref: p.id, label: `Mission: ${p.name}` });
   });
 
-  // CAREER TIMELINE TOWER — one floor per role (top floor = current)
-  const cx = 930, cw = 120, floorH = 70, base = 712;
-  const exp = P.experience;
+  // CAREER TIMELINE TOWER — one lit floor per role (top floor = current)
+  const cx = 418, cw = 110, floorH = 62, base = 712, exp = P.experience;
   const ctg = svg("g", {}, g);
-  const top = base - exp.length * floorH - 90;
-  svg("rect", { x: cx + cw / 2 - 2, y: top - 70, width: 4, height: 70, fill: "#5a4a99" }, ctg);
-  svg("circle", { cx: cx + cw / 2, cy: top - 74, r: 4, fill: "#ff4fd8", class: "blink-win" }, ctg);
-  svg("rect", { x: cx, y: top, width: cw, height: 90, fill: "url(#bld)", stroke: "#b08cff", "stroke-opacity": .4 }, ctg);
-  const ct = svg("text", { x: cx + cw / 2, y: top + 52, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 13, "font-weight": 700, "letter-spacing": 2, fill: "#d6c8ff", class: "sign s2" }, ctg);
-  ct.textContent = "CAREER";
+  const top = base - exp.length * floorH - 80;
+  svg("rect", { x: cx + cw / 2 - 2, y: top - 60, width: 4, height: 60, fill: "#7a3b8a" }, ctg);
+  svg("circle", { cx: cx + cw / 2, cy: top - 64, r: 4, fill: "#ff3f6d", class: "blink-win" }, ctg);
+  svg("rect", { x: cx, y: top, width: cw, height: 80, fill: "url(#bld)", stroke: "#ff9be4", "stroke-opacity": .45 }, ctg);
+  svg("text", { x: cx + cw / 2, y: top + 46, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 13, "font-weight": 700, "letter-spacing": 2, fill: "#ffd6f3", class: "sign s2" }, ctg).textContent = "CAREER";
   exp.forEach((e, i) => {
-    const fy = top + 90 + i * floorH;
+    const fy = top + 80 + i * floorH;
     const fg = svg("g", {}, ctg);
-    svg("rect", { class: "glow", x: cx - 10, y: fy - 4, width: cw + 20, height: floorH + 8, fill: "#b08cff", opacity: .3, filter: "url(#blur6)" }, fg);
+    svg("rect", { class: "glow", x: cx - 10, y: fy - 4, width: cw + 20, height: floorH + 8, fill: "#ff9be4", opacity: .3, filter: "url(#blur6)" }, fg);
     const b = svg("g", { class: "body" }, fg);
-    svg("rect", { x: cx, y: fy, width: cw, height: floorH - 4, fill: "#120b2a", stroke: e.current ? "#5eead4" : "#6c5cff", "stroke-opacity": e.current ? .9 : .45 }, b);
-    for (let k = 0; k < 5; k++) svg("rect", { x: cx + 10 + k * 21, y: fy + 18, width: 12, height: 24, fill: e.current ? "#5eead4" : "#ffd27a", opacity: e.current ? .7 : .4 }, b);
+    svg("rect", { x: cx, y: fy, width: cw, height: floorH - 4, fill: "#1a0a26", stroke: e.current ? "#5eead4" : "#c084fc", "stroke-opacity": e.current ? .9 : .45 }, b);
+    for (let k = 0; k < 4; k++) svg("rect", { x: cx + 12 + k * 24, y: fy + 16, width: 13, height: 24, fill: e.current ? "#5eead4" : "#ffb3e6", opacity: e.current ? .7 : .4 }, b);
     svg("rect", { class: "focus-ring", x: cx - 4, y: fy - 3, width: cw + 8, height: floorH + 2, fill: "none", stroke: "none" }, fg);
     addLoc(fg, { id: `floor-${i}`, type: "career", ref: i, label: `Career tower, floor ${exp.length - i}: ${e.role}, ${e.dates}` });
   });
 }
 
+/* The lone cloaked figure on the rooftop ledge (original silhouette — no logos, no franchise likeness). */
+function buildLedge() {
+  const g = $("#ledge");
+  svg("path", { d: "M1360 652 L1600 652 L1600 900 L1360 900 Z", fill: "#07030c" }, g);
+  svg("rect", { x: 1360, y: 646, width: 240, height: 8, fill: "#1d0f28" }, g);
+  svg("rect", { x: 1360, y: 646, width: 240, height: 2, fill: "#ff4fd8", opacity: .45 }, g);
+  svg("ellipse", { cx: 1452, cy: 654, rx: 60, ry: 5, fill: "#ff4fd8", opacity: .18 }, g);
+  const fig = svg("g", { transform: "translate(1452 646) scale(1.4)" }, g);
+  // cape billowing to the left in the wind
+  svg("path", { class: "cape", d: "M-10 -96 C-40 -70 -78 -40 -96 -6 C-70 -14 -52 -8 -36 0 C-30 -30 -22 -60 -10 -96 Z", fill: "#0a0510", stroke: "#ff4fd8", "stroke-opacity": .35, "stroke-width": 1.2 }, fig);
+  // body
+  svg("path", { d: "M-14 -100 C-18 -80 -18 -50 -12 -30 L-10 0 L-3 0 L0 -28 L3 0 L10 0 L12 -30 C18 -50 18 -80 14 -100 Z", fill: "#0a0510" }, fig);
+  // shoulders + hood
+  svg("path", { d: "M-22 -96 C-14 -108 14 -108 22 -96 L14 -92 L-14 -92 Z", fill: "#0a0510" }, fig);
+  svg("path", { d: "M-9 -106 C-10 -122 10 -122 9 -106 C6 -100 -6 -100 -9 -106 Z", fill: "#0a0510" }, fig);
+  // pink rim light
+  svg("path", { d: "M14 -100 C18 -80 18 -50 12 -30 L10 0", fill: "none", stroke: "#ff6ad5", "stroke-width": 1.4, opacity: .7 }, fig);
+  svg("path", { d: "M9 -106 C10 -118 4 -121 0 -121", fill: "none", stroke: "#ff6ad5", "stroke-width": 1.2, opacity: .7 }, fig);
+}
+
 function buildRooftop() {
   const g = $("#rooftop-objects");
   const rails = $("#rails");
-  for (let x = 20; x < 1600; x += 60) svg("line", { x1: x, y1: 712, x2: x, y2: 742 }, rails);
-
-  const obj = (id, type, label, ref, draw, lx, ly, text, extra = {}) => {
+  for (let x = 20; x < 1360; x += 60) svg("line", { x1: x, y1: 712, x2: x, y2: 742 }, rails);
+  const obj = (id, type, label, draw, lx, ly, text, extra = {}) => {
     const og = svg("g", extra.cls ? { class: extra.cls } : {}, g);
     draw(og);
-    if (text) { const t = svg("text", { class: "loc-label", x: lx, y: ly, "text-anchor": "middle" }, og); t.textContent = text; }
-    addLoc(og, { id, type, ref, label, hidden: extra.hidden });
-    return og;
+    if (text) svg("text", { class: "loc-label", x: lx, y: ly, "text-anchor": "middle" }, og).textContent = text;
+    addLoc(og, { id, type, ref: null, label, hidden: extra.hidden });
   };
-
-  // MISSION ARCHIVE — rooftop terminal
-  obj("archive", "archive", "Mission Archive terminal: smaller projects and experiments", null, (o) => {
+  obj("archive", "archive", "Mission Archive terminal: smaller projects and experiments", (o) => {
     svg("rect", { class: "glow", x: 150, y: 640, width: 150, height: 130, fill: "#5fd4a0", opacity: .3, filter: "url(#blur6)" }, o);
     const b = svg("g", { class: "body" }, o);
     svg("rect", { x: 170, y: 700, width: 110, height: 70, rx: 4, fill: "#0b1410", stroke: "#1f6b4f" }, b);
@@ -1485,20 +1654,16 @@ function buildRooftop() {
     for (let k = 0; k < 4; k++) svg("rect", { x: 190, y: 660 + k * 11, width: 30 + ((k * 23) % 40), height: 4, fill: "#5fd4a0", opacity: .8 }, b);
     svg("rect", { class: "focus-ring", x: 160, y: 642, width: 130, height: 136, fill: "none", stroke: "none" }, o);
   }, 225, 800, "MISSION ARCHIVE");
-
-  // SYSTEM CONSOLE — skills
-  obj("console", "console", "System Console: skills and system modules", null, (o) => {
-    svg("rect", { class: "glow", x: 470, y: 650, width: 190, height: 120, fill: "#3c4bff", opacity: .35, filter: "url(#blur6)" }, o);
+  obj("console", "console", "System Console: skills and system modules", (o) => {
+    svg("rect", { class: "glow", x: 470, y: 650, width: 190, height: 120, fill: "#8b5cff", opacity: .35, filter: "url(#blur6)" }, o);
     const b = svg("g", { class: "body" }, o);
-    svg("path", { d: "M480 770 L500 700 L630 700 L650 770 Z", fill: "#0a0c1f", stroke: "#3c4bff" }, b);
-    svg("rect", { x: 505, y: 655, width: 120, height: 50, rx: 3, fill: "#04061a", stroke: "#7d8cff", "stroke-width": 2 }, b);
-    [[515, 668, "#5eead4"], [515, 680, "#7d8cff"], [515, 692, "#ff6ad5"]].forEach(([x, y, c], k) => svg("rect", { x, y, width: 50 + k * 18, height: 5, fill: c, opacity: .85 }, b));
-    for (let k = 0; k < 6; k++) svg("circle", { cx: 515 + k * 20, cy: 735, r: 4, fill: ["#5eead4", "#ff6ad5", "#7d8cff"][k % 3], class: k % 2 ? "blink-win" : "" }, b);
+    svg("path", { d: "M480 770 L500 700 L630 700 L650 770 Z", fill: "#110a1f", stroke: "#8b5cff" }, b);
+    svg("rect", { x: 505, y: 655, width: 120, height: 50, rx: 3, fill: "#0a061a", stroke: "#b49bff", "stroke-width": 2 }, b);
+    [[515, 668, "#5eead4"], [515, 680, "#b49bff"], [515, 692, "#ff6ad5"]].forEach(([x, y, c], k) => svg("rect", { x, y, width: 50 + k * 18, height: 5, fill: c, opacity: .85 }, b));
+    for (let k = 0; k < 6; k++) svg("circle", { cx: 515 + k * 20, cy: 735, r: 4, fill: ["#5eead4", "#ff6ad5", "#b49bff"][k % 3], class: k % 2 ? "blink-win" : "" }, b);
     svg("rect", { class: "focus-ring", x: 475, y: 650, width: 180, height: 126, fill: "none", stroke: "none" }, o);
   }, 565, 800, "SYSTEM CONSOLE");
-
-  // ACHIEVEMENT VAULT — armoured crate
-  obj("vault", "achievements", "Achievement Vault: encrypted records", null, (o) => {
+  obj("vault", "achievements", "Achievement Vault: encrypted records", (o) => {
     svg("rect", { class: "glow", x: 790, y: 680, width: 150, height: 100, fill: "#f5c26b", opacity: .3, filter: "url(#blur6)" }, o);
     const b = svg("g", { class: "body" }, o);
     svg("rect", { x: 805, y: 700, width: 120, height: 70, rx: 6, fill: "#15100a", stroke: "#f5c26b", "stroke-opacity": .7 }, b);
@@ -1506,20 +1671,16 @@ function buildRooftop() {
     svg("path", { d: "M865 735 l8 -8", stroke: "#f5c26b", "stroke-width": 3 }, b);
     svg("rect", { class: "focus-ring", x: 798, y: 694, width: 134, height: 82, fill: "none", stroke: "none" }, o);
   }, 865, 800, "ACHIEVEMENT VAULT");
-
-  // COMMUNICATION CHANNEL — antenna + dish
-  obj("comms", "comms", "Communication Channel: contact Mari", null, (o) => {
-    svg("rect", { class: "glow", x: 1150, y: 560, width: 170, height: 210, fill: "#2ee6ff", opacity: .3, filter: "url(#blur6)" }, o);
+  obj("comms", "comms", "Communication Channel: contact Mari", (o) => {
+    svg("rect", { class: "glow", x: 1150, y: 560, width: 170, height: 210, fill: "#ff6ad5", opacity: .3, filter: "url(#blur6)" }, o);
     const b = svg("g", { class: "body" }, o);
-    svg("path", { d: "M1235 770 L1220 640 L1250 640 Z", fill: "#0b1420", stroke: "#2ee6ff", "stroke-opacity": .6 }, b);
-    svg("path", { d: "M1180 630 Q1235 560 1290 630 Z", fill: "#0b1824", stroke: "#2ee6ff", "stroke-width": 2 }, b);
-    svg("line", { x1: 1235, y1: 610, x2: 1235, y2: 575, stroke: "#2ee6ff", "stroke-width": 2 }, b);
-    svg("circle", { cx: 1235, cy: 572, r: 5, fill: "#2ee6ff", class: "blink-win" }, b);
+    svg("path", { d: "M1235 770 L1220 640 L1250 640 Z", fill: "#160b20", stroke: "#ff6ad5", "stroke-opacity": .6 }, b);
+    svg("path", { d: "M1180 630 Q1235 560 1290 630 Z", fill: "#1a0b24", stroke: "#ff6ad5", "stroke-width": 2 }, b);
+    svg("line", { x1: 1235, y1: 610, x2: 1235, y2: 575, stroke: "#ff6ad5", "stroke-width": 2 }, b);
+    svg("circle", { cx: 1235, cy: 572, r: 5, fill: "#ff6ad5", class: "blink-win" }, b);
     svg("rect", { class: "focus-ring", x: 1170, y: 560, width: 130, height: 214, fill: "none", stroke: "none" }, o);
   }, 1235, 800, "COMMS CHANNEL");
-
-  // THE LAB — hidden hatch (dormant until the visitor has explored a little)
-  obj("lab", "lab", "A flickering hatch: The Lab", null, (o) => {
+  obj("lab", "lab", "A flickering hatch: The Lab", (o) => {
     const b = svg("g", { class: "body" }, o);
     svg("rect", { x: 1010, y: 760, width: 80, height: 34, rx: 3, fill: "#0b0d06", stroke: "#c6ff3d", "stroke-opacity": .6 }, b);
     svg("rect", { class: "lab-light", x: 1018, y: 768, width: 64, height: 6, fill: "#c6ff3d", opacity: .8 }, b);
@@ -1529,27 +1690,79 @@ function buildRooftop() {
 }
 
 /* ==========================================================================
+   MARI WORLD — scrolling city sections (rendered from the same portfolioData)
+   ========================================================================== */
+const HUES = ["#ff4fd8", "#8fa8ff", "#c084fc", "#ff7a9c"];
+function renderWorldSections() {
+  $("#dossiers").innerHTML = P.projects.map((p, i) => `
+    <button type="button" class="dossier glass w-reveal" style="--hue:${HUES[i % HUES.length]}" data-mission="${p.id}">
+      <span class="code">MISSION ${String(i + 1).padStart(2, "0")} · ${esc(p.sign)}</span>
+      <h3>${esc(p.name)}</h3>
+      <p>${esc(p.description)}</p>
+      <span class="open">OPEN MISSION BRIEF →</span>
+    </button>`).join("");
+  $("#dossiers").addEventListener("click", (e) => { const d = e.target.closest("[data-mission]"); if (d) openLocation("project", d.dataset.mission, d); });
+
+  const exp = P.experience;
+  $("#tower").innerHTML = exp.map((e, i) => `
+    <li class="t-floor glass w-reveal ${e.current ? "current" : ""}" id="floor-card-${i}">
+      <button type="button" aria-expanded="${i === 0}" aria-controls="floor-body-${i}">
+        <span class="lvl">FLOOR ${exp.length - i}</span>
+        <span><h3>${esc(e.role)}</h3><p class="co">${esc(e.company)} · ${esc(e.dates)}</p></span>
+        <span class="chev" aria-hidden="true">▾</span>
+      </button>
+      <div class="t-body" id="floor-body-${i}" ${i === 0 ? "" : "hidden"}>
+        <div class="panel"><h4>Responsibilities</h4><ul>${e.responsibilities.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
+        <div class="panel"><h4>Achievements</h4><ul>${e.achievements.map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div>
+        <div class="panel" style="grid-column:1/-1"><h4>Technologies</h4><div class="tags">${e.technologies.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div>
+      </div>
+    </li>`).join("");
+  $("#tower").addEventListener("click", (e) => {
+    const b = e.target.closest("button[aria-controls]"); if (!b) return;
+    const open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(open));
+    $("#" + b.getAttribute("aria-controls")).hidden = !open;
+  });
+
+  $("#modules").innerHTML = P.skills.map((c) => `<div class="module"><h3>${esc(c.category.toUpperCase())} <span>● ONLINE</span></h3>${c.items.map(([n, l]) => `<div class="mod-row"><span>${esc(n)}</span><span>${l}%</span></div><div class="mod-bar" role="img" aria-label="${esc(n)} ${l} percent"><i style="--w:${l}%"></i></div>`).join("")}</div>`).join("");
+  $("#archive").innerHTML = P.archive.map((a) => `<div class="arch"><h3>${esc(a.name)}</h3><p>${esc(a.note)}</p><p class="meta">[${esc(a.tag)}]</p></div>`).join("");
+  $("#records").innerHTML = P.achievements.map((a) => `<div class="record w-reveal"><h3>${esc(a.title)}</h3><p>${esc(a.note)}</p><p class="yr">${esc(a.year)}</p></div>`).join("");
+
+  $("#idcard").innerHTML = `<div class="ph">${CONFIG.photo ? `<img src="${esc(CONFIG.photo)}" alt="Photo of ${esc(CONFIG.name)}" width="112" height="112" loading="lazy">` : ""}</div>
+    <div><small>OPERATOR ID · VERIFIED</small><b>${esc(CONFIG.fullName)}</b><span>${esc(CONFIG.title.split("·")[0].trim())} · ${esc(CONFIG.company)}</span></div>`;
+  $("#luffy-note").innerHTML = `${luffySVG(34)}<span>Luffy: “Channel’s open. Be polite, or I chew the cable.”</span>`;
+  $("#comms-links").innerHTML = `
+    <a href="mailto:${esc(P.contact.email)}">${ICON.mail.replace("<svg", '<svg width="18" height="18"')} ${esc(P.contact.email)}</a>
+    <a href="${esc(P.contact.linkedin)}" target="_blank" rel="noopener">${ICON.linkedin.replace("<svg", '<svg width="18" height="18"')} LinkedIn</a>
+    <a href="${esc(P.contact.github)}" target="_blank" rel="noopener">${ICON.github.replace("<svg", '<svg width="18" height="18"')} GitHub</a>`;
+  $("#world-form-slot").appendChild(buildContactForm("world"));
+}
+
+/* ==========================================================================
    NAMI — ambient guide
    ========================================================================== */
 const NAMI_LINES = [
   "Another visitor has entered.",
   "Would you like to see what Mari has built?",
   "The city remembers every project.",
-  "Each floor of the tower is a chapter of Mari’s career.",
-  "The console on the rooftop is still humming. Mari left it running.",
+  "Descend. The lower levels keep the details.",
   "There is more here than the public records show."
 ];
+const NAMI_LEVEL = {
+  "w-missions": "Mission archive detected.",
+  "w-career": "Career records. Floor by floor.",
+  "w-console": "System modules online.",
+  "w-archive": "Smaller missions are stored in the terminal.",
+  "w-vault": "Encrypted records. Partially decrypted for you.",
+  "w-comms": "A channel to Mari is open."
+};
 const NAMI_HOVER = {
-  project: "Mission archive detected.",
-  career: "Career records. Floor by floor.",
-  archive: "Smaller missions are stored in the terminal.",
-  console: "System modules online.",
-  achievements: "Encrypted records. Partially decrypted for you.",
-  comms: "A channel to Mari is open.",
-  lab: "…you weren’t supposed to find that yet."
+  project: "Mission archive detected.", career: "Career records. Floor by floor.", archive: "Smaller missions are stored in the terminal.",
+  console: "System modules online.", achievements: "Encrypted records.", comms: "A channel to Mari is open.", lab: "…you weren’t supposed to find that yet."
 };
 let namiTimer, namiIdx = 0, namiHideTimer;
 function namiSay(text, ms = 5200) {
+  if (!text) return;
   const box = $("#nami-say");
   $("#nami-text").textContent = text;
   box.classList.add("show");
@@ -1558,15 +1771,15 @@ function namiSay(text, ms = 5200) {
 }
 function startNami() {
   clearInterval(namiTimer);
-  namiTimer = setInterval(() => { namiIdx = (namiIdx + 1) % NAMI_LINES.length; namiSay(NAMI_LINES[namiIdx]); }, 14000);
+  namiTimer = setInterval(() => { namiIdx = (namiIdx + 1) % NAMI_LINES.length; if (worldEl().scrollTop < innerHeight * .5) namiSay(NAMI_LINES[namiIdx]); }, 15000);
 }
 
 /* Luffy reacts with small speech bubbles */
 let luffyBubbleTimer;
 function luffySay(text, ms = 4200) {
   const b = $("#luffy-bubble");
-  if (!$("#chat").hidden) return; // the chat window is open: don't stack bubbles
-  if (!$("#map-list").hidden && innerWidth < 640) return; // don't cover the city map on phones
+  if (!$("#chat").hidden) return;
+  if (!$("#map-list").hidden && innerWidth < 640) return;
   b.textContent = text;
   b.classList.add("show");
   clearTimeout(luffyBubbleTimer);
@@ -1574,7 +1787,9 @@ function luffySay(text, ms = 4200) {
 }
 
 /* ==========================================================================
-   PROJECT MISSIONS + LOCATION DIALOGS
+   PROJECT MISSIONS + LOCATIONS
+   Towers open a cinematic Mission Brief; rooftop objects take you down to
+   their level of the city; the Lab opens its own (hidden) dialog.
    ========================================================================== */
 let lastHover = "", visited = new Set(), lastTrigger = null;
 function hoverLocation(type, ref) {
@@ -1598,8 +1813,8 @@ function openDialog(html, cls = "") {
   const h = $("#wd-title");
   if (h) { h.setAttribute("tabindex", "-1"); h.focus(); }
 }
-wd.addEventListener("close", () => { if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus(); });
-wd.addEventListener("click", (e) => { if (e.target === wd) wd.close(); }); // click on backdrop
+wd.addEventListener("close", () => { if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus({ preventScroll: true }); });
+wd.addEventListener("click", (e) => { if (e.target === wd) wd.close(); });
 
 const head = (kicker, title) => `<div class="wd-head"><div><p class="wd-kicker">${kicker}</p><h2 id="wd-title">${esc(title)}</h2></div><button class="wd-close" type="button" aria-label="Close">✕</button></div>`;
 
@@ -1622,59 +1837,42 @@ function missionBrief(p) {
   </div>`;
 }
 
+const LEVEL_OF = { archive: "w-archive", console: "w-console", achievements: "w-vault", comms: "w-comms", career: "w-career" };
+function goToLevel(id, focusEl) {
+  const sec = $("#" + id);
+  sec.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  const h = sec.querySelector("h2");
+  if (h) { h.setAttribute("tabindex", "-1"); setTimeout(() => (focusEl || h).focus({ preventScroll: true }), reduceMotion ? 0 : 700); }
+}
+
 function openLocation(type, ref, trigger) {
   lastTrigger = trigger || document.activeElement;
-  visited.add(type);
-  if (visited.size >= 3) wakeLab();
-
   if (type === "project") {
-    const p = P.projects.find((x) => x.id === ref);
     namiSay("Opening mission archive…", 2200);
-    openDialog(missionBrief(p), "mission");
-  } else if (type === "archive") {
-    openDialog(`${head("Rooftop terminal", "Mission Archive")}
-      <div class="term"><p class="prompt">ls ./missions --small --experiments</p><p style="color:#5fa886;margin-top:4px">${P.archive.length} records found</p>
-      <div class="arch-grid">${P.archive.map((a) => `<div class="arch"><h3>${esc(a.name)}</h3><p>${esc(a.note)}</p><p class="meta">[${esc(a.tag)}]</p></div>`).join("")}</div></div>`);
-  } else if (type === "console") {
-    openDialog(`${head("Rooftop console", "System Console")}
-      <div class="console"><p class="ln" id="console-ln"></p>
-      <div class="modules">${P.skills.map((c) => `<div class="module"><h3>${esc(c.category.toUpperCase())} <span>● ONLINE</span></h3>${c.items.map(([n, l]) => `<div class="mod-row"><span>${esc(n)}</span><span>${l}%</span></div><div class="mod-bar" role="img" aria-label="${esc(n)} ${l} percent"><i style="--w:${l}%"></i></div>`).join("")}</div>`).join("")}</div></div>`);
-    typeLines($("#console-ln"), ["> boot mari.sys", "> loading modules … ok", `> SYSTEM MODULES ONLINE: ${P.skills.length}`, "> diagnostics: all green. coffee level: low"]);
+    openDialog(missionBrief(P.projects.find((x) => x.id === ref)), "mission");
   } else if (type === "career") {
-    const exp = P.experience;
-    openDialog(`${head("Career Timeline Tower", exp[ref].role)}
-      <div class="floors">${exp.map((e, i) => `<div class="floor ${i === ref ? "current" : ""}"><span class="lvl">FLOOR ${exp.length - i}</span><div>
-        <h3 style="font-size:1.05rem">${esc(e.role)} <span style="color:#ff9be4;font-weight:500">· ${esc(e.company)}</span></h3>
-        <p style="font:500 .8rem var(--mono);color:#a99bff;margin-top:2px">${esc(e.dates)}</p>
-        ${i === ref ? `<div class="grid2" style="margin-top:12px"><div class="panel"><h3>Responsibilities</h3><ul>${e.responsibilities.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div><div class="panel"><h3>Achievements</h3><ul>${e.achievements.map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div><div class="panel full"><h3>Technologies</h3><div class="tags">${e.technologies.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div></div>` : ""}
-      </div></div>`).join("")}</div>`);
-  } else if (type === "achievements") {
-    openDialog(`${head("Encrypted records", "Achievement Vault")}
-      <div class="vault-grid">${P.achievements.map((a) => `<div class="record"><h3>${esc(a.title)}</h3><p>${esc(a.note)}</p><p class="yr">${esc(a.year)}</p></div>`).join("")}</div>`);
-  } else if (type === "comms") {
-    openDialog(`${head("Communication Channel", "Open a channel to Mari")}
-      <div class="mission-hero" style="border-color:#ff6ad555;color:#ffe6f7">${luffySVG(34)}<span>Luffy: “Channel’s open. Be polite, or I chew the cable.”</span></div>
-      <div class="grid2"><div class="comms-links">
-        <a href="mailto:${esc(P.contact.email)}">${ICON.mail.replace("<svg", '<svg width="18" height="18"')} ${esc(P.contact.email)}</a>
-        <a href="${esc(P.contact.linkedin)}" target="_blank" rel="noopener">${ICON.linkedin.replace("<svg", '<svg width="18" height="18"')} LinkedIn</a>
-        <a href="${esc(P.contact.github)}" target="_blank" rel="noopener">${ICON.github.replace("<svg", '<svg width="18" height="18"')} GitHub</a>
-      </div><div id="world-form-slot"></div></div>`, "comms");
-    $("#world-form-slot").appendChild(buildContactForm("world"));
+    const card = $(`#floor-card-${ref}`), btn = card.querySelector("button");
+    btn.setAttribute("aria-expanded", "true"); card.querySelector(".t-body").hidden = false;
+    card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash");
+    goToLevel("w-career", btn);
   } else if (type === "lab") {
     wakeLab();
     namiSay(NAMI_HOVER.lab, 3000);
     openDialog(`${head("Restricted sub-level", "The Lab")}
       <p style="color:#b8cc7a;margin:-6px 0 18px">Unfinished things live here. Some of them bite. <span class="glitch" data-text="Do not feed the prototypes.">Do not feed the prototypes.</span></p>
       <div class="lab-grid">${P.lab.map((x) => `<div class="exp"><h3>${esc(x.name)}</h3><p>${esc(x.note)}</p><span class="st">${esc(x.state)}</span></div>`).join("")}</div>`, "lab");
+  } else if (LEVEL_OF[type]) {
+    goToLevel(LEVEL_OF[type]);
   }
 }
 
 function typeLines(el, lines) {
-  if (!el) return;
+  if (!el || el.dataset.typed) return;
+  el.dataset.typed = "1";
   if (reduceMotion) { el.textContent = lines.join("\n"); return; }
   let li = 0, ci = 0;
   const tick = () => {
-    if (!document.contains(el) || li >= lines.length) return;
+    if (li >= lines.length) return;
     el.textContent += lines[li][ci++] || "";
     if (ci > lines[li].length) { el.textContent += "\n"; li++; ci = 0; }
     setTimeout(tick, ci === 0 ? 180 : 18);
@@ -1688,14 +1886,19 @@ function wakeLab() {
   lab.hidden = false;
   lab.el.classList.remove("dormant"); lab.el.classList.add("awake");
   lab.el.setAttribute("tabindex", "0");
+  const door = $("#sealed");
+  door.classList.add("awake"); door.removeAttribute("aria-disabled");
+  door.textContent = "⌁ SUB-LEVEL UNSEALED · ENTER THE LAB";
   renderMap(true);
-  setTimeout(() => namiSay("There is more here than the public records show.", 6000), 1200);
+  setTimeout(() => namiSay("There is more here than the public records show.", 6000), 1000);
 }
 
-/* City map — every visible location as a button (keyboard + mobile friendly) */
+/* City levels — quick navigation (keyboard + mobile friendly) */
+const LEVELS = [["w-rooftop", "ROOFTOP"], ["w-missions", "MISSIONS"], ["w-career", "CAREER"], ["w-console", "CONSOLE"], ["w-archive", "ARCHIVE"], ["w-vault", "VAULT"], ["w-comms", "COMMS"]];
 function renderMap(labNew = false) {
-  const names = { project: (l) => P.projects.find((p) => p.id === l.ref).sign, career: (l) => `CAREER · F${P.experience.length - l.ref}`, archive: () => "ARCHIVE", console: () => "CONSOLE", achievements: () => "VAULT", comms: () => "COMMS", lab: () => "THE LAB" };
-  $("#map-list").innerHTML = locations.filter((l) => !l.hidden).map((l) => `<li><button type="button" class="loc-btn ${labNew && l.type === "lab" ? "new" : ""}" data-loc="${l.id}" aria-label="${esc(l.label)}">${esc(names[l.type](l))}</button></li>`).join("");
+  const lab = locations.find((l) => l.type === "lab");
+  $("#map-list").innerHTML = LEVELS.map(([id, n]) => `<li><button type="button" class="loc-btn" data-level="${id}">${n}</button></li>`).join("") +
+    (lab && !lab.hidden ? `<li><button type="button" class="loc-btn ${labNew ? "new" : ""}" data-lab="1">THE LAB</button></li>` : "");
 }
 function initMap() {
   renderMap();
@@ -1703,32 +1906,56 @@ function initMap() {
   const set = (open) => { t.setAttribute("aria-expanded", String(open)); list.hidden = !open; };
   t.addEventListener("click", () => set(list.hidden));
   list.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-loc]");
-    if (!b) return;
-    const l = locations.find((x) => x.id === b.dataset.loc);
-    l.el.classList.add("hot"); setTimeout(() => l.el.classList.remove("hot"), 1200);
-    openLocation(l.type, l.ref, b);
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.lab) { openLocation("lab", null, b); return; }
+    if (innerWidth < 640) set(false);
+    b.dataset.level === "w-rooftop" ? worldEl().scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }) : goToLevel(b.dataset.level);
   });
-  list.addEventListener("mouseover", (e) => { const b = e.target.closest("[data-loc]"); if (!b) return; const l = locations.find((x) => x.id === b.dataset.loc); locations.forEach((x) => x.el.classList.toggle("hot", x === l)); hoverLocation(l.type, l.ref); });
-  list.addEventListener("mouseleave", () => locations.forEach((x) => x.el.classList.remove("hot")));
-  // On phones the skyline is swipeable and tappable; the map stays one tap away so it doesn't cover the city.
+}
+
+/* Levels: reveal on scroll, Nami comments, current level marker, Lab discovery */
+function initLevels() {
+  const root = worldEl();
+  if (!("IntersectionObserver" in window)) { $$(".w-reveal").forEach((e) => e.classList.add("in")); return; }
+  const reveal = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } }), { root, rootMargin: "0px 0px -10% 0px" });
+  $$(".w-reveal").forEach((e) => (reduceMotion ? e.classList.add("in") : reveal.observe(e)));
+  const levels = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const id = e.target.id;
+    $$("#map-list [data-level]").forEach((b) => b.setAttribute("aria-current", String(b.dataset.level === id)));
+    if (id === "w-rooftop") return;
+    if (!visited.has(id)) { visited.add(id); namiSay(NAMI_LEVEL[id], 3200); }
+    if (id === "w-console") typeLines($("#console-ln"), ["> boot mari.sys", "> loading modules … ok", `> SYSTEM MODULES ONLINE: ${P.skills.length}`, "> diagnostics: all green. coffee level: low"]);
+    if (visited.size >= 3) wakeLab();
+  }), { root, threshold: .35 });
+  LEVELS.forEach(([id]) => levels.observe($("#" + id)));
+}
+
+/* Parallax: hologram and far skyline drift slower than the page; hero text fades */
+let parallaxRaf = 0;
+function onWorldScroll() {
+  if (parallaxRaf) return;
+  parallaxRaf = requestAnimationFrame(() => {
+    parallaxRaf = 0;
+    const y = worldEl().scrollTop, h = innerHeight;
+    $("#hud").classList.toggle("solid", y > h * .6);
+    if (reduceMotion || y > h * 1.2) return;
+    $("#nami").setAttribute("transform", `translate(0 ${(y * .28).toFixed(1)})`);
+    $("#far-city").setAttribute("transform", `translate(0 ${(y * .14).toFixed(1)})`);
+    $("#hero-copy").style.opacity = String(Math.max(0, 1 - y / (h * .45)));
+  });
 }
 
 function centerPan() {
   requestAnimationFrame(() => { const pan = $("#pan"); pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; });
 }
-/* Fit the skyline: fill wide screens, keep everything visible on tall phones */
+/* Fit the skyline: fill wide screens; on portrait screens keep full height and let visitors swipe */
 function fitScene() {
   const a = innerWidth / innerHeight;
-  const pannable = a < 1.05;            // portrait: pan instead of shrinking the city into a strip
-  const wasPannable = document.body.classList.contains("pannable");
+  const pannable = a < 1.05;
+  const was = document.body.classList.contains("pannable");
   document.body.classList.toggle("pannable", pannable);
-  if (pannable) {
-    $("#scene").setAttribute("preserveAspectRatio", "xMidYMax slice");
-    if (!wasPannable) centerPan();
-    return;
-  }
-  // slice only when the crop stays inside the safe area (x 80–1520); otherwise show the whole scene
+  if (pannable) { $("#scene").setAttribute("preserveAspectRatio", "xMidYMax slice"); if (!was) centerPan(); return; }
   $("#scene").setAttribute("preserveAspectRatio", a >= 1.6 ? "xMidYMax slice" : "xMidYMid meet");
 }
 
@@ -1743,8 +1970,8 @@ function initRain() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
     c.width = innerWidth * dpr; c.height = innerHeight * dpr;
     rain.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const n = Math.round(Math.min(380, (innerWidth * innerHeight) / 5200));
-    rain.drops = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, l: 10 + Math.random() * 18, v: 9 + Math.random() * 9, o: .15 + Math.random() * .35 }));
+    const n = Math.round(Math.min(360, (innerWidth * innerHeight) / 5600));
+    rain.drops = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, l: 10 + Math.random() * 18, v: 9 + Math.random() * 9, o: .12 + Math.random() * .3 }));
   };
   size();
   addEventListener("resize", () => { size(); fitScene(); });
@@ -1754,17 +1981,14 @@ function rainFrame() {
   ctx.clearRect(0, 0, innerWidth, innerHeight);
   ctx.lineWidth = 1;
   for (const d of drops) {
-    ctx.strokeStyle = `rgba(190,210,255,${d.o})`;
+    ctx.strokeStyle = `rgba(255,214,240,${d.o})`;
     ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 2, d.y + d.l); ctx.stroke();
     d.y += d.v; d.x -= .6;
     if (d.y > innerHeight) { d.y = -20; d.x = Math.random() * (innerWidth + 40); }
   }
   if (rain.running) rain.raf = requestAnimationFrame(rainFrame);
 }
-function startRain() {
-  if (reduceMotion || rain.running) return;
-  rain.running = true; rain.raf = requestAnimationFrame(rainFrame);
-}
+function startRain() { if (reduceMotion || rain.running) return; rain.running = true; rain.raf = requestAnimationFrame(rainFrame); }
 function stopRain() { rain.running = false; cancelAnimationFrame(rain.raf); rain.ctx && rain.ctx.clearRect(0, 0, innerWidth, innerHeight); }
 document.addEventListener("visibilitychange", () => { if (document.hidden) stopRain(); else if (mode === "world") startRain(); });
 
@@ -1774,7 +1998,11 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) stopR
 let mode = "pro", worldBuilt = false;
 function buildWorld() {
   if (worldBuilt) return;
-  buildFarCity(); buildMidCity(); buildRooftop(); initMap(); initRain(); fitScene();
+  buildFarCity(); buildMidCity(); buildLedge(); buildRooftop(); renderWorldSections(); initMap(); initRain();
+  worldEl().addEventListener("scroll", onWorldScroll, { passive: true });
+  $("#scroll-cue").addEventListener("click", () => goToLevel("w-missions"));
+  $("#sealed").addEventListener("click", (e) => { if (e.currentTarget.classList.contains("awake")) openLocation("lab", null, e.currentTarget); else namiSay("Sealed. Explore the city first.", 2600); });
+  $("#back-pro-2").addEventListener("click", exitWorld);
   worldBuilt = true;
 }
 
@@ -1791,8 +2019,9 @@ async function enterWorld() {
   $("#pro").hidden = true;
   $("#world").hidden = false;
   document.body.style.overflow = "hidden";
-  fitScene(); centerPan();                        // measure only once the world is visible
-  scrollTo(0, 0);
+  scrollTo(0, 0); worldEl().scrollTop = 0;
+  fitScene(); centerPan();
+  if (!worldEl().dataset.levels) { initLevels(); worldEl().dataset.levels = "1"; }
   startRain();                                    // 3. rain appears
   $("#veil").classList.remove("on");
   document.body.classList.add("world-on");        // 4. neon skyline fades in
@@ -1805,7 +2034,7 @@ async function enterWorld() {
   await wait(1400);
   $("#chat-fab").style.transition = "opacity .6s"; // 6. Luffy appears
   $("#chat-fab").style.opacity = "1";
-  luffySay("Mrrp. Another one. Click the glowing towers, human. Or click me. I’m more interesting. 🐾", 5200);
+  luffySay("Mrrp. Another one. Scroll down if you want the tour. Or click me. I’m more interesting. 🐾", 5200);
   if (document.body.classList.contains("pannable")) { const h = $("#swipe-hint"); h.classList.add("show"); setTimeout(() => h.classList.remove("show"), 5000); }
   startNami();
 }
