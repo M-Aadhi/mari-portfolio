@@ -78,3 +78,14 @@ test("misconfiguration gives a clear 503 instead of a server error", async () =>
   const h = await (await worker.fetch(new Request("https://vault.test/api/health"), { TOTP_SECRET: "bad!", VAULT: memoryKV() })).json();
   assert.deepEqual([h.vault, h.secretValid, h.storageReady], [true, false, true]);
 });
+
+test("secretHint explains a bad secret without revealing it", async () => {
+  const { secretHint } = await import("../src/worker.js");
+  assert.match(secretHint("TOTP_SECRET").problem, /variable name/);
+  const h = secretHint("my-p@ssw0rd!");
+  assert.equal(h.badCharacters, 3);                  // @, 0 and ! (the dash is ignored as a separator)
+  assert.ok(h.badKinds.includes("punctuation or symbols") && h.badKinds.includes("digits 0, 1, 8 or 9"));
+  assert.ok(!JSON.stringify(h).includes("ssw"));      // never echoes the value
+  assert.match(secretHint("ABC").problem, /too short/);
+  assert.match(secretHint({}).problem, /not plain text/);
+});

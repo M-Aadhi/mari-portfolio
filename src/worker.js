@@ -45,6 +45,8 @@ async function api(req, env, url) {
       ok: true,
       vault: Boolean(env.TOTP_SECRET),
       secretValid: Boolean(secretBytes(env)),
+      // Only when the secret is unusable: a safe hint (length and kinds of bad characters, never the characters)
+      ...(env.TOTP_SECRET && !secretBytes(env) ? { secretHint: secretHint(env.TOTP_SECRET) } : {}),
       storageReady: Boolean(env.VAULT),
       storage: env.FILES ? "r2" : "kv",
       maxFile: fileLimit(env)
@@ -187,6 +189,29 @@ function secretBytes(env) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Describes why a TOTP_SECRET value is unusable without revealing it: its cleaned length and which
+ * kinds of characters are not allowed. A valid secret is 32 characters of A–Z and 2–7.
+ */
+export function secretHint(raw) {
+  if (typeof raw !== "string") return { problem: "TOTP_SECRET is not plain text. Add it as type Secret (or Text), not JSON." };
+  const s = normalizeSecret(raw);
+  if (s === "TOTP_SECRET") return { problem: "The value is the variable name itself. Paste the 32-character secret from the setup page." };
+  const bad = [...s].filter((c) => !/[A-Z2-7]/.test(c));
+  const kinds = [];
+  if (bad.some((c) => /[0189]/.test(c))) kinds.push("digits 0, 1, 8 or 9");
+  if (bad.some((c) => /[\p{P}\p{S}]/u.test(c))) kinds.push("punctuation or symbols");
+  if (bad.some((c) => /[\p{C}\p{Z}]/u.test(c))) kinds.push("invisible characters");
+  if (bad.some((c) => /\p{L}/u.test(c) && !/[A-Z]/.test(c))) kinds.push("non-English letters");
+  return {
+    length: s.length,
+    expectedLength: 32,
+    badCharacters: bad.length,
+    ...(kinds.length ? { badKinds: kinds } : {}),
+    problem: bad.length ? "The value contains characters an authenticator secret never has." : "The value is too short to be an authenticator secret."
+  };
 }
 
 /** Returns the matching time-step counter (current step ±1 for clock drift), or null. */
