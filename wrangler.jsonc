@@ -1,0 +1,23 @@
+// Cloudflare Worker: serves the static site from ./public and the private vault API under /api/*.
+// Deployed by Workers Builds from GitHub (main = production; test = preview versions).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mari-portfolio",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  // KV holds sessions, login rate limits, clipboard snippets and (until R2 is enabled) files up to 25 MB.
+  "kv_namespaces": [
+    { "binding": "VAULT", "id": "019b30395f72404193d5cf33d8632956" }
+  ],
+  // Optional: enable R2 in the Cloudflare dashboard, create a bucket named "mari-vault-files",
+  // then uncomment this. Files then go to R2 (up to 100 MB each) instead of KV.
+  // "r2_buckets": [{ "binding": "FILES", "bucket_name": "mari-vault-files" }],
+  "observability": { "enabled": true }
+  // Secrets (set in the dashboard: Worker → Settings → Variables and Secrets, never in git):
+  //   TOTP_SECRET  base32 authenticator secret (make it with tools/totp-setup.html)
+}

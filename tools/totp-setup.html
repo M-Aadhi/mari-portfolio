@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vault Authenticator Setup</title>
+<!--
+  One-time setup for the private vault. Open this file directly from your computer (it works offline).
+  It creates a new authenticator secret IN YOUR BROWSER. Nothing is sent anywhere or saved.
+  1. Scan the QR code with Google Authenticator.
+  2. Copy the secret into Cloudflare: Worker "mari-portfolio" → Settings → Variables and Secrets →
+     Add → type Secret, name TOTP_SECRET.
+  3. Close this page. Never commit or share the secret.
+  QR code library: qrcode-generator 1.4.4 by Kazuhiko Arase (MIT), vendored in qrcode.js.
+-->
+<script src="qrcode.js"></script>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;background:#07110c;color:#d9ffec;font:16px/1.5 system-ui,sans-serif}
+  main{max-width:560px;margin:0 auto;padding:32px 16px}
+  h1{font-size:1.4rem;margin:0 0 8px}
+  ol{padding-left:20px}
+  #qr{background:#fff;display:inline-block;padding:12px;border-radius:12px;margin:16px 0}
+  #qr img{display:block;width:240px;height:240px;image-rendering:pixelated}
+  code{display:block;word-break:break-all;background:#02140c;border:1px solid #2f9a6f;border-radius:8px;padding:12px;font:600 1rem ui-monospace,monospace;letter-spacing:.06em}
+  button{margin-top:10px;min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #5fd4a0;background:#0b2a1d;color:#e6fff1;font:600 .9rem system-ui;cursor:pointer}
+  .warn{margin-top:20px;padding:12px;border:1px solid #ffcf5c66;border-radius:8px;color:#ffe3a3;font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Vault authenticator setup</h1>
+  <ol>
+    <li>Open Google Authenticator → <b>+</b> → <b>Scan a QR code</b>, and scan this:</li>
+  </ol>
+  <div id="qr" aria-label="QR code for Google Authenticator"></div>
+  <ol start="2">
+    <li>Copy this secret into Cloudflare as the Worker secret <b>TOTP_SECRET</b>:</li>
+  </ol>
+  <code id="secret"></code>
+  <button type="button" id="copy">Copy secret</button>
+  <button type="button" id="again">Make a new one</button>
+  <ol start="3"><li>Close this page. The secret is not saved anywhere else.</li></ol>
+  <p class="warn">Anyone with this secret can open your vault. Don’t screenshot it, commit it to git, or paste it in chat. If it leaks, make a new one here and replace TOTP_SECRET.</p>
+</main>
+<script>
+function base32(bytes) {
+  const a = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0, value = 0, out = "";
+  for (const b of bytes) {
+    value = (value << 8) | b; bits += 8;
+    while (bits >= 5) { out += a[(value >>> (bits - 5)) & 31]; bits -= 5; }
+    value &= 0xff;
+  }
+  if (bits > 0) out += a[(value << (5 - bits)) & 31];
+  return out;
+}
+function make() {
+  const secret = base32(crypto.getRandomValues(new Uint8Array(20)));   // 160-bit, as RFC 4226 recommends
+  const uri = `otpauth://totp/Mari%20Vault:Mari?secret=${secret}&issuer=Mari%20Vault&algorithm=SHA1&digits=6&period=30`;
+  const qr = qrcode(0, "M");
+  qr.addData(uri); qr.make();
+  document.getElementById("qr").innerHTML = qr.createImgTag(6, 0);
+  document.getElementById("secret").textContent = secret;
+}
+document.getElementById("copy").addEventListener("click", async (e) => {
+  await navigator.clipboard.writeText(document.getElementById("secret").textContent);
+  e.target.textContent = "Copied ✓";
+});
+document.getElementById("again").addEventListener("click", make);
+make();
+</script>
+</body>
+</html>

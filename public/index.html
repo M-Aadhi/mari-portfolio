@@ -493,7 +493,7 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 @keyframes gl{0%,90%{transform:translate(0)}92%{transform:translate(3px,-1px)}96%{transform:translate(-3px,1px)}}
 
 /* ==========================================================================
-   AUTHENTICATION DEMO + PRIVATE VAULT
+   AUTHENTICATION + PRIVATE VAULT
    ========================================================================== */
 .auth{width:min(420px,calc(100vw - 24px));padding:0;border:1px solid #ff4f6d88;border-radius:18px;background:#0c0508f7;color:#ffe8ec;box-shadow:0 0 70px #ff4f6d33;font-family:var(--mono)}
 .auth[open]{animation:wdin .4s var(--ease)}
@@ -536,6 +536,45 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 .vw .kpi span{font-size:.72rem;color:#5fa886}
 .vw textarea{width:100%;min-height:120px;background:#020604;border:1px solid #1f6b4f;border-radius:8px;color:#c8ffe1;padding:10px;font:.85rem var(--mono)}
 .vault-note{margin-top:18px;font-size:.75rem;color:#5fa886}
+.vault-demo{margin-top:14px;padding:10px 12px;border:1px solid #ffcf5c66;border-radius:8px;color:#ffe3a3;font-size:.8rem;background:#1a1405}
+.demo-badge.live{background:#5fd4a0;color:#03140d}
+.vw.full{grid-column:span 12}
+.vw-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.vw-head h3{margin:0}
+.vw-hint{font-size:.7rem;color:#5fa886}
+.vw .muted{color:#5fa886;font-size:.82rem}
+.vw .muted::before{content:none}
+.drop{display:flex;align-items:center;justify-content:center;min-height:84px;padding:14px;border:1.5px dashed #2f9a6f;border-radius:10px;background:#03140d;color:#b5e8cc;font:.85rem var(--font);text-align:center;cursor:pointer;transition:background .2s,border-color .2s}
+.drop:hover,.drop.over,.drop:focus-within{background:#082419;border-color:#7dffc4}
+.drop b{color:#e6fff1}
+.up-list{display:grid;gap:6px;margin-top:8px}
+.up{display:flex;align-items:center;gap:10px;font-size:.8rem;color:#b5e8cc}
+.up span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up progress{width:120px;accent-color:#5fd4a0}
+.up.bad{color:#ff8fa3}
+.vbtn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #2f9a6f;background:#0b2a1d;color:#d9ffec;font:600 .76rem var(--mono);letter-spacing:.04em;cursor:pointer;text-decoration:none;white-space:nowrap}
+.vbtn:hover,.vbtn:focus-visible{background:#11402c;border-color:#7dffc4}
+.vbtn.ghost{background:transparent}
+.vbtn.danger{border-color:#ff4f6d66;color:#ffc2cc;background:transparent}
+.vbtn.danger:hover{background:#2a0c16}
+.vw .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.vw .row small{flex:1;color:#5fa886;font-size:.72rem}
+.file-list,.clip-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px;max-height:360px;overflow-y:auto}
+.vw .file-list li,.vw .clip-list li{display:flex;margin:0}
+.vw .file-list li::before,.vw .clip-list li::before{content:none}
+.file-list li{align-items:center;gap:10px;padding:8px 10px;border:1px solid #1f6b4f;border-radius:8px;background:#020604}
+.file-list .fn{flex:1;min-width:0;display:flex;flex-direction:column}
+.file-list .fn b{color:#e6fff1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-list .fn small{color:#5fa886;font-size:.72rem}
+.clip-list li{flex-direction:column;padding:8px 10px;border:1px solid #1f6b4f;border-radius:8px;background:#020604}
+.clip-list pre{margin:0;max-height:96px;overflow:auto;white-space:pre-wrap;word-break:break-word;font:.8rem/1.45 var(--mono);color:#c8ffe1}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.img-grid figure{margin:0;border:1px solid #1f6b4f;border-radius:10px;overflow:hidden;background:#020604}
+.img-grid img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.img-grid figcaption{display:flex;align-items:center;gap:6px;padding:6px}
+.img-grid figcaption span{flex:1;min-width:0;font-size:.72rem;color:#b5e8cc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.img-grid .vbtn{min-height:30px;padding:0 9px}
+.vault-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;padding:10px 16px;border-radius:999px;background:#0b2a1d;border:1px solid #5fd4a0;color:#e6fff1;font-size:.82rem}
 
 /* ==========================================================================
    RESPONSIVE
@@ -544,7 +583,10 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
   .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}
   .job-cols{grid-template-columns:1fr}
   .proj-grid{grid-template-columns:1fr}
-  .vw,.vw.wide{grid-column:span 12}
+  .vw,.vw.wide,.vw.full{grid-column:span 12}
+  .file-list li{flex-wrap:wrap}
+  .file-list .fn{flex-basis:calc(100% - 40px)}
+  .file-list li a.vbtn{margin-left:auto}
 }
 @media (max-width:860px){
   .plinks{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:#0b0c10f5;border-bottom:1px solid var(--line);padding:10px 20px 18px}
@@ -819,13 +861,13 @@ dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
 <!-- Generic world dialog: content is rendered per location -->
 <dialog class="wd" id="wd" aria-labelledby="wd-title"><div class="wd-inner" id="wd-inner"></div></dialog>
 
-<!-- AUTHENTICATION DEMO -->
+<!-- AUTHENTICATION (real TOTP check via the Worker; demo code when there is no backend) -->
 <dialog class="auth" id="auth" aria-labelledby="auth-title" aria-describedby="auth-desc">
   <div class="auth-inner">
     <div class="lock" aria-hidden="true">🔒</div>
     <h2 id="auth-title">Restricted Area</h2>
     <p id="auth-desc">Authenticator verification required. Enter the 6-digit code from your authenticator app.</p>
-    <span class="demo-badge">DEMO AUTHENTICATION ONLY · code 123456</span>
+    <span class="demo-badge" id="auth-badge">DEMO AUTHENTICATION ONLY · code 123456</span>
     <form id="auth-form" autocomplete="off">
       <fieldset style="border:0;padding:0;margin:0">
         <legend class="sr-only">6-digit authentication code</legend>
@@ -1221,7 +1263,7 @@ function buildContactForm(variant) {
    on an AI model "recognising" the phrase, and the phrase is never sent to a
    third-party LLM. NOTE: a phrase in client-side code is not a secret from
    anyone who reads the source — it only opens the door to the REAL check
-   (TOTP verified on the backend). See AUTHENTICATION DEMO below.
+   (TOTP verified on the backend). See AUTHENTICATION + PRIVATE VAULT below.
    ========================================================================== */
 const SECRET_PHRASES = new Set(["IAmMari", "IAmNeeli"]);
 
@@ -1817,28 +1859,50 @@ async function exitWorld() {
 }
 
 /* ==========================================================================
-   AUTHENTICATION DEMO
+   AUTHENTICATION + PRIVATE VAULT
    --------------------------------------------------------------------------
-   !! DEMO ONLY — THIS IS NOT SECURITY !!
-   Real Google Authenticator / TOTP validation must happen on a secure backend.
-   Never store the TOTP secret inside JavaScript or HTML.
-   Never place the authenticator secret in the browser.
+   Two modes, picked automatically:
 
-   Production flow:
-     Browser
-       → secure HTTPS request  (POST /api/auth/totp  { code })
-       → backend authentication endpoint (rate-limited, lockout after failures)
-       → backend verifies TOTP against the secret stored server-side
-       → secure server session is created (secure, HTTP-only, SameSite cookie)
-       → private content is fetched from the backend only with that session
-   The session should expire after ~8 hours; after that, authentication is
-   required again. The private vault content itself must also live on the
-   backend — anything shipped in this HTML file is public.
+   LIVE (site served by the Cloudflare Worker, /api/health answers with vault:true)
+     Browser → POST /api/auth { code } over HTTPS
+       → Worker checks the TOTP code against TOTP_SECRET (a Worker secret, never in this file)
+       → rate limit: 5 wrong codes per IP → 15-minute lock; a code can only be used once
+       → Worker sets an 8-hour HTTP-only, Secure, SameSite=Strict session cookie
+       → files, images and clipboard snippets are fetched from /api/* only with that session
+     Lock Vault → POST /api/logout deletes the session on the server.
+
+   DEMO (opened from disk, GitHub, or anywhere without the Worker)
+     !! DEMO ONLY — THIS IS NOT SECURITY !!  Code 123456. Uploads stay in this browser tab
+     and disappear when it closes. Nothing private is shipped in this file.
    ========================================================================== */
 const DEMO_CODE = "123456";                   // DEMO AUTHENTICATION ONLY
 const SESSION_MS = 8 * 60 * 60 * 1000;        // 8 hours
-let demoSession = null;                       // { startedAt, expiresAt } — in memory only
+let vaultMode = null;                         // "live" | "demo" (detected on first use)
+let vaultMax = 25 * 1024 * 1024;
+let demoSession = null;                       // { expiresAt } — demo mode, in memory only
+let liveExpiresAt = 0;
 let authAttempts = 0;
+
+async function detectVaultMode() {
+  if (vaultMode) return vaultMode;
+  vaultMode = "demo";
+  if (location.protocol.startsWith("http")) {
+    try {
+      const r = await fetch("/api/health", { cache: "no-store" });
+      const h = r.ok && (await r.json());
+      if (h && h.vault) { vaultMode = "live"; vaultMax = h.maxFile; }
+    } catch { /* no backend: stay in demo mode */ }
+  }
+  return vaultMode;
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { credentials: "same-origin", ...opts, headers: { "X-Vault": "1", ...(opts.headers || {}) } });
+  const data = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== "/api/auth") { sessionLost(); throw new Error("Session ended"); }
+  if (!r.ok) throw Object.assign(new Error(data.error || `Request failed (${r.status})`), { status: r.status, data });
+  return data;
+}
 
 async function secretFlow() {
   chatState.history.luffy.push(["bot", "Identity phrase detected."]);
@@ -1849,11 +1913,16 @@ async function secretFlow() {
   chatState.history.luffy.push(["bot", t]);
   chatEl("bot", t);
   await wait(700);
-  if (demoSession && Date.now() < demoSession.expiresAt) { openVault(); return; }
+  if ((await detectVaultMode()) === "live") {
+    try { const s = await api("/api/session"); liveExpiresAt = s.expiresAt; openVault(); return; } catch { /* not signed in */ }
+  } else if (demoSession && Date.now() < demoSession.expiresAt) { openVault(); return; }
   openAuth();
 }
 
 function openAuth() {
+  const live = vaultMode === "live";
+  $("#auth-badge").textContent = live ? "SECURE CHECK · code from your authenticator app" : "DEMO AUTHENTICATION ONLY · code 123456";
+  $("#auth-badge").classList.toggle("live", live);
   const otp = $("#otp");
   otp.innerHTML = Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit ${i + 1} of 6" autocomplete="${i === 0 ? "one-time-code" : "off"}">`).join("");
   $("#auth-msg").textContent = ""; $("#auth-msg").className = "msgline";
@@ -1881,26 +1950,35 @@ function openAuth() {
   inputs[0].focus();
 }
 
+function authFail(text) {
+  const msg = $("#auth-msg");
+  msg.textContent = text; msg.className = "msgline bad";
+  $("#otp").classList.remove("shake"); void $("#otp").offsetWidth; $("#otp").classList.add("shake");
+  $$("#otp input").forEach((i) => (i.value = "")); $("#otp input").focus();
+}
+
 $("#auth-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const code = $$("#otp input").map((i) => i.value).join("");
   const msg = $("#auth-msg");
   if (code.length !== 6) { msg.textContent = "Enter all 6 digits."; msg.className = "msgline bad"; return; }
-  if (authAttempts >= 5) { msg.textContent = "Too many attempts. Locked (demo)."; msg.className = "msgline bad"; return; }
   msg.textContent = "Verifying…"; msg.className = "msgline";
-  // PRODUCTION: const ok = (await fetch("/api/auth/totp", { method: "POST", credentials: "include", body: JSON.stringify({ code }) })).ok;
-  await wait(600);
-  const ok = code === DEMO_CODE; // DEMO AUTHENTICATION ONLY
-  if (!ok) {
-    authAttempts++;
-    msg.textContent = `Verification failed. ${5 - authAttempts} attempt(s) left.`; msg.className = "msgline bad";
-    $("#otp").classList.remove("shake"); void $("#otp").offsetWidth; $("#otp").classList.add("shake");
-    $$("#otp input").forEach((i) => (i.value = "")); $("#otp input").focus();
-    return;
+  if (vaultMode === "live") {
+    try {
+      const r = await api("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) });
+      liveExpiresAt = r.expiresAt;
+    } catch (err) {
+      authFail(err.status === 429 ? err.message : err.status === 401 ? `Verification failed. ${err.data.attemptsLeft} attempt(s) left.` : err.message);
+      return;
+    }
+  } else {
+    if (authAttempts >= 5) { msg.textContent = "Too many attempts. Locked (demo)."; msg.className = "msgline bad"; return; }
+    await wait(600);
+    if (code !== DEMO_CODE) { authAttempts++; authFail(`Verification failed. ${5 - authAttempts} attempt(s) left.`); return; } // DEMO AUTHENTICATION ONLY
+    authAttempts = 0;
+    demoSession = { expiresAt: Date.now() + SESSION_MS };
   }
-  authAttempts = 0;
   msg.textContent = "Identity verified."; msg.className = "msgline good";
-  demoSession = { startedAt: Date.now(), expiresAt: Date.now() + SESSION_MS };
   await wait(500);
   $("#auth").close();
   openVault();
@@ -1908,38 +1986,217 @@ $("#auth-form").addEventListener("submit", async (e) => {
 $("#auth-cancel").addEventListener("click", () => $("#auth").close());
 $("#auth").addEventListener("close", () => { if (!$("#vault").open) $("#chat-fab").focus(); });
 
-/* ==========================================================================
-   PRIVATE VAULT (placeholder widgets — real content must come from the backend)
-   ========================================================================== */
+/* ---------- vault storage: live (/api) or demo (this tab only) ---------- */
+const demoStore = { files: [], clips: [] };
+const vaultStore = {
+  async files() {
+    return vaultMode === "live" ? (await api("/api/files")).files : demoStore.files.map(({ blob, ...f }) => f);
+  },
+  fileUrl(f, inline) {
+    if (vaultMode === "live") return `/api/files/${f.id}${inline ? "?inline=1" : ""}`;
+    const d = demoStore.files.find((x) => x.id === f.id);
+    return d.url || (d.url = URL.createObjectURL(d.blob));
+  },
+  upload(file, onProgress) {
+    if (file.size > vaultMax) return Promise.reject(new Error(`${file.name} is larger than ${Math.round(vaultMax / 1048576)} MB`));
+    if (!file.size) return Promise.reject(new Error(`${file.name} is empty`));
+    if (vaultMode !== "live") {
+      demoStore.files.unshift({ id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2), name: file.name || "pasted-image.png", type: file.type || "application/octet-stream", size: file.size, uploaded: Date.now(), blob: file });
+      onProgress(1);
+      return Promise.resolve();
+    }
+    // XHR (not fetch) so the upload can show progress
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", `/api/files?name=${encodeURIComponent(file.name || "pasted-image.png")}&type=${encodeURIComponent(file.type || "application/octet-stream")}`);
+      xhr.setRequestHeader("X-Vault", "1");
+      xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
+      xhr.onload = () => {
+        if (xhr.status === 401) { sessionLost(); return reject(new Error("Session ended")); }
+        xhr.status < 300 ? resolve() : reject(new Error((JSON.parse(xhr.responseText || "{}").error) || `Upload failed (${xhr.status})`));
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(file);
+    });
+  },
+  async removeFile(id) {
+    if (vaultMode === "live") return api(`/api/files/${id}`, { method: "DELETE" });
+    const i = demoStore.files.findIndex((x) => x.id === id);
+    if (i >= 0) { if (demoStore.files[i].url) URL.revokeObjectURL(demoStore.files[i].url); demoStore.files.splice(i, 1); }
+  },
+  async clips() { return vaultMode === "live" ? (await api("/api/clips")).clips : demoStore.clips; },
+  async addClip(text) {
+    if (vaultMode === "live") return api("/api/clips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+    demoStore.clips.unshift({ id: String(Date.now()) + Math.random(), text, created: Date.now() });
+  },
+  async removeClip(id) {
+    if (vaultMode === "live") return api(`/api/clips/${id}`, { method: "DELETE" });
+    demoStore.clips = demoStore.clips.filter((c) => c.id !== id);
+  }
+};
+
+/* ---------- vault UI ---------- */
+const isImage = (f) => /^image\/(png|jpeg|gif|webp|avif)$/.test(f.type);
+const fmtSize = (n) => (n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`);
+const fmtDate = (t) => new Date(t).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 let sessionTicker;
+
 function openVault() {
-  const exp = new Date(demoSession.expiresAt);
+  const live = vaultMode === "live";
+  const exp = new Date(live ? liveExpiresAt : demoSession.expiresAt);
   $("#vault-inner").innerHTML = `
     <div class="vault-top">
-      <div><p class="wd-kicker" style="color:#5fd4a0">Command center · authenticated</p><h2 id="vault-title">MARI’S VAULT</h2>
-      <p class="sess" id="sess">Demo session expires ${exp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} (8 h)</p></div>
+      <div><p class="wd-kicker" style="color:#5fd4a0">Command center · authenticated${live ? "" : " · DEMO"}</p><h2 id="vault-title">MARI’S VAULT</h2>
+      <p class="sess">Session expires ${exp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} (8 h)</p></div>
       <button class="lock-btn" type="button" id="lock-vault">🔒 Lock Vault</button>
     </div>
+    ${live ? "" : `<p class="vault-demo">DEMO MODE: files and snippets stay in this browser tab and vanish when you close it. On the live site they are stored privately on Cloudflare.</p>`}
     <div class="vault-grid2">
-      <section class="vw wide" aria-labelledby="v1"><h3 id="v1">PRIVATE DASHBOARD</h3><div class="kpi"><div><b>3</b><span>active builds</span></div><div><b>12</b><span>ideas parked</span></div><div><b>5</b><span>posts drafted</span></div><div><b>91%</b><span>test coverage</span></div></div></section>
-      <section class="vw" aria-labelledby="v2"><h3 id="v2">AI WORKSPACE</h3><ul><li>Portfolio assistant → LLM wiring</li><li>Prompt library for data docs</li><li>Agent that drafts Gold-layer docs</li></ul></section>
-      <section class="vw" aria-labelledby="v3"><h3 id="v3">PERSONAL NOTES</h3><label class="sr-only" for="vnote">Scratch note</label><textarea id="vnote" placeholder="Scratch notes (demo: not saved)"></textarea></section>
-      <section class="vw" aria-labelledby="v4"><h3 id="v4">PRIVATE PROJECT IDEAS</h3><ul><li>Lakehouse cost watchdog</li><li>Property-data Genie space</li><li>Mari’s World: multiplayer rooftop</li></ul></section>
-      <section class="vw" aria-labelledby="v5"><h3 id="v5">WORK IN PROGRESS</h3><ul><li>Unity Catalog grants model</li><li>Template DATA-03: AI Engineer</li></ul></section>
-      <section class="vw" aria-labelledby="v6"><h3 id="v6">BOOKMARKS & PRIVATE LINKS</h3><ul><li>Databricks docs (placeholder)</li><li>Power BI DAX patterns (placeholder)</li><li>Design inspiration board (placeholder)</li></ul></section>
-      <section class="vw wide" aria-labelledby="v7"><h3 id="v7">FUTURE TOOLS</h3><p>Voice-to-SQL · data-quality radar · a Luffy that actually fetches things.</p></section>
+      <section class="vw wide" aria-labelledby="v-files">
+        <div class="vw-head"><h3 id="v-files">FILES</h3><span class="vw-hint">up to ${Math.round(vaultMax / 1048576)} MB each</span></div>
+        <label class="drop" id="drop">
+          <input type="file" id="file-in" multiple class="sr-only">
+          <span><b>Upload files</b> · drop them here, or paste an image (Ctrl/⌘+V)</span>
+        </label>
+        <div class="up-list" id="up-list" aria-live="polite"></div>
+        <ul class="file-list" id="file-list"><li class="muted">Loading…</li></ul>
+      </section>
+      <section class="vw" aria-labelledby="v-clip">
+        <div class="vw-head"><h3 id="v-clip">CLIPBOARD</h3><span class="vw-hint">copy here, paste anywhere</span></div>
+        <label class="sr-only" for="clip-in">Text to save</label>
+        <textarea id="clip-in" placeholder="Paste text, links, commands…"></textarea>
+        <div class="row"><button type="button" class="vbtn" id="clip-save">Save snippet</button><button type="button" class="vbtn ghost" id="clip-paste">Paste from clipboard</button></div>
+        <ul class="clip-list" id="clip-list"><li class="muted">Loading…</li></ul>
+      </section>
+      <section class="vw full" aria-labelledby="v-img">
+        <div class="vw-head"><h3 id="v-img">IMAGES</h3><span class="vw-hint">uploads that are pictures show here</span></div>
+        <div class="img-grid" id="img-grid"></div>
+      </section>
     </div>
-    <p class="vault-note">DEMO: placeholder widgets shipped in this file. In production, vault content is loaded from the backend only after a valid server session exists.</p>`;
+    <p class="vault-note">${live ? "Stored privately on Cloudflare. Only a signed-in session can list, download or delete anything here." : "Demo vault. Real storage needs the Cloudflare Worker (see README)."}</p>`;
   $("#vault").showModal();
-  $("#lock-vault").addEventListener("click", lockVault);
+  $("#lock-vault").addEventListener("click", () => lockVault());
   $("#vault-title").setAttribute("tabindex", "-1"); $("#vault-title").focus();
+
+  const fileIn = $("#file-in"), drop = $("#drop");
+  fileIn.addEventListener("change", () => { uploadFiles([...fileIn.files]); fileIn.value = ""; });
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("over")));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); uploadFiles([...e.dataTransfer.files]); });
+  $("#file-list").addEventListener("click", onFileAction);
+  $("#img-grid").addEventListener("click", onFileAction);
+  $("#clip-save").addEventListener("click", saveClip);
+  $("#clip-in").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) saveClip(); });
+  $("#clip-paste").addEventListener("click", async () => {
+    try { $("#clip-in").value = await navigator.clipboard.readText(); $("#clip-in").focus(); }
+    catch { vaultToast("Browser blocked clipboard access. Paste with Ctrl/⌘+V instead."); }
+  });
+  $("#clip-list").addEventListener("click", onClipAction);
+  refreshFiles(); refreshClips();
+
   clearInterval(sessionTicker);
-  sessionTicker = setInterval(() => { if (demoSession && Date.now() >= demoSession.expiresAt) lockVault(true); }, 30000);
+  sessionTicker = setInterval(() => { if (Date.now() >= exp.getTime()) lockVault(true); }, 30000);
 }
-function lockVault(expired = false) {
-  demoSession = null; // ends the demo private session immediately
+
+// Pasting an image anywhere in the vault (outside the text box) uploads it
+$("#vault").addEventListener("paste", (e) => {
+  if (e.target.id === "clip-in") return;
+  const files = [...(e.clipboardData?.files || [])];
+  if (files.length) { e.preventDefault(); uploadFiles(files.map((f, i) => (f.name && f.name !== "image.png" ? f : new File([f], `pasted-${Date.now()}${i ? "-" + i : ""}.${(f.type.split("/")[1] || "png").replace("jpeg", "jpg")}`, { type: f.type })))); }
+});
+
+async function uploadFiles(files) {
+  const list = $("#up-list");
+  for (const f of files) {
+    const row = document.createElement("div");
+    row.className = "up";
+    row.innerHTML = `<span>${esc(f.name || "pasted image")}</span><progress max="1" value="0"></progress>`;
+    list.append(row);
+    try {
+      await vaultStore.upload(f, (p) => (row.querySelector("progress").value = p));
+      row.remove();
+    } catch (err) {
+      row.classList.add("bad"); row.innerHTML = `<span>${esc(err.message)}</span>`;
+      setTimeout(() => row.remove(), 6000);
+    }
+  }
+  refreshFiles();
+}
+
+async function refreshFiles() {
+  let files;
+  try { files = await vaultStore.files(); } catch (err) { $("#file-list").innerHTML = `<li class="muted">${esc(err.message)}</li>`; return; }
+  const row = (f) => `<li data-id="${esc(f.id)}">
+      <span class="fi" aria-hidden="true">${isImage(f) ? "🖼" : "📄"}</span>
+      <span class="fn"><b>${esc(f.name)}</b><small>${fmtSize(f.size)} · ${fmtDate(f.uploaded)}</small></span>
+      <a class="vbtn ghost" href="${esc(vaultStore.fileUrl(f, false))}" download="${esc(f.name)}" aria-label="Download ${esc(f.name)}">Download</a>
+      <button type="button" class="vbtn danger" data-del="${esc(f.id)}" aria-label="Delete ${esc(f.name)}">Delete</button></li>`;
+  $("#file-list").innerHTML = files.length ? files.map(row).join("") : `<li class="muted">No files yet.</li>`;
+  const imgs = files.filter(isImage);
+  $("#img-grid").innerHTML = imgs.length ? imgs.map((f) => `<figure data-id="${esc(f.id)}">
+      <a href="${esc(vaultStore.fileUrl(f, true))}" target="_blank" rel="noopener"><img src="${esc(vaultStore.fileUrl(f, true))}" alt="${esc(f.name)}" loading="lazy"></a>
+      <figcaption><span>${esc(f.name)}</span>
+        <a class="vbtn ghost" href="${esc(vaultStore.fileUrl(f, false))}" download="${esc(f.name)}" aria-label="Download ${esc(f.name)}">⤓</a>
+        <button type="button" class="vbtn danger" data-del="${esc(f.id)}" aria-label="Delete ${esc(f.name)}">✕</button></figcaption></figure>`).join("")
+    : `<p class="muted">No images yet. Upload or paste one.</p>`;
+}
+
+async function onFileAction(e) {
+  const b = e.target.closest("[data-del]");
+  if (!b) return;
+  const name = b.getAttribute("aria-label").replace(/^Delete /, "");
+  if (!confirm(`Delete “${name}”? This cannot be undone.`)) return;
+  try { await vaultStore.removeFile(b.dataset.del); } catch (err) { vaultToast(err.message); }
+  refreshFiles();
+}
+
+async function refreshClips() {
+  let clips;
+  try { clips = await vaultStore.clips(); } catch (err) { $("#clip-list").innerHTML = `<li class="muted">${esc(err.message)}</li>`; return; }
+  $("#clip-list").innerHTML = clips.length ? clips.map((c) => `<li data-id="${esc(c.id)}">
+      <pre>${esc(c.text)}</pre>
+      <div class="row"><small>${fmtDate(c.created)}</small>
+        <button type="button" class="vbtn ghost" data-copy="${esc(c.id)}">Copy</button>
+        <button type="button" class="vbtn danger" data-delclip="${esc(c.id)}" aria-label="Delete snippet">Delete</button></div></li>`).join("")
+    : `<li class="muted">No snippets yet.</li>`;
+  $("#clip-list")._clips = clips;
+}
+
+async function saveClip() {
+  const box = $("#clip-in"), text = box.value;
+  if (!text.trim()) { box.focus(); return; }
+  try { await vaultStore.addClip(text); box.value = ""; vaultToast("Snippet saved."); } catch (err) { vaultToast(err.message); }
+  refreshClips();
+}
+
+async function onClipAction(e) {
+  const copy = e.target.closest("[data-copy]"), del = e.target.closest("[data-delclip]");
+  if (copy) {
+    const c = $("#clip-list")._clips.find((x) => x.id === copy.dataset.copy);
+    try { await navigator.clipboard.writeText(c.text); copy.textContent = "Copied ✓"; setTimeout(() => (copy.textContent = "Copy"), 1500); }
+    catch { const r = document.createRange(); r.selectNodeContents(copy.closest("li").querySelector("pre")); getSelection().removeAllRanges(); getSelection().addRange(r); vaultToast("Selected. Press Ctrl/⌘+C to copy."); }
+  } else if (del) {
+    try { await vaultStore.removeClip(del.dataset.delclip); } catch (err) { vaultToast(err.message); }
+    refreshClips();
+  }
+}
+
+function vaultToast(text) {
+  const t = document.createElement("p");
+  t.className = "vault-toast"; t.setAttribute("role", "status"); t.textContent = text;
+  $("#vault-inner").append(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function sessionLost() {
+  if ($("#vault").open) lockVault(true, true);
+}
+
+async function lockVault(expired = false, alreadyEnded = false) {
   clearInterval(sessionTicker);
-  $("#vault").close();
+  if (vaultMode === "live" && !alreadyEnded) { try { await api("/api/logout", { method: "POST" }); } catch { /* session already gone */ } }
+  demoSession = null; liveExpiresAt = 0;      // ends the private session immediately
+  if ($("#vault").open) $("#vault").close();
   luffySay(expired ? "Session expired. Vault sealed. I’m back on guard duty." : "Vault locked. I’ll pretend I didn’t see anything. 🐾", 4200);
   $("#chat-fab").focus();
 }

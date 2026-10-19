@@ -11,24 +11,31 @@ Personal portfolio of **Mari** with two modes over one shared data object:
    Archive, Achievement Vault, Communication Channel) while the picture keeps moving and darkens
    behind the content. Luffy the Persian cat takes over the chat.
 
-The site is a self-contained `index.html` (HTML, CSS and vanilla JavaScript) plus two images:
-`assets/mari.webp` (profile photo) and `assets/world-bg.webp` (Mari's World background). It needs
-no build step, libraries or network requests.
+## Project layout
+
+| Path | What it is |
+|---|---|
+| `public/index.html` | The whole site (HTML, CSS, vanilla JavaScript). Opens straight from disk. |
+| `public/assets/` | `mari.webp` (profile photo) and `world-bg.webp` (Mari's World background). |
+| `src/worker.js` | Cloudflare Worker: serves `public/` and the private vault API under `/api/*`. |
+| `wrangler.jsonc` | Worker settings (name, KV storage, optional R2). No secrets in here. |
+| `tools/totp-setup.html` | Offline page that creates the Google Authenticator secret. Never deployed. |
+| `tests/` | Unit tests for the authenticator code (`npm test`). |
 
 ## Run it
 
-Open `index.html` in any browser. Or serve it locally:
-
-```bash
-python -m http.server 8000   # then open http://localhost:8000
-```
+- **Just look at it:** open `public/index.html` in a browser. The vault runs in demo mode
+  (code `123456`, uploads stay in that tab).
+- **With the real vault:** `npm install`, create a file `.dev.vars` containing
+  `TOTP_SECRET="<a test secret from tools/totp-setup.html>"`, then `npm run dev` and open
+  http://localhost:8787. `.dev.vars` is git-ignored.
 
 ## Customise
 
-Edit the **CONFIG** block at the top of the `<script>` section in `index.html` (name, title,
+Edit the **CONFIG** block at the top of the `<script>` section in `public/index.html` (name, title,
 company, intro, photo, resume, GitHub, LinkedIn, email, current work). To change the photo, replace
-`assets/mari.webp` (square image, about 720×720) or point `photo` at another file. To change the
-Mari's World background, replace `assets/world-bg.webp` (landscape; 1920 px wide or more looks sharpest). Skills, experience, projects,
+`public/assets/mari.webp` (square image, about 720×720) or point `photo` at another file. To change the
+Mari's World background, replace `public/assets/world-bg.webp` (landscape; 1920 px wide or more looks sharpest). Skills, experience, projects,
 archive, achievements and lab items live in the **portfolioData** object just below it. Both
 modes render from that one object.
 
@@ -41,23 +48,51 @@ modes render from that one object.
 
 Workflow: build and test on `test`, then merge `test` → `main` when it's ready to publish.
 
+## Deploy (Cloudflare Workers, auto-deploys from GitHub)
+
+One-time setup in the Cloudflare dashboard:
+
+1. **Workers & Pages → Create → Import a repository** → pick `M-Aadhi/mari-portfolio`.
+   Worker name **mari-portfolio** (must match `wrangler.jsonc`). Production branch **main**,
+   deploy command `npx wrangler deploy`. Turn on **builds for non-production branches** so every
+   push to `test` gets its own preview link.
+2. **Authenticator secret:** open `tools/totp-setup.html` on your computer, scan the QR code with
+   Google Authenticator, then in the Worker go to **Settings → Variables and Secrets → Add**,
+   type **Secret**, name `TOTP_SECRET`, paste the secret. Close the page.
+3. Push to `main` (or merge `test` → `main`). The site is live at
+   `https://mari-portfolio.<your-subdomain>.workers.dev`. Add a custom domain under
+   **Settings → Domains & Routes** if you have one.
+
+Storage: files, images and clipboard snippets go to the KV namespace `mari-portfolio-vault`
+(already created; files up to 25 MB each, about 1 GB free). For bigger files, enable **R2** in the
+dashboard, create a bucket `mari-vault-files`, and uncomment the `r2_buckets` block in
+`wrangler.jsonc`; files then go to R2 (up to 100 MB each). Preview links from `test` use the same
+storage and secret as production.
+
 ## Try the hidden features
 
 - Click **Enter Mari's World** in the navigation.
 - Scroll down through the city's levels; after exploring a few, a sealed sub-level wakes up.
-- In Luffy's chat, the protected identity phrases open a separate authentication panel.
-  The code `123456` is **demo authentication only**.
+- In Luffy's chat, the protected identity phrases open the authenticator check, then the private
+  vault: **files** (upload, drag and drop, download, delete), **images** (thumbnails; paste a
+  screenshot with Ctrl/⌘+V) and a **clipboard** of text snippets you can copy on any device.
+  On the deployed site this is real and private; opened from disk it is a demo (code `123456`).
 
-## Security notes (prototype)
+## Security notes
 
-- The authentication flow is a **visual demo**. Real Google Authenticator / TOTP verification must
-  happen on a secure backend; the TOTP secret must never be in the browser. Sessions should use
-  secure, HTTP-only cookies and expire after about 8 hours.
+- The authenticator code is checked **only in the Worker** against `TOTP_SECRET`, a Cloudflare
+  secret. It is never in the HTML, the repo or the browser. Each code works once.
+- 5 wrong codes from one IP lock it out for 15 minutes; there is also a global hourly cap.
+- A correct code gives an 8-hour session in a `Secure`, `HttpOnly`, `SameSite=Strict` cookie.
+  Lock Vault deletes the session on the server.
+- All vault data comes from `/api/*` and only with a valid session. State-changing calls also need
+  a custom header and same origin (CSRF protection).
+- Uploaded files are always downloaded as attachments; only PNG/JPEG/GIF/WebP/AVIF are ever shown
+  inline, so an uploaded HTML or SVG file can't run code on the site.
 - Secret phrases are checked by local application logic **before** any message could reach a
   future LLM, and are never forwarded to it.
-- Contact forms and chat leads are simulated (kept in the browser tab). The production version
-  should send them to a backend API that stores them and optionally emails Mari. No credentials
-  belong in this repository.
+- The contact form and chat leads are still simulated (kept in the browser tab). Wiring them to the
+  Worker is a later step.
 
 ## Design note
 
