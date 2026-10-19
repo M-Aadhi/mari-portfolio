@@ -20,7 +20,7 @@ Personal portfolio of **Mari** with two modes over one shared data object:
 | `src/worker.js` | Cloudflare Worker: serves `public/` and the private vault API under `/api/*`. |
 | `wrangler.jsonc` | Worker settings (name, KV storage, optional R2). No secrets in here. |
 | `resume/resume.html` | Resume source. `node resume/build-pdf.mjs` rebuilds `public/resume.pdf` (the site's Resume button). |
-| `tools/totp-setup.html` | Offline page that creates the Google Authenticator secret. Never deployed. |
+| `tools/totp-setup.html` | Self-contained offline page that creates the Google Authenticator secret. Never deployed. |
 | `tests/` | Unit tests for the authenticator code (`npm test`). |
 
 ## Run it
@@ -61,7 +61,8 @@ One-time setup in the Cloudflare dashboard:
    Google Authenticator, then in the Worker go to **Settings → Variables and Secrets → Add**,
    type **Secret**, name `TOTP_SECRET`, paste the secret. Close the page.
 3. Push to `main` (or merge `test` → `main`). The site is live at
-   `https://mari-portfolio.<your-subdomain>.workers.dev`. Add a custom domain under
+   https://mari-portfolio.maariz.workers.dev (setup check: `/api/health` should show
+   `"secretValid":true` and `"storageReady":true`). Add a custom domain under
    **Settings → Domains & Routes** if you have one.
 
 Storage: files, images and clipboard snippets go to the KV namespace `mari-portfolio-vault`
