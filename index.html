@@ -1,0 +1,1983 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mari — Data Lead · Portfolio</title>
+<meta name="description" content="Portfolio of Mari, Data Lead working with Databricks, Power BI and data platforms. Includes an interactive creative mode: Mari's World.">
+<meta name="theme-color" content="#0b0c10">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0c10'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='16' text-anchor='middle' fill='%23c7cdfc'%3EM%3C/text%3E%3C/svg%3E">
+<!--
+  ============================================================================
+  MARI — PORTFOLIO PROTOTYPE (single file)
+  ----------------------------------------------------------------------------
+  Two modes over ONE shared data object (see "SHARED DATA" in the script):
+    1. Professional Portfolio  (default)          → #pro
+    2. Mari's World            (creative mode)     → #world
+  Everything is self-contained: no build step, no libraries, no network calls.
+  Open this file directly in a browser.
+
+  To customise: edit the CONFIG block at the top of the <script> section.
+  ============================================================================
+-->
+<style>
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+:root{
+  --bg:#0b0c10; --bg-2:#111318; --card:#14161c; --card-2:#181b22;
+  --line:#23262f; --line-2:#2e323d;
+  --text:#eceef3; --text-2:#b6bac6; --muted:#8a8f9c;
+  --accent:#9aa6ff; --accent-2:#c7cdfc; --ok:#5fd4a0;
+  --radius:16px; --radius-sm:10px;
+  --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.65 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+button,input,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;line-height:1.15;letter-spacing:-.015em}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;margin:-1px}
+.skip{position:absolute;left:12px;top:-60px;z-index:999;background:var(--text);color:var(--bg);padding:10px 14px;border-radius:8px;font-weight:600;text-decoration:none}
+.skip:focus{top:12px}
+[hidden]{display:none!important}
+
+/* ==========================================================================
+   PROFESSIONAL PORTFOLIO
+   ========================================================================== */
+#pro{transition:opacity .7s var(--ease),filter .7s var(--ease)}
+body.leaving-pro #pro{opacity:0;filter:blur(6px)}
+.wrap{width:min(100% - 40px,1120px);margin-inline:auto}
+
+/* Navigation */
+.pnav{position:sticky;top:0;z-index:40;background:rgba(11,12,16,.78);backdrop-filter:saturate(1.3) blur(12px);-webkit-backdrop-filter:saturate(1.3) blur(12px);border-bottom:1px solid transparent;transition:border-color .3s}
+.pnav.scrolled{border-bottom-color:var(--line)}
+.pnav .wrap{display:flex;align-items:center;gap:20px;min-height:68px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:650;text-decoration:none;letter-spacing:-.01em;min-height:44px}
+.logo-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#1c1f2a,#262a38);border:1px solid var(--line-2);font-size:14px;color:var(--accent-2)}
+.plinks{display:flex;gap:2px;margin-left:auto}
+.plinks a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;color:var(--text-2);font-size:.94rem}
+.plinks a:hover{color:var(--text);background:#ffffff0a}
+.enter-btn{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:999px;border:0;cursor:pointer;font-weight:600;font-size:.92rem;color:var(--text);background:#14161d;isolation:isolate;white-space:nowrap}
+.enter-btn::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(120deg,#7b8cff,#c084fc,#5eead4,#7b8cff);background-size:300% 100%;animation:sheen 6s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:-1}
+.enter-btn:hover{background:#1a1d27}
+.enter-btn .dot{width:7px;height:7px;border-radius:50%;background:#c084fc;box-shadow:0 0 10px #c084fc}
+@keyframes sheen{to{background-position:300% 0}}
+.menu-btn{display:none;margin-left:auto;min-height:44px;min-width:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);cursor:pointer}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);color:var(--text);font-weight:600;font-size:.95rem;text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.btn:hover{background:var(--card-2);border-color:#3a3f4c}
+.btn-primary{background:var(--text);color:#0b0c10;border-color:var(--text)}
+.btn-primary:hover{background:#fff;border-color:#fff}
+.icon-btn{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1px solid var(--line-2);background:var(--card);color:var(--text-2);text-decoration:none;transition:color .2s,border-color .2s}
+.icon-btn:hover{color:var(--text);border-color:#3a3f4c}
+.icon-btn svg{width:19px;height:19px}
+
+/* Hero */
+.hero{padding:clamp(48px,9vw,112px) 0 clamp(56px,8vw,96px);position:relative}
+.hero::before{content:"";position:absolute;inset:0 0 auto;height:520px;background:radial-gradient(600px 300px at 75% 10%,#7b8cff14,transparent 70%),radial-gradient(500px 260px at 15% 0%,#c084fc0d,transparent 70%);pointer-events:none}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:clamp(32px,6vw,80px);align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.85rem;color:var(--text-2);border:1px solid var(--line);background:var(--bg-2);padding:6px 12px;border-radius:999px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 #5fd4a080;animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px #5fd4a000}100%{box-shadow:0 0 0 0 #5fd4a000}}
+.hero h1{font-size:clamp(2.6rem,1.6rem + 4vw,4.6rem);font-weight:650;letter-spacing:-.035em;margin:22px 0 10px}
+.hero .title{font-size:clamp(1.1rem,1rem + .5vw,1.35rem);color:var(--accent-2);font-weight:500}
+.hero .intro{margin-top:18px;max-width:38em;color:var(--text-2);font-size:1.06rem}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;color:var(--muted);font-size:.92rem}
+.hero-meta span{display:inline-flex;align-items:center;gap:7px}
+.hero-meta svg{width:16px;height:16px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px;align-items:center}
+.hero-card{background:linear-gradient(180deg,var(--card),var(--bg-2));border:1px solid var(--line);border-radius:22px;padding:26px;position:relative;overflow:hidden}
+.avatar{width:132px;height:132px;border-radius:30px;display:grid;place-items:center;font-size:2.6rem;font-weight:650;letter-spacing:-.03em;color:var(--accent-2);background:radial-gradient(circle at 30% 25%,#2b3046,#151821);border:1px solid var(--line-2);overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.now{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.label{font-size:.75rem;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.now h3{font-size:1.08rem;margin:8px 0 6px;font-weight:600}
+.now p{color:var(--text-2);font-size:.93rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:1.25rem;letter-spacing:-.02em}
+.stat span{font-size:.78rem;color:var(--muted)}
+
+/* Sections */
+.psec{padding:clamp(64px,9vw,112px) 0;border-top:1px solid var(--line)}
+.shead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap;margin-bottom:clamp(30px,4vw,48px)}
+.shead h2{font-size:clamp(1.9rem,1.4rem + 1.8vw,2.7rem);font-weight:650;margin-top:10px}
+.shead p{max-width:32em;color:var(--text-2)}
+.about-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,5vw,64px)}
+.about-grid .lead{font-size:clamp(1.15rem,1rem + .5vw,1.4rem);line-height:1.55;color:var(--text);font-weight:450}
+.about-grid .lead + p{margin-top:18px;color:var(--text-2)}
+.facts{display:grid;gap:14px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.fact h3{font-size:.95rem;font-weight:600;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;font-size:.84rem;color:var(--text-2);background:var(--bg-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 11px}
+
+/* Experience timeline */
+.timeline{position:relative;display:grid;gap:18px;padding-left:28px}
+.timeline::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--accent),var(--line) 70%)}
+.job{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+.job::before{content:"";position:absolute;left:-27px;top:30px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.job-top{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap}
+.job h3{font-size:1.2rem;font-weight:600}
+.job .co{color:var(--accent-2);font-weight:500;margin-top:2px}
+.job .dates{font-family:var(--mono);font-size:.82rem;color:var(--muted);white-space:nowrap}
+.job-cols{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-top:18px}
+.job ul.dash li{position:relative;padding-left:18px;color:var(--text-2);font-size:.95rem;margin:6px 0}
+.job ul.dash li::before{content:"";position:absolute;left:0;top:.75em;width:8px;height:1px;background:var(--muted)}
+.wins li{display:flex;gap:10px;color:var(--text);font-size:.93rem;margin:8px 0}
+.wins li::before{content:"↗";color:var(--ok);font-weight:700}
+
+/* Skills */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.skill-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.skill-card h3{display:flex;justify-content:space-between;align-items:center;font-size:1rem;font-weight:600;margin-bottom:14px}
+.skill-card h3 span{font-family:var(--mono);font-size:.75rem;color:var(--muted);font-weight:400}
+.skill{margin:11px 0}
+.skill-row{display:flex;justify-content:space-between;font-size:.9rem;color:var(--text-2)}
+.skill-row em{font-style:normal;font-size:.78rem;color:var(--muted)}
+.bar{height:4px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 1.2s var(--ease)}
+.in-view .bar i{width:var(--w)}
+
+/* Projects */
+.proj-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.proj{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:border-color .25s,transform .25s}
+.proj:hover{border-color:#3a3f4c;transform:translateY(-2px)}
+.proj-img{position:relative;aspect-ratio:16/8.5;background:var(--g);overflow:hidden;border-bottom:1px solid var(--line)}
+.proj-img::after{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0a 1px,transparent 1px),linear-gradient(90deg,#ffffff0a 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,#000,transparent)}
+.proj-img .ph{position:absolute;left:20px;bottom:16px;font-family:var(--mono);font-size:.75rem;color:#ffffffb0;letter-spacing:.06em}
+.proj-img .glyph{position:absolute;right:22px;top:18px;font-size:2.4rem;opacity:.9}
+.proj-body{display:flex;flex-direction:column;flex:1;padding:22px}
+.proj h3{font-size:1.25rem;font-weight:600}
+.proj .role{font-size:.85rem;color:var(--accent-2);margin-top:4px}
+.proj .desc{color:var(--text-2);margin-top:10px;font-size:.96rem}
+.proj dl{display:grid;gap:10px;margin:16px 0 0}
+.proj dt{font-size:.74rem;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.proj dd{margin:2px 0 0;color:var(--text-2);font-size:.93rem}
+.proj details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.proj summary{cursor:pointer;font-weight:600;font-size:.92rem;color:var(--text);min-height:36px;display:flex;align-items:center;list-style:none}
+.proj summary::-webkit-details-marker{display:none}
+.proj summary::after{content:"+";margin-left:auto;color:var(--muted);font-size:1.2rem}
+.proj details[open] summary::after{content:"–"}
+.proj .chips{margin-top:16px}
+.proj-links{display:flex;gap:10px;margin-top:auto;padding-top:20px}
+.proj-links .btn{min-height:40px;padding:0 16px;font-size:.88rem}
+
+/* Current work */
+.now-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.now-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:10px}
+.status{align-self:flex-start;font-size:.74rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line-2);color:var(--text-2)}
+.status.building{color:#9ff0c9;border-color:#2b5a45;background:#13241d}
+.status.learning{color:#c9cffd;border-color:#353c69;background:#171a2c}
+.status.exploring{color:#f2c8ff;border-color:#55325f;background:#21152a}
+.now-card h3{font-size:1.05rem;font-weight:600}
+.now-card p{font-size:.92rem;color:var(--text-2)}
+.now-card .bar{margin-top:auto}
+
+/* Contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:clamp(28px,5vw,64px)}
+.contact-links{display:grid;gap:12px;margin-top:24px}
+.clink{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);text-decoration:none;transition:border-color .2s}
+.clink:hover{border-color:#3a3f4c}
+.clink svg{width:20px;height:20px;color:var(--accent-2);flex:none}
+.clink small{display:block;color:var(--muted);font-size:.8rem}
+.clink span{overflow-wrap:anywhere}
+form.cform{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,3vw,30px);display:grid;gap:16px}
+.field{display:grid;gap:6px}
+.field label{font-size:.88rem;font-weight:600;color:var(--text-2)}
+.field label small{font-weight:400;color:var(--muted)}
+.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;min-height:46px;transition:border-color .2s}
+.field textarea{min-height:130px;resize:vertical}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #9aa6ff26}
+.field .err{font-size:.82rem;color:#ff9b9b;min-height:0}
+.field [aria-invalid="true"]{border-color:#ff7b7b}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.success{display:grid;place-items:center;text-align:center;gap:10px;padding:40px 10px}
+.success .tick{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:#13241d;border:1px solid #2b5a45;color:var(--ok);font-size:1.6rem}
+.note{font-size:.82rem;color:var(--muted)}
+.pfoot{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);font-size:.88rem}
+.pfoot .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* Reveal on scroll (content is visible without JS) */
+.js .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .reveal.in-view{opacity:1;transform:none}
+
+/* ==========================================================================
+   CHAT WIDGET (shared by Portfolio Assistant and Luffy)
+   ========================================================================== */
+.chat-fab{position:fixed;right:20px;bottom:20px;z-index:60;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 18px 0 8px;border-radius:999px;border:1px solid var(--line-2);background:#14161d;color:var(--text);cursor:pointer;box-shadow:0 18px 40px -16px #000;font-weight:600;font-size:.93rem;transition:transform .25s var(--ease)}
+.chat-fab:hover{transform:translateY(-2px)}
+.chat-fab .fab-ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#232838,#2d3348);color:var(--accent-2)}
+.chat-fab .fab-ico svg{width:20px;height:20px}
+.chat{position:fixed;right:20px;bottom:84px;z-index:61;width:min(380px,calc(100vw - 24px));height:min(560px,calc(100dvh - 120px));display:flex;flex-direction:column;background:#111318;border:1px solid var(--line-2);border-radius:20px;box-shadow:0 30px 70px -20px #000;overflow:hidden;transform-origin:bottom right;animation:pop .28s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(8px)}}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;border-bottom:1px solid var(--line)}
+.chat-head .who{flex:1;min-width:0}
+.chat-head b{display:block;font-size:.98rem}
+.chat-head small{color:var(--muted);font-size:.8rem}
+.chat-close{width:40px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:transparent;cursor:pointer;color:var(--text-2)}
+.chat-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.msg{max-width:86%;padding:10px 13px;border-radius:14px;font-size:.93rem;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+.msg.bot{align-self:flex-start;background:#1a1d25;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:var(--text);color:#0b0c10;border-bottom-right-radius:4px}
+.msg.sys{align-self:center;font-size:.8rem;color:var(--muted);background:none;padding:2px}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{50%{opacity:.25}}
+.chat-suggest{display:flex;gap:6px;overflow-x:auto;padding:0 12px 10px;scrollbar-width:none}
+.chat-suggest::-webkit-scrollbar{display:none}
+.chat-suggest button{flex:none;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);font-size:.82rem;cursor:pointer}
+.chat-suggest button:hover{color:var(--text);border-color:#3a3f4c}
+.chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.chat-form input{flex:1;min-width:0;min-height:44px;border-radius:12px;border:1px solid var(--line-2);background:var(--bg);padding:0 12px}
+.chat-form input:focus{outline:none;border-color:var(--accent)}
+.chat-form button{min-width:44px;min-height:44px;border-radius:12px;border:0;background:var(--text);color:#0b0c10;cursor:pointer;font-weight:700}
+
+/* ==========================================================================
+   MARI WORLD
+   ========================================================================== */
+#world{position:fixed;inset:0;z-index:30;background:linear-gradient(#05030f 0 50%,#020106 50%);color:#e8e6ff;overflow:hidden;font-family:var(--font)}
+#world .scene-wrap{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+body.world-on #world .scene-wrap{opacity:1}
+.pan{position:absolute;inset:0;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%}
+/* Portrait phones/tablets: full-height skyline you can swipe across */
+body.pannable .pan{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+body.pannable .pan::-webkit-scrollbar{display:none}
+body.pannable #scene{position:relative;width:calc(100dvh * 16 / 9);height:100%;max-width:none}
+.swipe-hint{position:absolute;left:50%;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 60px);transform:translateX(-50%);z-index:6;font:600 .78rem var(--mono);letter-spacing:.14em;color:#c9fff6;background:#071a24cc;border:1px solid #5eead455;border-radius:999px;padding:8px 14px;pointer-events:none;opacity:0;transition:opacity .6s;white-space:nowrap}
+.swipe-hint.show{opacity:1}
+#rain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.fog{position:absolute;left:-10%;right:-10%;height:46%;bottom:18%;pointer-events:none;background:radial-gradient(60% 50% at 50% 60%,#7a5cff22,transparent 70%),radial-gradient(40% 40% at 20% 70%,#ff4fd81a,transparent 70%);filter:blur(8px);animation:drift 26s ease-in-out infinite alternate}
+.fog.f2{bottom:6%;height:30%;opacity:.7;animation-duration:34s;animation-direction:alternate-reverse;background:radial-gradient(50% 60% at 70% 50%,#2ee6ff1a,transparent 70%)}
+@keyframes drift{to{transform:translateX(5%)}}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,#000c 100%)}
+.scanlines{position:absolute;inset:0;pointer-events:none;opacity:.06;background:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+
+/* SVG scene styling */
+#scene .loc{cursor:pointer;outline:none}
+#scene .loc .glow{opacity:0;transition:opacity .3s}
+#scene .loc:hover .glow,#scene .loc:focus-visible .glow,#scene .loc.hot .glow{opacity:1}
+#scene .loc:focus-visible .focus-ring{stroke:#fff;stroke-width:3;stroke-dasharray:6 5}
+#scene .loc .body{transition:filter .3s}
+#scene .loc:hover .body,#scene .loc:focus-visible .body,#scene .loc.hot .body{filter:brightness(1.6)}
+#scene .sign{animation:neon 5s infinite}
+#scene .sign.s2{animation-delay:1.7s}#scene .sign.s3{animation-delay:3.1s}
+@keyframes neon{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.35}}
+#scene .marker{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bob{50%{transform:translateY(-8px)}}
+#scene .loc-label{font:600 15px var(--mono);letter-spacing:.12em;fill:#d6d2ff;opacity:.72;pointer-events:none;transition:opacity .3s}
+#scene .loc:hover .loc-label,#scene .loc:focus-visible .loc-label{opacity:1}
+#scene .lab.dormant{opacity:.25}
+#scene .lab.awake .lab-light{animation:labflick 1.4s steps(2) infinite}
+@keyframes labflick{50%{opacity:.2}}
+#nami{opacity:0;transition:opacity 1.2s}
+#nami.on{opacity:1;animation:holo 7s infinite}
+@keyframes holo{0%,94%,100%{opacity:.88}95%{opacity:.45}96%{opacity:.95}97%{opacity:.55}}
+#nami .nami-scan{animation:scan 5s linear infinite}
+@keyframes scan{from{transform:translateY(0)}to{transform:translateY(500px)}}
+.blink-win{animation:winblink 7s infinite}
+@keyframes winblink{0%,40%,100%{opacity:.9}45%,60%{opacity:.15}}
+
+/* World HUD */
+.hud-top{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:max(14px,env(safe-area-inset-top)) clamp(14px,3vw,28px) 14px;pointer-events:none}
+.hud-top > *{pointer-events:auto}
+.w-logo{font:700 .9rem var(--mono);letter-spacing:.22em;color:#cfc9ff;text-shadow:0 0 12px #9b7bff}
+.w-logo span{color:#ff6ad5}
+.w-btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 15px;border-radius:999px;border:1px solid #6c5cff66;background:#0d0a1fcc;color:#e8e6ff;font:600 .85rem var(--font);letter-spacing:.02em;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 0 18px #6c5cff33}
+.w-btn:hover{border-color:#a99bff;box-shadow:0 0 24px #8b7bff66}
+.w-btn:focus-visible{outline-color:#5eead4}
+
+/* Nami dialogue */
+.nami-say{position:absolute;z-index:6;top:clamp(80px,16vh,150px);right:calc(34% + 10px);max-width:min(320px,70vw);padding:12px 16px;border:1px solid #5eead466;background:linear-gradient(135deg,#071a24cc,#1a0b2acc);color:#d9fbff;font:500 .92rem/1.45 var(--mono);border-radius:4px 14px 14px 14px;box-shadow:0 0 28px #2ee6ff26,inset 0 0 18px #2ee6ff14;backdrop-filter:blur(4px);opacity:0;transform:translateY(-6px);transition:opacity .5s,transform .5s;pointer-events:none}
+.nami-say.show{opacity:1;transform:none}
+.nami-say b{display:block;font-size:.68rem;letter-spacing:.24em;color:#5eead4;margin-bottom:4px}
+
+/* City map (accessible list of every location; primary navigation on phones) */
+.map{position:absolute;left:clamp(10px,2vw,24px);bottom:max(16px,env(safe-area-inset-bottom));z-index:6;max-width:min(560px,calc(100vw - 120px))}
+.map-toggle{margin-bottom:8px}
+.map ul{display:flex;flex-wrap:wrap;gap:8px}
+.map button.loc-btn{min-height:40px;padding:0 13px;border-radius:999px;border:1px solid #ff6ad555;background:#12061bd9;color:#ffd9f4;font:600 .8rem var(--mono);letter-spacing:.06em;cursor:pointer}
+.map button.loc-btn:hover,.map button.loc-btn:focus-visible{border-color:#ff9be4;box-shadow:0 0 16px #ff6ad555}
+.map button.loc-btn.new{border-color:#5eead4;color:#c9fff6;animation:pulseb 2s infinite}
+@keyframes pulseb{50%{box-shadow:0 0 18px #5eead466}}
+
+/* Luffy chat skin (same widget, different persona) */
+body.world-on .chat-fab{background:#120a1f;border-color:#ff6ad566;color:#ffe6f7;box-shadow:0 0 30px #ff6ad533,0 18px 40px -16px #000;padding-left:6px}
+body.world-on .chat-fab .fab-ico{width:44px;height:44px;background:#1e1230;padding:2px}
+body.world-on .chat-fab{animation:catbob 4s ease-in-out infinite}
+@keyframes catbob{50%{transform:translateY(-4px)}}
+body.world-on .chat{background:#0e0818f2;border-color:#ff6ad555;box-shadow:0 0 40px #ff6ad526,0 30px 70px -20px #000;font-family:var(--mono)}
+body.world-on .chat-head{border-color:#ff6ad533}
+body.world-on .msg.bot{background:#1d1030;border-color:#ff6ad533;color:#ffe6f7}
+body.world-on .msg.user{background:#5eead4;color:#041312}
+body.world-on .chat-form{border-color:#ff6ad533}
+body.world-on .chat-form input{background:#08040f;border-color:#ff6ad544}
+body.world-on .chat-form button{background:#ff6ad5;color:#1a0420}
+body.world-on .chat-suggest button{border-color:#ff6ad544;color:#ffc9ee}
+.luffy-bubble{position:fixed;right:20px;bottom:86px;z-index:59;max-width:min(260px,70vw);padding:10px 13px;border-radius:14px 14px 4px 14px;background:#1d1030;border:1px solid #ff6ad555;color:#ffe6f7;font:500 .84rem/1.4 var(--mono);box-shadow:0 0 22px #ff6ad533;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;pointer-events:none}
+.luffy-bubble.show{opacity:1;transform:none}
+
+/* Transition overlay */
+#veil{position:fixed;inset:0;z-index:80;pointer-events:none;background:#000;opacity:0;transition:opacity .7s ease}
+#veil.on{opacity:1}
+#veil .boot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 .85rem var(--mono);letter-spacing:.3em;color:#9b8cff;text-shadow:0 0 14px #7b5cff;opacity:0;transition:opacity .4s;white-space:nowrap}
+#veil.on .boot{opacity:1}
+
+/* ==========================================================================
+   WORLD DIALOGS (missions, archive, console, career, comms, vault, lab)
+   ========================================================================== */
+dialog{color:inherit}
+dialog::backdrop{background:#02010acc;backdrop-filter:blur(3px)}
+.wd{width:min(860px,calc(100vw - 24px));max-height:min(88dvh,900px);padding:0;border:1px solid #6c5cff66;border-radius:18px;background:linear-gradient(160deg,#0d0a1ff7,#14061ff7);color:#ece9ff;box-shadow:0 0 60px #6c5cff33;overflow:hidden;font-family:var(--font)}
+.wd[open]{animation:wdin .45s var(--ease)}
+@keyframes wdin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(4px)}}
+.wd-inner{max-height:min(88dvh,900px);overflow-y:auto;padding:clamp(20px,3.5vw,36px)}
+.wd-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}
+.wd-kicker{font:600 .72rem var(--mono);letter-spacing:.28em;color:#5eead4;text-transform:uppercase}
+.wd h2{font-size:clamp(1.5rem,1.2rem + 1.5vw,2.2rem);margin-top:8px;letter-spacing:-.02em}
+.wd-close{flex:none;min-width:44px;min-height:44px;border-radius:12px;border:1px solid #6c5cff66;background:#0a0716;color:#ece9ff;cursor:pointer;font-size:1.1rem}
+.wd-close:hover{border-color:#a99bff}
+.wd .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wd .panel{border:1px solid #6c5cff3d;background:#0a071680;border-radius:12px;padding:16px}
+.wd .panel h3{font:600 .72rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:#ff9be4;margin-bottom:8px}
+.wd .panel p,.wd .panel li{color:#cfcbe8;font-size:.94rem}
+.wd .panel li{margin:4px 0;padding-left:14px;position:relative}
+.wd .panel li::before{content:"›";position:absolute;left:0;color:#5eead4}
+.wd .full{grid-column:1/-1}
+.wd .tags{display:flex;flex-wrap:wrap;gap:6px}
+.wd .tag{font:500 .78rem var(--mono);padding:4px 9px;border-radius:6px;background:#2ee6ff12;border:1px solid #2ee6ff40;color:#bff7ff}
+.wd .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.wd .wlink{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #ff6ad566;color:#ffe6f7;text-decoration:none;font-weight:600;font-size:.9rem;background:#ff6ad512}
+.wd .wlink:hover{background:#ff6ad526}
+.mission-hero{display:flex;align-items:center;gap:14px;margin:-4px 0 18px;padding:14px 16px;border-radius:12px;border:1px dashed #5eead455;font:500 .88rem var(--mono);color:#bff7ff}
+.mission-hero b{color:#5eead4}
+/* Archive terminal */
+.term{font-family:var(--mono);background:#030806;border:1px solid #1f6b4f;border-radius:12px;padding:16px;color:#9ff0c9;box-shadow:inset 0 0 40px #0f3b2b}
+.term .prompt::before{content:"mari@archive:~$ ";color:#5fd4a0}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+.arch{border:1px solid #1f6b4f;border-radius:10px;padding:14px;background:#06140f}
+.arch h3{font-size:.95rem;color:#d4ffe9}
+.arch p{font-size:.84rem;color:#8fd9b5;margin-top:6px;font-family:var(--font)}
+.arch .meta{font-size:.72rem;color:#5fa886;margin-top:8px;letter-spacing:.06em}
+/* System console */
+.console{font-family:var(--mono);background:#04050c;border:1px solid #3c4bff55;border-radius:12px;padding:16px;color:#c9d0ff}
+.console .ln{white-space:pre-wrap}
+.modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.module{border:1px solid #3c4bff44;border-radius:10px;padding:12px;background:#080b1c}
+.module h3{display:flex;justify-content:space-between;font:700 .78rem var(--mono);letter-spacing:.18em;color:#9fb0ff}
+.module h3 span{color:#5fd4a0;font-weight:500;letter-spacing:.08em}
+.mod-row{display:flex;justify-content:space-between;gap:8px;font:500 .8rem var(--mono);color:#c9d0ff;margin-top:8px}
+.mod-bar{height:5px;border-radius:2px;background:#1a1f45;margin-top:4px;overflow:hidden}
+.mod-bar i{display:block;height:100%;width:var(--w);background:repeating-linear-gradient(90deg,#5eead4 0 6px,#2bb39b 6px 8px);animation:load 1.4s var(--ease) both}
+@keyframes load{from{width:0}}
+/* Career floors */
+.floors{display:grid;gap:10px}
+.floor{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;border:1px solid #6c5cff3d;border-radius:12px;padding:14px;background:#0a071680}
+.floor .lvl{font:700 .78rem var(--mono);letter-spacing:.12em;color:#ff9be4;border:1px solid #ff6ad555;border-radius:8px;padding:6px 8px;white-space:nowrap}
+.floor.current{border-color:#5eead4;box-shadow:0 0 22px #5eead422}
+/* Achievements */
+.vault-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.record{border:1px solid #f5c26b55;border-radius:12px;padding:14px;background:#140f06;position:relative;overflow:hidden}
+.record::after{content:"DECRYPTED";position:absolute;right:10px;top:10px;font:700 .6rem var(--mono);letter-spacing:.2em;color:#f5c26b99}
+.record h3{font-size:.98rem;color:#ffe6b3;padding-right:70px}
+.record p{font-size:.86rem;color:#d9c49b;margin-top:6px}
+.record .yr{font:600 .75rem var(--mono);color:#f5c26b;margin-top:8px}
+/* Comms */
+.comms-links{display:grid;gap:10px}
+.comms-links a{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border:1px solid #2ee6ff40;border-radius:10px;color:#d9fbff;text-decoration:none;font:500 .9rem var(--mono);background:#071a2499;overflow-wrap:anywhere}
+.comms-links a:hover{border-color:#5eead4}
+.wd .field label{color:#cfcbe8}
+.wd .field input,.wd .field textarea{background:#07040f;border-color:#6c5cff55;color:#ece9ff}
+.wd .field input:focus,.wd .field textarea:focus{border-color:#5eead4;box-shadow:0 0 0 3px #5eead422}
+.w-submit{min-height:46px;padding:0 20px;border-radius:999px;border:0;background:#5eead4;color:#041312;font-weight:700;cursor:pointer}
+/* The Lab — deliberately different */
+.wd.lab{border-color:#c6ff3d88;background:repeating-linear-gradient(45deg,#0b0d06 0 18px,#0e1108 18px 36px);box-shadow:0 0 60px #c6ff3d26;font-family:var(--mono)}
+.wd.lab .wd-kicker{color:#c6ff3d}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.exp{border:1px dashed #c6ff3d66;padding:14px;border-radius:2px;background:#0b0d06e6;transition:transform .3s;cursor:default}
+.exp:nth-child(odd){transform:rotate(-1deg)}.exp:nth-child(even){transform:rotate(.8deg)}
+.exp:hover{transform:rotate(0) scale(1.03)}
+.exp h3{color:#e6ff9e;font-size:.95rem}
+.exp p{color:#b8cc7a;font-size:.82rem;margin-top:6px}
+.exp .st{display:inline-block;margin-top:8px;font-size:.7rem;letter-spacing:.14em;color:#0b0d06;background:#c6ff3d;padding:2px 6px}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;overflow:hidden}
+.glitch::before{color:#ff4fd8;transform:translate(2px,0);clip-path:inset(0 0 55% 0);animation:gl 2.4s infinite steps(2)}
+.glitch::after{color:#2ee6ff;transform:translate(-2px,0);clip-path:inset(55% 0 0 0);animation:gl 3.1s infinite steps(2) reverse}
+@keyframes gl{0%,90%{transform:translate(0)}92%{transform:translate(3px,-1px)}96%{transform:translate(-3px,1px)}}
+
+/* ==========================================================================
+   AUTHENTICATION DEMO + PRIVATE VAULT
+   ========================================================================== */
+.auth{width:min(420px,calc(100vw - 24px));padding:0;border:1px solid #ff4f6d88;border-radius:18px;background:#0c0508f7;color:#ffe8ec;box-shadow:0 0 70px #ff4f6d33;font-family:var(--mono)}
+.auth[open]{animation:wdin .4s var(--ease)}
+.auth-inner{padding:28px}
+.auth .lock{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;border:1px solid #ff4f6d66;background:#1c0910;font-size:1.4rem}
+.auth h2{font-size:1.35rem;margin:16px 0 4px;font-family:var(--font)}
+.auth p{color:#e9b3bd;font-size:.86rem}
+.demo-badge{display:inline-block;margin-top:14px;font-size:.7rem;font-weight:700;letter-spacing:.16em;color:#1c0910;background:#ffcf5c;padding:4px 8px;border-radius:4px}
+.otp{display:flex;gap:8px;margin-top:20px}
+.otp input{width:100%;min-width:0;height:54px;text-align:center;font:700 1.4rem var(--mono);border-radius:10px;border:1px solid #ff4f6d55;background:#170a0e;color:#fff}
+.otp input:focus{outline:none;border-color:#ff8fa3;box-shadow:0 0 0 3px #ff4f6d33}
+.auth .msgline{min-height:1.4em;margin-top:12px;font-size:.84rem}
+.auth .msgline.bad{color:#ff8fa3}.auth .msgline.good{color:#7dffc4}
+.auth-actions{display:flex;gap:10px;margin-top:16px}
+.auth-actions button{flex:1;min-height:46px;border-radius:12px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.auth-verify{border:0;background:#ff4f6d;color:#1c0910}
+.auth-cancel{border:1px solid #ff4f6d55;background:transparent;color:#ffe8ec}
+.otp.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+
+.vault{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#020604;color:#c8ffe1;font-family:var(--mono)}
+.vault[open]{animation:vaultin .6s var(--ease)}
+@keyframes vaultin{from{opacity:0;clip-path:inset(50% 0 50% 0)}}
+.vault-inner{height:100%;overflow-y:auto;padding:clamp(16px,3vw,32px);background:radial-gradient(800px 400px at 80% 0,#0f3b2b55,transparent),linear-gradient(#5fd4a00a 1px,transparent 1px) 0 0/100% 4px}
+.vault-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1f6b4f;padding-bottom:16px}
+.vault-top h2{font-size:clamp(1.2rem,1rem + 1vw,1.6rem);letter-spacing:.12em;color:#e6fff1}
+.vault-top .sess{font-size:.78rem;color:#5fd4a0}
+.lock-btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid #ff4f6d88;background:#1c0910;color:#ffd0d8;font:700 .85rem var(--mono);letter-spacing:.08em;cursor:pointer}
+.lock-btn:hover{background:#2a0c16}
+.vault-grid2{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:18px}
+.vw{grid-column:span 4;border:1px solid #1f6b4f;border-radius:12px;padding:16px;background:#04100bcc}
+.vw.wide{grid-column:span 8}
+.vw h3{font-size:.74rem;letter-spacing:.22em;color:#5fd4a0;margin-bottom:10px}
+.vw p,.vw li{font-size:.86rem;color:#b5e8cc;font-family:var(--font)}
+.vw li{margin:6px 0;display:flex;gap:8px}
+.vw li::before{content:"▸";color:#5fd4a0}
+.vw .kpi{display:flex;gap:16px;flex-wrap:wrap}
+.vw .kpi div{flex:1;min-width:90px;border:1px solid #1f6b4f;border-radius:8px;padding:10px}
+.vw .kpi b{display:block;font-size:1.3rem;color:#e6fff1}
+.vw .kpi span{font-size:.72rem;color:#5fa886}
+.vw textarea{width:100%;min-height:120px;background:#020604;border:1px solid #1f6b4f;border-radius:8px;color:#c8ffe1;padding:10px;font:.85rem var(--mono)}
+.vault-note{margin-top:18px;font-size:.75rem;color:#5fa886}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width:980px){
+  .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}
+  .job-cols{grid-template-columns:1fr}
+  .proj-grid{grid-template-columns:1fr}
+  .vw,.vw.wide{grid-column:span 12}
+}
+@media (max-width:860px){
+  .plinks{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:#0b0c10f5;border-bottom:1px solid var(--line);padding:10px 20px 18px}
+  .plinks.open{display:flex}
+  .plinks a{min-height:48px}
+  .menu-btn{display:inline-grid;place-items:center}
+  .pnav .enter-btn{order:3}
+  .pnav .wrap{flex-wrap:wrap;gap:12px}
+}
+@media (max-width:640px){
+  .wrap{width:min(100% - 32px,1120px)}
+  .two{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .wd .grid2{grid-template-columns:1fr}
+  .pnav .enter-btn{padding:0 12px;font-size:.85rem}
+  .chat-fab .fab-label{display:none}
+  .chat-fab{padding:0 6px}
+  .chat{right:12px;bottom:80px}
+  .nami-say{top:76px;right:12px;left:12px;max-width:none}
+  .map{max-width:calc(100vw - 92px)}
+  .w-logo{font-size:.72rem;letter-spacing:.14em}
+  .luffy-bubble{right:12px}
+}
+@media (max-width:380px){
+  .logo span:last-child{display:none}
+  .hero-actions .btn{flex:1 1 auto}
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .js .reveal{opacity:1;transform:none}
+  #nami.on{opacity:.88}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ======================================================================
+     PROFESSIONAL PORTFOLIO
+     ====================================================================== -->
+<div id="pro">
+  <header class="pnav" id="pnav">
+    <div class="wrap">
+      <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true">M</span><span data-bind="name">Mari</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="plinks" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="plinks" id="plinks" aria-label="Sections">
+        <a href="#about">About</a><a href="#experience">Experience</a><a href="#skills">Skills</a>
+        <a href="#projects">Projects</a><a href="#now">Now</a><a href="#contact">Contact</a>
+      </nav>
+      <button class="enter-btn" type="button" data-enter-world><span class="dot" aria-hidden="true"></span>Enter Mari’s World</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-name">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow"><span class="pulse" aria-hidden="true"></span><span data-bind="availability"></span></p>
+          <h1 id="hero-name" data-bind="name"></h1>
+          <p class="title" data-bind="title"></p>
+          <p class="intro" data-bind="intro"></p>
+          <div class="hero-meta">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-bind="location"></span></span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span data-bind="employer"></span></span>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-primary" id="resume-btn" href="#" target="_blank" rel="noopener">Resume</a>
+            <a class="btn" href="#contact">Contact</a>
+            <a class="icon-btn" data-link="github" href="#" target="_blank" rel="noopener" aria-label="GitHub profile"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></a>
+            <a class="icon-btn" data-link="linkedin" href="#" target="_blank" rel="noopener" aria-label="LinkedIn profile"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM7.1 20.5H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0z"/></svg></a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Profile summary">
+          <div class="avatar" id="avatar" role="img" aria-label="Photo placeholder for Mari"></div>
+          <div class="now">
+            <p class="label">Currently building</p>
+            <h3 data-bind="building.title"></h3>
+            <p data-bind="building.detail"></p>
+          </div>
+          <div class="stats" id="hero-stats"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="psec" id="about" aria-labelledby="about-h">
+      <div class="wrap">
+        <div class="shead reveal"><div><p class="label">About</p><h2 id="about-h">Who I am</h2></div></div>
+        <div class="about-grid reveal">
+          <div><p class="lead" data-bind="about.summary"></p><p data-bind="about.story"></p></div>
+          <div class="facts" id="about-facts"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="psec" id="experience" aria-labelledby="exp-h">
+      <div class="wrap">
+        <div class="shead reveal"><div><p class="label">Experience</p><h2 id="exp-h">Where I’ve worked</h2></div><p>Roles, responsibilities and what changed because of the work.</p></div>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+    </section>
+
+    <section class="psec" id="skills" aria-labelledby="skills-h">
+      <div class="wrap">
+        <div class="shead reveal"><div><p class="label">Skills</p><h2 id="skills-h">Toolkit</h2></div><p>Grouped by area. Bars show relative depth, not years.</p></div>
+        <div class="skills-grid" id="skills-grid"></div>
+      </div>
+    </section>
+
+    <section class="psec" id="projects" aria-labelledby="proj-h">
+      <div class="wrap">
+        <div class="shead reveal"><div><p class="label">Projects</p><h2 id="proj-h">Featured work</h2></div><p>Each project lists the problem, my role, the hard parts and the outcome.</p></div>
+        <div class="proj-grid" id="proj-grid"></div>
+      </div>
+    </section>
+
+    <section class="psec" id="now" aria-labelledby="now-h">
+      <div class="wrap">
+        <div class="shead reveal"><div><p class="label">Current work</p><h2 id="now-h">What I’m working on right now</h2></div></div>
+        <div class="now-grid" id="now-grid"></div>
+      </div>
+    </section>
+
+    <section class="psec" id="contact" aria-labelledby="contact-h">
+      <div class="wrap contact-grid">
+        <div class="reveal">
+          <p class="label">Contact</p>
+          <h2 id="contact-h" style="font-size:clamp(1.9rem,1.4rem + 1.8vw,2.7rem);margin-top:10px">Let’s talk</h2>
+          <p style="color:var(--text-2);margin-top:14px">Open to data engineering and analytics roles, freelance data platform work and good conversations about Databricks.</p>
+          <div class="contact-links" id="contact-links"></div>
+        </div>
+        <div class="reveal" id="pro-form-slot"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pfoot">
+    <div class="wrap"><p>© <span id="yr"></span> <span data-bind="name"></span>. Prototype — sample content where real details aren’t filled in yet.</p><p><button class="enter-btn" type="button" data-enter-world style="min-height:36px"><span class="dot" aria-hidden="true"></span>Enter Mari’s World</button></p></div>
+  </footer>
+</div>
+
+<!-- ======================================================================
+     MARI WORLD
+     ====================================================================== -->
+<div id="world" hidden aria-label="Mari's World — interactive creative portfolio">
+  <h1 class="sr-only" id="world-title" tabindex="-1">Mari’s World — a rooftop above a rainy neon city. Locations in the skyline lead to projects, career, skills, archive, achievements and contact.</h1>
+  <div class="scene-wrap">
+    <!-- The whole scene is one SVG so it scales cleanly on every screen. -->
+    <div class="pan" id="pan">
+    <svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="group" aria-label="Neon city skyline seen from a rooftop">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05030f"/><stop offset=".45" stop-color="#140a33"/><stop offset=".75" stop-color="#2a0f45"/><stop offset="1" stop-color="#3d1240"/></linearGradient>
+        <radialGradient id="cityglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".35"/><stop offset=".5" stop-color="#6c3cff" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+        <linearGradient id="bld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1238"/><stop offset="1" stop-color="#0a0718"/></linearGradient>
+        <linearGradient id="bld2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120c28"/><stop offset="1" stop-color="#05040d"/></linearGradient>
+        <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0a16"/><stop offset="1" stop-color="#020106"/></linearGradient>
+        <linearGradient id="wet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4fd8" stop-opacity=".18"/><stop offset=".5" stop-color="#2ee6ff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+        <linearGradient id="holo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff6ff" stop-opacity=".9"/><stop offset=".55" stop-color="#b08cff" stop-opacity=".55"/><stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/></linearGradient>
+        <pattern id="win" width="14" height="18" patternUnits="userSpaceOnUse"><rect width="14" height="18" fill="none"/><rect x="3" y="4" width="5" height="7" fill="#ffd27a" opacity=".55"/></pattern>
+        <pattern id="win2" width="10" height="14" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="3" height="5" fill="#7ff6ff" opacity=".35"/><rect x="6" y="8" width="3" height="4" fill="#ff8be6" opacity=".25"/></pattern>
+        <pattern id="win3" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="9" height="4" fill="#b8a6ff" opacity=".45"/></pattern>
+        <pattern id="scanpat" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.2" fill="#c8fbff"/></pattern>
+        <clipPath id="nami-clip">
+          <ellipse cx="1210" cy="300" rx="78" ry="102"/>
+          <path d="M1176 392 C1180 410 1180 432 1176 452 C1130 462 1096 500 1084 640 L1336 640 C1324 500 1290 462 1244 452 C1240 432 1240 410 1244 392 Z"/>
+          <path d="M1210 192 C1140 190 1112 250 1118 320 C1124 400 1104 470 1092 540 L1112 540 C1132 470 1150 400 1146 320 Z"/>
+          <path d="M1210 192 C1280 190 1308 250 1302 320 C1296 400 1318 470 1330 540 L1310 540 C1290 470 1272 400 1276 320 Z"/>
+        </clipPath>
+        <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+        <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+      </defs>
+
+      <rect width="1600" height="900" fill="url(#sky)"/>
+      <!-- distant moon haze -->
+      <circle cx="380" cy="150" r="70" fill="#ff9be4" opacity=".08" filter="url(#blur6)"/>
+      <rect y="420" width="1600" height="480" fill="url(#cityglow)"/>
+
+      <!-- NAMI — hologram presence in the distance (original figure: translucent wireframe + scanlines) -->
+      <g id="nami" aria-hidden="true">
+        <ellipse cx="1210" cy="340" rx="250" ry="320" fill="#2ee6ff" opacity=".06" filter="url(#blur6)"/>
+        <g clip-path="url(#nami-clip)">
+          <rect x="1040" y="150" width="340" height="500" fill="url(#holo)" opacity=".32"/>
+          <rect x="1040" y="150" width="340" height="500" fill="url(#scanpat)" opacity=".55"/>
+          <rect class="nami-scan" x="1040" y="140" width="340" height="10" fill="#bffaff" opacity=".35"/>
+        </g>
+        <!-- contours -->
+        <g fill="none" stroke-linecap="round">
+          <ellipse cx="1210" cy="300" rx="78" ry="102" stroke="#9ff8ff" stroke-width="1.6" opacity=".75"/>
+          <path d="M1176 392 C1180 410 1180 432 1176 452 M1244 392 C1240 410 1240 432 1244 452" stroke="#9ff8ff" stroke-width="1.4" opacity=".6"/>
+          <path d="M1176 452 C1130 462 1096 500 1084 560 M1244 452 C1290 462 1324 500 1336 560" stroke="#b9a4ff" stroke-width="1.4" opacity=".55"/>
+          <!-- long flowing hair -->
+          <path d="M1210 192 C1140 190 1112 250 1118 320 C1124 400 1104 470 1092 540" stroke="#7ff6ff" stroke-width="2" opacity=".6"/>
+          <path d="M1210 192 C1280 190 1308 250 1302 320 C1296 400 1318 470 1330 540" stroke="#7ff6ff" stroke-width="2" opacity=".6"/>
+          <path d="M1150 220 C1120 300 1132 380 1112 470 M1270 220 C1300 300 1288 380 1308 470" stroke="#d1b8ff" stroke-width="1.2" opacity=".45"/>
+          <path d="M1166 205 C1190 230 1236 232 1262 210" stroke="#e6fdff" stroke-width="1.2" opacity=".5"/>
+          <!-- calm, closed eyes -->
+          <path d="M1176 302 q12 7 24 0 M1220 302 q12 7 24 0" stroke="#f0feff" stroke-width="2.2" opacity=".9"/>
+          <path d="M1207 338 q3 3 6 0" stroke="#e6fdff" stroke-width="1.3" opacity=".55"/>
+          <path d="M1199 360 q11 5 22 0" stroke="#ffd1f5" stroke-width="1.8" opacity=".65"/>
+          <!-- data circlet + nodes -->
+          <ellipse cx="1210" cy="196" rx="112" ry="15" stroke="#7ff6ff" stroke-width="1.2" opacity=".55" stroke-dasharray="3 8"/>
+        </g>
+        <circle cx="1098" cy="196" r="3" fill="#7ff6ff" opacity=".8"/><circle cx="1322" cy="196" r="3" fill="#ff8be6" opacity=".8"/>
+        <text x="1210" y="625" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" letter-spacing="6" fill="#7ff6ff" opacity=".7">N · A · M · I</text>
+      </g>
+
+      <!-- far city (generated) -->
+      <g id="far-city" aria-hidden="true"></g>
+      <!-- mid city: project towers + career tower are injected here by JS -->
+      <g id="mid-city"></g>
+
+      <!-- rooftop foreground -->
+      <g aria-hidden="true">
+        <rect y="742" width="1600" height="158" fill="url(#roof)"/>
+        <rect y="742" width="1600" height="4" fill="#ff4fd8" opacity=".25"/>
+        <rect y="746" width="1600" height="60" fill="url(#wet)"/>
+        <!-- railing -->
+        <g stroke="#1d1830" stroke-width="5"><line x1="0" y1="712" x2="1600" y2="712"/></g>
+        <g stroke="#1d1830" stroke-width="4" id="rails"></g>
+        <!-- puddles reflecting neon -->
+        <ellipse cx="520" cy="840" rx="180" ry="14" fill="#ff4fd8" opacity=".12"/>
+        <ellipse cx="1120" cy="860" rx="220" ry="16" fill="#2ee6ff" opacity=".10"/>
+        <!-- water tank + vents silhouettes -->
+        <rect x="1380" y="630" width="70" height="112" rx="6" fill="#0a0814"/>
+        <rect x="1372" y="620" width="86" height="16" rx="4" fill="#120e22"/>
+      </g>
+      <g id="rooftop-objects"></g>
+    </svg>
+    </div>
+    <canvas id="rain" aria-hidden="true"></canvas>
+    <div class="fog" aria-hidden="true"></div><div class="fog f2" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div><div class="scanlines" aria-hidden="true"></div>
+  </div>
+
+  <div class="hud-top">
+    <p class="w-logo" aria-hidden="true">MARI<span>://</span>WORLD</p>
+    <button class="w-btn" type="button" id="back-pro">← Professional Portfolio</button>
+  </div>
+
+  <p class="swipe-hint" id="swipe-hint" aria-hidden="true">← swipe to explore the city →</p>
+  <div class="nami-say" id="nami-say" role="status" aria-live="polite"><b>NAMI</b><span id="nami-text"></span></div>
+
+  <nav class="map" aria-label="City map: all locations">
+    <button class="w-btn map-toggle" type="button" aria-expanded="false" aria-controls="map-list" id="map-toggle">⌖ City map</button>
+    <ul id="map-list" hidden></ul>
+  </nav>
+</div>
+
+<!-- ======================================================================
+     CHAT WIDGET (Portfolio Assistant in pro mode · Luffy in Mari's World)
+     ====================================================================== -->
+<button class="chat-fab" type="button" id="chat-fab" aria-expanded="false" aria-controls="chat">
+  <span class="fab-ico" id="fab-ico" aria-hidden="true"></span><span class="fab-label" id="fab-label">Portfolio Assistant</span>
+</button>
+<div class="luffy-bubble" id="luffy-bubble" aria-hidden="true"></div>
+<section class="chat" id="chat" hidden role="dialog" aria-modal="false" aria-labelledby="chat-name">
+  <div class="chat-head">
+    <span class="fab-ico" id="chat-avatar" aria-hidden="true" style="width:40px;height:40px;border-radius:50%;display:grid;place-items:center"></span>
+    <div class="who"><b id="chat-name">Portfolio Assistant</b><small id="chat-sub">Answers about Mari’s work</small></div>
+    <button class="chat-close" type="button" id="chat-close" aria-label="Close chat">✕</button>
+  </div>
+  <div class="chat-log" id="chat-log" aria-live="polite"></div>
+  <div class="chat-suggest" id="chat-suggest" role="group" aria-label="Suggested questions"></div>
+  <form class="chat-form" id="chat-form" autocomplete="off">
+    <label class="sr-only" for="chat-input">Message</label>
+    <input id="chat-input" type="text" maxlength="500" placeholder="Ask about Mari…">
+    <button type="submit" aria-label="Send">↑</button>
+  </form>
+</section>
+
+<!-- Generic world dialog: content is rendered per location -->
+<dialog class="wd" id="wd" aria-labelledby="wd-title"><div class="wd-inner" id="wd-inner"></div></dialog>
+
+<!-- AUTHENTICATION DEMO -->
+<dialog class="auth" id="auth" aria-labelledby="auth-title" aria-describedby="auth-desc">
+  <div class="auth-inner">
+    <div class="lock" aria-hidden="true">🔒</div>
+    <h2 id="auth-title">Restricted Area</h2>
+    <p id="auth-desc">Authenticator verification required. Enter the 6-digit code from your authenticator app.</p>
+    <span class="demo-badge">DEMO AUTHENTICATION ONLY · code 123456</span>
+    <form id="auth-form" autocomplete="off">
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="sr-only">6-digit authentication code</legend>
+        <div class="otp" id="otp"></div>
+      </fieldset>
+      <p class="msgline" id="auth-msg" role="alert"></p>
+      <div class="auth-actions">
+        <button type="button" class="auth-cancel" id="auth-cancel">Cancel</button>
+        <button type="submit" class="auth-verify">Verify Identity</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<!-- PRIVATE VAULT -->
+<dialog class="vault" id="vault" aria-labelledby="vault-title"><div class="vault-inner" id="vault-inner"></div></dialog>
+
+<div id="veil" aria-hidden="true"><span class="boot" id="boot-text">INITIALISING MARI://WORLD</span></div>
+
+<script>
+/* ==========================================================================
+   CONFIG — replace these with Mari's real details.
+   Everything else on the page is generated from CONFIG + portfolioData.
+   ========================================================================== */
+const CONFIG = {
+  name: "Mari",
+  fullName: "Marimuthu R",
+  title: "Data Lead · Databricks, Power BI & Data Platforms",
+  intro: "I build data platforms that business teams trust: governed pipelines, a clean warehouse and dashboards people actually open on Monday morning.",
+  location: "Chennai, India · working remotely",           // TODO: confirm
+  employer: "Data Lead at a Texas real estate company",   // TODO: add company name if you want it public
+  availability: "Open to data engineering & analytics opportunities",
+  photo: "",                 // e.g. "images/mari.jpg" — leave empty to show initials
+  resume: "",                // e.g. "resume.pdf" — leave empty to use the email fallback below
+  github: "https://github.com/M-Aadhi",
+  linkedin: "https://www.linkedin.com/in/zeb-mari",
+  email: "hello@example.com", // TODO: replace with your public contact email
+  building: {
+    title: "A Databricks lakehouse for real estate operations",
+    detail: "Bronze → Silver → Gold pipelines with data-quality quarantine, Delta MERGE and SCD Type 2, feeding Power BI."
+  }
+};
+
+/* ==========================================================================
+   SHARED DATA — one source of truth for BOTH modes.
+   Professional Portfolio and Mari's World both render from this object.
+   (Placeholder entries are marked so they're easy to find and replace.)
+   ========================================================================== */
+const portfolioData = {
+  profile: CONFIG,
+  stats: [
+    { value: "2+", label: "years in data" },
+    { value: "60", label: "pipeline tests" },
+    { value: "13", label: "live templates" }
+  ],
+  about: {
+    summary: "I’m Mari, a Data Lead who turns scattered operational data into a single, reliable picture of the business.",
+    story: "I look after the data warehouse, pipelines, dashboards and Power BI for a real estate business in Texas, working mostly in Databricks. I like work where engineering discipline (tests, idempotent loads, clear lineage) meets a business question someone actually needs answered.",
+    interests: ["Lakehouse architecture", "Data quality & testing", "Analytics engineering", "AI-assisted workflows", "Automation"],
+    focus: "Building a production-grade medallion lakehouse and learning how far AI assistants can take everyday data work.",
+    enjoys: ["Databricks", "PySpark", "SQL", "Delta Lake", "Power BI", "Python", "GitHub Actions", "Claude"]
+  },
+  skills: [
+    { category: "Data Engineering", items: [["Databricks", 90], ["PySpark", 85], ["Delta Lake", 85], ["SQL", 92]] },
+    { category: "Analytics & BI", items: [["Power BI", 90], ["DAX", 78], ["Data modelling", 85]] },
+    { category: "AI / ML", items: [["LLM workflows", 75], ["Prompt engineering", 80], ["Claude / AI agents", 78]] },
+    { category: "Cloud", items: [["Azure", 72], ["Unity Catalog", 70], ["AWS basics", 55]] },
+    { category: "Backend", items: [["Python", 85], ["REST APIs", 65], ["Node.js basics", 50]] },
+    { category: "Frontend", items: [["HTML & CSS", 75], ["JavaScript", 65], ["Accessibility basics", 60]] },
+    { category: "Databases", items: [["Data warehousing", 88], ["SQL Server", 75], ["PostgreSQL", 60]] },
+    { category: "DevOps & Tools", items: [["Git & GitHub", 82], ["GitHub Actions", 70], ["pytest", 75], ["Playwright", 55]] }
+  ],
+  experience: [
+    {
+      company: "Texas real estate company (name on request)", role: "Data Lead", dates: "2024 — Present", current: true,
+      responsibilities: ["Own the data warehouse, ETL pipelines and Power BI reporting", "Design Databricks pipelines for properties, leases, payments and maintenance data", "Partner with operations and finance on KPIs: occupancy, collections, delinquency"],
+      technologies: ["Databricks", "PySpark", "SQL", "Power BI", "Delta Lake"],
+      achievements: ["Replaced spreadsheet reporting with a single governed data model", "Built data-quality checks that quarantine bad records instead of hiding them"]
+    },
+    {
+      company: "Previous company (placeholder)", role: "Data Analyst / BI Developer", dates: "2023 — 2024",
+      responsibilities: ["Built Power BI dashboards and SQL reports for business teams", "Cleaned and modelled data from several source systems"],
+      technologies: ["SQL", "Power BI", "Excel", "Python"],
+      achievements: ["Placeholder: reduced monthly reporting time from days to hours", "Placeholder: first self-serve dashboard adopted by leadership"]
+    },
+    {
+      company: "Placeholder — internship / early role", role: "Data Intern", dates: "2022 — 2023",
+      responsibilities: ["Placeholder: data cleaning, ad-hoc analysis and documentation"],
+      technologies: ["Python", "SQL", "Excel"],
+      achievements: ["Placeholder: replace with a real milestone"]
+    }
+  ],
+  projects: [
+    {
+      id: "lakehouse", featured: true, sign: "LAKEHOUSE", glyph: "◈",
+      name: "Real Estate Databricks Lakehouse",
+      description: "End-to-end medallion lakehouse for a property portfolio: 100 properties, 1,058 units, 14k+ payments (synthetic data).",
+      role: "Architect & sole developer",
+      problem: "Reporting was stitched together from spreadsheets; bad source data silently skewed occupancy and collections numbers.",
+      technologies: ["Databricks", "PySpark", "Delta Lake", "Unity Catalog", "pytest", "GitHub Actions"],
+      architecture: "Sources → Bronze (raw + ingestion metadata) → validation → Quarantine / Silver (typed, deduplicated, MERGE, SCD2) → Gold KPIs → dashboard.",
+      challenges: ["Idempotent incremental loads with Delta MERGE", "Deduplicating with window functions without losing conflicts", "SCD Type 2 history for tenants"],
+      result: "60 automated tests, 91% coverage, CI with no workspace credentials, and KPIs like 91.5% occupancy and 87.5% collection rate.",
+      lessons: "Quarantining bad data (instead of fixing it silently) builds more trust than a clean-looking number.",
+      github: "https://github.com/M-Aadhi/real-estate-databricks-lakehouse", demo: "",
+      gradient: "linear-gradient(135deg,#1e2a5a,#0f3b4f 55%,#3b2a12)"
+    },
+    {
+      id: "gallery", featured: true, sign: "GALLERY", glyph: "▦",
+      name: "Professional Portfolio Demo Gallery",
+      description: "A live gallery of 13 professional portfolio templates, from CEOs to data engineers, browsable by profession and selectable by ID.",
+      role: "Product designer & developer",
+      problem: "Professionals struggle to picture their portfolio; a list of templates doesn’t help them choose.",
+      technologies: ["HTML", "CSS", "JavaScript", "GitHub Pages", "Playwright"],
+      architecture: "Static site: one catalogue file drives cards, search, filters and counts; each template is a portable folder.",
+      challenges: ["Making 13 templates genuinely different, not recolours", "Accessibility and 320px mobile layouts", "Automated checks at five screen widths"],
+      result: "13 live templates, a weekly release process, and automated tests for layout, links and the visitor journey.",
+      lessons: "A product is the system around the templates: IDs, registry, QA checklist, changelog.",
+      github: "https://github.com/M-Aadhi", demo: "https://m-aadhi.github.io/portfolio-demo-gallery/",
+      gradient: "linear-gradient(135deg,#2b1e4f,#4a1f45 60%,#1b2f45)"
+    },
+    {
+      id: "briefing", featured: true, sign: "BRIEFING", glyph: "◷",
+      name: "E-commerce Weekly Briefing",
+      description: "Prototype that turns weekly store data into a short, plain-English business briefing with the numbers that matter.",
+      role: "Data & automation developer",
+      problem: "Owners had dashboards but no time to read them; key changes went unnoticed for weeks.",
+      technologies: ["Python", "SQL", "LLM summarisation", "Automation"],
+      architecture: "Scheduled job → KPI calculations → anomaly flags → AI-written summary with the source numbers attached.",
+      challenges: ["Keeping AI summaries factual and traceable to numbers", "Choosing which changes are worth a sentence"],
+      result: "Placeholder: a one-page weekly briefing instead of five dashboards.",
+      lessons: "AI is best at the last mile of explaining numbers, not at calculating them.",
+      github: "https://github.com/M-Aadhi", demo: "",
+      gradient: "linear-gradient(135deg,#143a33,#1d2c55 60%,#3b1636)"
+    },
+    {
+      id: "signal", featured: true, sign: "SIGNAL", glyph: "✦",
+      name: "LinkedIn Data Skills & Publishing Workflow",
+      description: "Claude skills that draft, review and publish LinkedIn posts in my voice, with a human approving every post.",
+      role: "Builder & first user",
+      problem: "Posting consistently took too long; generic AI posts didn’t sound like me.",
+      technologies: ["Claude skills", "Publora API", "Python", "Markdown"],
+      architecture: "Voice profile + story bank → writing skills → preview → explicit approval → publish via Publora.",
+      challenges: ["Keeping a human in the loop by design", "Removing AI-sounding phrases", "No scraping, no auto-DMs"],
+      result: "Posts go from idea to published in minutes, and nothing goes out without my yes.",
+      lessons: "Guardrails belong in the workflow, not in hoping the model behaves.",
+      github: "https://github.com/M-Aadhi", demo: "",
+      gradient: "linear-gradient(135deg,#3a1240,#1a1f4f 55%,#0f3540)"
+    }
+  ],
+  archive: [
+    { name: "Houston Pet Shop Market Research", note: "Deep-research report on a local market: demand, competitors, opportunities.", tag: "RESEARCH" },
+    { name: "CRM Comparison: Salesforce, ServiceNow, Zoho", note: "Features, free tiers, cost and best-fit use cases.", tag: "RESEARCH" },
+    { name: "GitHub Profile README", note: "Profile page with animated header and contribution snake.", tag: "WEB" },
+    { name: "Power BI Portfolio Dashboards", note: "Placeholder: occupancy, collections and maintenance reports.", tag: "BI" },
+    { name: "SQL Data-Quality Snippets", note: "Placeholder: reusable checks for nulls, duplicates and orphans.", tag: "SQL" },
+    { name: "Mari’s World", note: "This site — a portfolio with a secret second life.", tag: "WEB" }
+  ],
+  currentWork: [
+    { title: "Lakehouse on Databricks Free Edition", detail: "Running the real-estate lakehouse notebooks end to end on serverless compute.", status: "building", progress: 70 },
+    { title: "Weekly portfolio template releases", detail: "Adding one new professional template to the gallery every week.", status: "building", progress: 40 },
+    { title: "AI portfolio assistant", detail: "Connecting this site’s assistant to a low-cost LLM, grounded in my portfolio data.", status: "exploring", progress: 25 },
+    { title: "Unity Catalog governance", detail: "Grants, column masks and lineage for production data.", status: "learning", progress: 50 }
+  ],
+  achievements: [
+    { title: "Lakehouse test suite", note: "60 automated tests and 91% coverage on the lakehouse project.", year: "2026" },
+    { title: "13-template portfolio product", note: "Designed and shipped a live gallery with a weekly release process.", year: "2026" },
+    { title: "Placeholder certification", note: "e.g. Databricks Certified Data Engineer — replace with a real one.", year: "20XX" },
+    { title: "Placeholder milestone", note: "e.g. hackathon, award or promotion.", year: "20XX" }
+  ],
+  lab: [
+    { name: "Neon skyline generator", note: "Procedural city silhouettes for this world.", state: "RUNNING" },
+    { name: "Voice-to-SQL notebook", note: "Ask a question out loud, get a query back.", state: "PROTOTYPE" },
+    { name: "Data-quality radar", note: "A strange circular chart for pipeline health.", state: "UNSTABLE" },
+    { name: "Luffy’s nap tracker", note: "Highly classified. Results inconclusive.", state: "CLASSIFIED" },
+    { name: "Genie-style data chat", note: "Natural-language questions over the Gold layer.", state: "IDEA" }
+  ],
+  contact: { email: CONFIG.email, github: CONFIG.github, linkedin: CONFIG.linkedin }
+};
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? 0 : ms));
+const getPath = (obj, path) => path.split(".").reduce((o, k) => (o ? o[k] : ""), obj);
+document.documentElement.classList.add("js");
+
+const ICON = {
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  github: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM7.1 20.5H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0z"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>'
+};
+
+/* Luffy — stylised Persian cat avatar (original SVG). */
+function luffySVG(size = 40) {
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true">
+    <path d="M10 26 L8 8 L24 18 Z" fill="#f2d3a2"/><path d="M54 26 L56 8 L40 18 Z" fill="#f2d3a2"/>
+    <path d="M12 22 L11 12 L20 18 Z M52 22 L53 12 L44 18 Z" fill="#f7a9c4"/>
+    <path d="M32 12 C14 12 6 24 7 36 C5 40 8 44 10 45 C12 54 22 60 32 60 C42 60 52 54 54 45 C56 44 59 40 57 36 C58 24 50 12 32 12 Z" fill="#f6e2c0"/>
+    <path d="M14 30 C10 34 9 40 12 44 M50 30 C54 34 55 40 52 44 M20 16 C24 13 28 12 32 12 M44 16 C40 13 36 12 32 12" stroke="#e7c48f" stroke-width="2" fill="none"/>
+    <ellipse cx="23" cy="36" rx="6.5" ry="7" fill="#d98e2b"/><ellipse cx="41" cy="36" rx="6.5" ry="7" fill="#d98e2b"/>
+    <ellipse cx="23" cy="37" rx="2.4" ry="5" fill="#1a0f05"/><ellipse cx="41" cy="37" rx="2.4" ry="5" fill="#1a0f05"/>
+    <circle cx="25" cy="34" r="1.6" fill="#fff"/><circle cx="43" cy="34" r="1.6" fill="#fff"/>
+    <path d="M29.5 44 L34.5 44 L32 47 Z" fill="#e88aa8"/>
+    <path d="M32 47 C31 50 28 51 26 50 M32 47 C33 50 36 51 38 50" stroke="#a5704a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M16 46 L4 44 M16 48 L5 50 M48 46 L60 44 M48 48 L59 50" stroke="#fff" stroke-width="1" opacity=".8"/>
+  </svg>`;
+}
+
+/* ==========================================================================
+   PROFESSIONAL PORTFOLIO — rendering
+   ========================================================================== */
+function bindText() {
+  $$("[data-bind]").forEach((el) => {
+    const key = el.getAttribute("data-bind");
+    const val = key.startsWith("about.") ? getPath(portfolioData, key) : getPath(CONFIG, key);
+    if (val) el.textContent = val;
+  });
+  $$('[data-link="github"]').forEach((a) => (a.href = CONFIG.github));
+  $$('[data-link="linkedin"]').forEach((a) => (a.href = CONFIG.linkedin));
+  const resume = $("#resume-btn");
+  if (CONFIG.resume) resume.href = CONFIG.resume;
+  else { resume.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent("Resume request")}`; resume.removeAttribute("target"); resume.textContent = "Request resume"; }
+  const av = $("#avatar");
+  if (CONFIG.photo) av.innerHTML = `<img src="${esc(CONFIG.photo)}" alt="Photo of ${esc(CONFIG.name)}" width="132" height="132">`;
+  else av.textContent = CONFIG.name.slice(0, 1) + (CONFIG.fullName.split(" ")[1] || "").slice(0, 1);
+  $("#yr").textContent = new Date().getFullYear();
+}
+
+function renderPro() {
+  const d = portfolioData;
+  $("#hero-stats").innerHTML = d.stats.map((s) => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("");
+
+  $("#about-facts").innerHTML = `
+    <div class="fact"><h3>Professional interests</h3><div class="chips">${d.about.interests.map((i) => `<span class="chip">${esc(i)}</span>`).join("")}</div></div>
+    <div class="fact"><h3>Current focus</h3><p style="color:var(--text-2);font-size:.95rem">${esc(d.about.focus)}</p></div>
+    <div class="fact"><h3>Enjoys working with</h3><div class="chips">${d.about.enjoys.map((i) => `<span class="chip">${esc(i)}</span>`).join("")}</div></div>`;
+
+  $("#timeline").innerHTML = d.experience.map((j) => `
+    <li class="job reveal">
+      <div class="job-top"><div><h3>${esc(j.role)}</h3><p class="co">${esc(j.company)}</p></div><p class="dates">${esc(j.dates)}</p></div>
+      <div class="job-cols">
+        <div><p class="label">Responsibilities</p><ul class="dash">${j.responsibilities.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
+        <div><p class="label">Achievements</p><ul class="wins">${j.achievements.map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div>
+      </div>
+      <div class="chips" style="margin-top:16px">${j.technologies.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>
+    </li>`).join("");
+
+  $("#skills-grid").innerHTML = d.skills.map((c) => `
+    <div class="skill-card reveal">
+      <h3>${esc(c.category)} <span>${c.items.length} skills</span></h3>
+      ${c.items.map(([n, lvl]) => `<div class="skill"><div class="skill-row"><span>${esc(n)}</span><em>${lvl >= 85 ? "Advanced" : lvl >= 70 ? "Strong" : "Working"}</em></div><div class="bar" role="img" aria-label="${esc(n)}: ${lvl} out of 100"><i style="--w:${lvl}%"></i></div></div>`).join("")}
+    </div>`).join("");
+
+  $("#proj-grid").innerHTML = d.projects.map((p) => `
+    <article class="proj reveal">
+      <div class="proj-img" style="--g:${p.gradient}" role="img" aria-label="Image placeholder for ${esc(p.name)}"><span class="glyph" aria-hidden="true">${p.glyph}</span><span class="ph">PROJECT IMAGE · REPLACE</span></div>
+      <div class="proj-body">
+        <h3>${esc(p.name)}</h3><p class="role">${esc(p.role)}</p>
+        <p class="desc">${esc(p.description)}</p>
+        <dl><div><dt>Problem solved</dt><dd>${esc(p.problem)}</dd></div><div><dt>Result</dt><dd>${esc(p.result)}</dd></div></dl>
+        <details><summary>Challenges & approach</summary><ul class="dash" style="margin-top:6px">${p.challenges.map((c) => `<li style="position:relative;padding-left:18px;color:var(--text-2);font-size:.93rem;margin:6px 0">${esc(c)}</li>`).join("")}</ul></details>
+        <div class="chips">${p.technologies.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>
+        <div class="proj-links">
+          ${p.github ? `<a class="btn" href="${esc(p.github)}" target="_blank" rel="noopener">GitHub</a>` : ""}
+          ${p.demo ? `<a class="btn" href="${esc(p.demo)}" target="_blank" rel="noopener">Live demo</a>` : `<span class="btn" aria-disabled="true" style="opacity:.5;cursor:default">Demo soon</span>`}
+        </div>
+      </div>
+    </article>`).join("");
+
+  $("#now-grid").innerHTML = d.currentWork.map((w) => `
+    <div class="now-card reveal"><span class="status ${w.status}">${esc(w.status)}</span><h3>${esc(w.title)}</h3><p>${esc(w.detail)}</p>
+    <div class="bar" role="img" aria-label="Progress ${w.progress} percent"><i style="--w:${w.progress}%"></i></div></div>`).join("");
+
+  $("#contact-links").innerHTML = `
+    <a class="clink" href="mailto:${esc(d.contact.email)}">${ICON.mail}<div><small>Email</small><span>${esc(d.contact.email)}</span></div></a>
+    <a class="clink" href="${esc(d.contact.linkedin)}" target="_blank" rel="noopener">${ICON.linkedin}<div><small>LinkedIn</small><span>${esc(d.contact.linkedin.replace("https://www.", ""))}</span></div></a>
+    <a class="clink" href="${esc(d.contact.github)}" target="_blank" rel="noopener">${ICON.github}<div><small>GitHub</small><span>${esc(d.contact.github.replace("https://", ""))}</span></div></a>`;
+
+  $("#pro-form-slot").appendChild(buildContactForm("pro"));
+}
+
+/* Reveal-on-scroll + skill bars (content stays visible without JS / with reduced motion) */
+function initReveal() {
+  const els = $$(".reveal, .skill-card, .now-card");
+  if (!("IntersectionObserver" in window) || reduceMotion) { els.forEach((e) => e.classList.add("in-view")); return; }
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in-view"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
+  els.forEach((e) => io.observe(e));
+}
+
+function initProNav() {
+  const nav = $("#pnav"), btn = $(".menu-btn"), links = $("#plinks");
+  addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
+  const set = (open) => { btn.setAttribute("aria-expanded", open); links.classList.toggle("open", open); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu"); };
+  btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+  links.addEventListener("click", (e) => { if (e.target.closest("a")) set(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") { set(false); btn.focus(); } });
+}
+
+/* ==========================================================================
+   CONTACT SYSTEM — shared by the professional form, the Communication
+   Channel in Mari's World, and the chat lead capture.
+   ========================================================================== */
+const leads = []; // prototype only: kept in memory, lost on reload
+
+/*
+  PRODUCTION: replace the body of saveLead() with a POST to your backend, e.g.
+    await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(lead) });
+  The backend should:
+    1. validate + rate-limit the request (and add bot protection such as Turnstile / reCAPTCHA),
+    2. store the lead in a database (e.g. Postgres, Supabase, Cloudflare D1),
+    3. optionally notify Mari by email (e.g. Resend, SendGrid, SES).
+  Never put API keys, SMTP passwords or database credentials in this file —
+  anything in the browser is public.
+*/
+async function saveLead(lead) {
+  await new Promise((r) => setTimeout(r, 700)); // simulate network latency
+  const record = { ...lead, receivedAt: new Date().toISOString() };
+  leads.push(record);
+  console.info("[demo] lead saved locally (not sent anywhere):", record);
+  return { ok: true };
+}
+
+function buildContactForm(variant) {
+  const id = (n) => `${variant}-${n}`;
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <form class="cform" novalidate>
+      <div class="two">
+        <div class="field"><label for="${id("name")}">Name</label><input id="${id("name")}" name="name" autocomplete="name" required aria-describedby="${id("name-err")}"><span class="err" id="${id("name-err")}"></span></div>
+        <div class="field"><label for="${id("email")}">Email</label><input id="${id("email")}" name="email" type="email" autocomplete="email" required aria-describedby="${id("email-err")}"><span class="err" id="${id("email-err")}"></span></div>
+      </div>
+      <div class="field"><label for="${id("company")}">Company <small>(optional)</small></label><input id="${id("company")}" name="company" autocomplete="organization"></div>
+      <div class="field"><label for="${id("msg")}">Message</label><textarea id="${id("msg")}" name="message" required aria-describedby="${id("msg-err")}"></textarea><span class="err" id="${id("msg-err")}"></span></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="${variant === "pro" ? "btn btn-primary" : "w-submit"}" type="submit">${variant === "pro" ? "Send message" : "Transmit"}</button>
+        <span class="note">Demo: nothing is sent yet.</span>
+      </div>
+    </form>`;
+  const form = wrap.firstElementChild;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(form));
+    const errs = {
+      name: f.name.trim() ? "" : "Please add your name.",
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim()) ? "" : "Please enter a valid email.",
+      message: f.message.trim().length >= 5 ? "" : "Please write a short message."
+    };
+    let first = null;
+    [["name", "name"], ["email", "email"], ["message", "msg"]].forEach(([k, n]) => {
+      const input = form.querySelector(`#${id(n)}`);
+      input.setAttribute("aria-invalid", errs[k] ? "true" : "false");
+      form.querySelector(`#${id(n)}-err`).textContent = errs[k];
+      if (errs[k] && !first) first = input;
+    });
+    if (first) { first.focus(); return; }
+    const btn = form.querySelector('[type="submit"]');
+    btn.disabled = true; btn.textContent = variant === "pro" ? "Sending…" : "Transmitting…";
+    await saveLead({ source: variant === "pro" ? "contact-form" : "world-comms", name: f.name.trim(), email: f.email.trim(), company: f.company.trim(), message: f.message.trim() });
+    wrap.innerHTML = `<div class="${variant === "pro" ? "cform" : "panel"} success" role="status" tabindex="-1">
+      <div class="tick" aria-hidden="true">✓</div>
+      <h3 style="font-size:1.2rem">${variant === "pro" ? "Message received" : "Transmission received"}</h3>
+      <p style="color:var(--text-2)">Thanks, ${esc(f.name.trim().split(" ")[0])}. ${esc(CONFIG.name)} will get back to you at ${esc(f.email.trim())}.</p>
+      <p class="note">Prototype: saved in this browser tab only.</p></div>`;
+    wrap.firstElementChild.focus();
+  });
+  return wrap;
+}
+
+/* ==========================================================================
+   SECRET COMMAND ROUTER
+   --------------------------------------------------------------------------
+   Every chat message goes through routeMessage() FIRST. The order is:
+
+     user message
+        ↓
+     1. local protected command router  (secret phrases — exact match)
+        ↓  match → open the authentication flow; the text is NEVER sent on
+        ↓
+     2. lead-capture flow (if the visitor is giving contact details)
+        ↓
+     3. local intent answers from portfolioData
+        ↓
+     4. otherwise → future LLM (askLLM)
+
+   Because step 1 runs in application code, the secret workflow never depends
+   on an AI model "recognising" the phrase, and the phrase is never sent to a
+   third-party LLM. NOTE: a phrase in client-side code is not a secret from
+   anyone who reads the source — it only opens the door to the REAL check
+   (TOTP verified on the backend). See AUTHENTICATION DEMO below.
+   ========================================================================== */
+const SECRET_PHRASES = new Set(["IAmMari", "IAmNeeli"]);
+
+function isSecretPhrase(text) { return SECRET_PHRASES.has(text.trim()); }
+
+/* ==========================================================================
+   CHAT ENGINE — one engine, two personas (Portfolio Assistant / Luffy)
+   ========================================================================== */
+const P = portfolioData;
+const listProjects = () => P.projects.map((p) => `• ${p.name}`).join("\n");
+const topTech = () => P.about.enjoys.join(", ");
+
+const PERSONAS = {
+  assistant: {
+    name: "Portfolio Assistant", sub: "Answers about Mari’s work", placeholder: "Ask about Mari…",
+    greet: `Hi, I’m the Portfolio Assistant. I can tell you about ${CONFIG.name}’s experience, projects, skills or how to get in touch.`,
+    suggestions: ["Who is Mari?", "What projects has Mari built?", "What technologies does Mari use?", "What is Mari working on?", "I want to hire Mari"],
+    replies: {
+      greeting: () => "Hello! What would you like to know about Mari?",
+      who: () => `${CONFIG.fullName} (${CONFIG.name}) is a ${CONFIG.title}. ${P.about.summary.replace(/^I’m Mari, a /, "Mari is a ")}`,
+      tech: () => `Mari works mostly with ${topTech()}. Strongest areas: ${P.skills.slice(0, 3).map((s) => s.category).join(", ")}.`,
+      projects: () => `Featured projects:\n${listProjects()}\n\nAsk about any one of them for details, or see the Projects section.`,
+      current: () => `Right now Mari is working on:\n${P.currentWork.map((w) => `• ${w.title}: ${w.detail}`).join("\n")}`,
+      experience: () => `${P.experience.map((e) => `• ${e.role}, ${e.company} (${e.dates})`).join("\n")}`,
+      contact: () => `You can email ${P.contact.email}, or connect on LinkedIn (${P.contact.linkedin}). I can also pass a message to Mari for you; just say “I want to contact Mari”.`,
+      achievements: () => `Highlights:\n${P.achievements.map((a) => `• ${a.title}: ${a.note}`).join("\n")}`,
+      location: () => `Mari is based in ${CONFIG.location}.`,
+      thanks: () => "You’re welcome. Anything else about Mari’s work?",
+      leadStart: () => "Happy to pass that on. What’s your name?",
+      leadEmail: (n) => `Thanks, ${n}. What’s the best email to reach you?`,
+      leadBadEmail: () => "That doesn’t look like a valid email. Could you check it?",
+      leadMsg: () => "And a short message for Mari: the opportunity or what you’d like to discuss?",
+      leadDone: (n) => `Thanks, ${n}. Your message has been saved and Mari will get back to you. (Demo: stored in this tab only.)`,
+      fallback: () => "I mainly answer questions about Mari’s experience, skills, projects and current work. Try one of the suggestions below.",
+      secretHere: () => "I can only help with questions about Mari’s professional work here."
+    }
+  },
+  luffy: {
+    name: "Luffy", sub: "Guardian of Mari’s World · Persian · unbribable (mostly)", placeholder: "Talk to Luffy…",
+    greet: "Mrrp. A visitor. I’m Luffy, I guard this city for my human. Ask nicely and I might tell you things. 🐾",
+    suggestions: ["What projects has Mari built?", "What technologies does Mari know?", "Who are you?", "Who is Nami?", "How do I contact Mari?"],
+    replies: {
+      greeting: () => "Oh. Hello. You may pet the screen. Gently.",
+      who: () => `My human. ${CONFIG.name} builds data platforms by day and strange neon cities by night. I supervise both.`,
+      tech: () => `A dangerous amount. ${P.about.enjoys.slice(0, 5).join(", ")}… humans apparently enjoy collecting frameworks. I collect naps.`,
+      projects: () => "Ah, snooping around the city already? Fine. The glowing towers over there are Mari’s projects. Pick one before I change my mind. 🐾",
+      current: () => `Currently Mari is “${P.currentWork[0].title.toLowerCase()}” instead of refilling my bowl. Priorities, apparently.`,
+      experience: () => "See the tall tower with the floors? Every floor is a job. The top one is where Mari is now. The elevator is fake. Take the stairs.",
+      contact: () => "I suppose I can allow that. Give me your details and I’ll make sure the human sees them.",
+      achievements: () => "There’s a vault on the rooftop with the trophies. I’d show you, but I’m lying on it.",
+      location: () => "Here. Obviously. This rooftop. Mind the puddles.",
+      thanks: () => "Payment accepted in head scratches.",
+      self: () => "Luffy. Persian. Fluffy beyond regulation. Head of security, chief napping officer, and the only one here with whiskers.",
+      nami: () => "Nami? The big glowing one in the sky. She runs the city. We have an understanding: she watches everything, I knock things off tables.",
+      lab: () => "Lab? What lab? There is definitely no hatch on this roof that flickers when you’ve looked around enough. Definitely not.",
+      food: () => "Finally, someone asking the important questions. Salmon. Always salmon.",
+      joke: () => "Why did the data engineer bring a cat to work? To catch the bugs. …I’ve been told I’m funnier when I’m asleep.",
+      skills: () => "Go poke the System Console on the rooftop. It hums. It lists every module my human has installed in their brain.",
+      leadStart: () => "Fine. Paperwork. What’s your name, visitor?",
+      leadEmail: (n) => `${n}. Noted. Now your email, so the human can find you.`,
+      leadBadEmail: () => "That’s not an email. I know emails. I sit on the keyboard all the time.",
+      leadMsg: () => "And the message? Keep it short. Mari’s attention span is only slightly better than mine.",
+      leadDone: (n) => `Saved, ${n}. I’ll leave it on Mari’s keyboard. Right where I sleep. (Demo: stored in this tab only.) 🐾`,
+      fallback: () => "Hmm. Not my department. Ask me about projects, skills, the tower, Nami… or salmon.",
+      secretHere: () => ""
+    }
+  }
+};
+
+/* Intent matching: simple keyword rules for the prototype. */
+const INTENTS = [
+  ["lead", /\b(want to (contact|reach|hire|talk to|work with)|would like to (contact|reach|hire|talk to|work with)|hire|hiring|opportunit|job offer|work with mari|contact me|can mari (contact|reach|call|email) me|get in touch with me|leave a message)/i],
+  ["greeting", /^(hi|hello|hey|yo|hola|good (morning|evening|afternoon))\b/i],
+  ["self", /\b(who are you|your name|are you a cat|luffy)/i],
+  ["nami", /\bnami\b/i],
+  ["lab", /\b(lab|secret|hidden|easter egg)/i],
+  ["food", /\b(food|eat|treat|salmon|hungry|snack)/i],
+  ["joke", /\b(joke|funny|laugh)/i],
+  ["projects", /\b(project|built|build|portfolio|work samples?|lakehouse|gallery)/i],
+  ["tech", /\b(tech|technolog|stack|tools?|language|framework|know)/i],
+  ["skills", /\b(skill|good at|strength)/i],
+  ["current", /\b(working on|currently|right now|these days|building now|now)/i],
+  ["experience", /\b(experience|job|career|role|worked|company|background|cv)/i],
+  ["achievements", /\b(achiev|award|certif|milestone|hackathon)/i],
+  ["contact", /\b(contact|email|linkedin|reach|connect|github)/i],
+  ["location", /\b(where.*(based|live|located)|location)\b/i],
+  ["who", /\b(who is|about mari|tell me about|who's mari|whos mari|mari\?)\b/i],
+  ["thanks", /\b(thanks|thank you|cheers|ty)\b/i]
+];
+
+/*
+  FUTURE LLM HOOK
+  ----------------
+  Production: send ONLY non-secret, non-lead messages to your own backend,
+  which calls a low-cost / free-tier model (e.g. a small hosted model or a
+  free-tier API) with a system prompt containing portfolioData so answers stay
+  grounded in Mari's portfolio. Never call an LLM provider directly from the
+  browser with an API key.
+    const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ persona, message, history }) });
+    return (await res.json()).reply;
+*/
+async function askLLM(/* persona, message, history */) { return null; }
+
+const chatState = {
+  persona: "assistant",
+  history: { assistant: [], luffy: [] },
+  lead: { assistant: null, luffy: null },
+  greeted: { assistant: false, luffy: false }
+};
+
+async function routeMessage(text) {
+  const persona = chatState.persona;
+  const R = PERSONAS[persona].replies;
+
+  // 1. PROTECTED COMMAND ROUTER — checked before anything else, never forwarded to an LLM.
+  if (isSecretPhrase(text)) {
+    if (persona === "luffy") return { action: "secret" };
+    return { text: R.secretHere() };
+  }
+
+  // 2. LEAD CAPTURE (name → email → message)
+  const lead = chatState.lead[persona];
+  if (lead) {
+    if (lead.step === "name") { lead.name = text.trim().slice(0, 80); lead.step = "email"; return { text: R.leadEmail(lead.name) }; }
+    if (lead.step === "email") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text.trim())) return { text: R.leadBadEmail() };
+      lead.email = text.trim(); lead.step = "message"; return { text: R.leadMsg() };
+    }
+    if (lead.step === "message") {
+      chatState.lead[persona] = null;
+      await saveLead({ source: `chat-${persona}`, name: lead.name, email: lead.email, message: text.trim() });
+      return { text: R.leadDone(lead.name) };
+    }
+  }
+
+  // 3. LOCAL INTENTS from portfolioData
+  const hit = INTENTS.find(([intent, re]) => re.test(text) && (intent === "lead" || R[intent] || intent === "skills"));
+  if (hit) {
+    const [intent] = hit;
+    if (intent === "lead") { chatState.lead[persona] = { step: "name" }; return { text: R.leadStart() }; }
+    if (intent === "contact" && persona === "luffy") { chatState.lead[persona] = { step: "name" }; return { text: R.contact() + "\n\n" + R.leadStart() }; }
+    const fn = R[intent] || (intent === "skills" ? R.tech : null);
+    if (fn) return { text: fn() };
+  }
+  // Per-project questions ("tell me about the lakehouse")
+  const proj = P.projects.find((p) => text.toLowerCase().includes(p.sign.toLowerCase()) || text.toLowerCase().includes(p.name.toLowerCase().split(" ")[0].toLowerCase()));
+  if (proj) return { text: persona === "luffy" ? `${proj.name}. ${proj.result} Click its tower if you want the full mission brief.` : `${proj.name}: ${proj.description}\nResult: ${proj.result}` };
+
+  // 4. FUTURE LLM (returns null in the prototype)
+  const llm = await askLLM(persona, text, chatState.history[persona]);
+  return { text: llm || R.fallback() };
+}
+
+function chatEl(role, text) {
+  const m = document.createElement("div");
+  m.className = `msg ${role}`;
+  m.textContent = text; // textContent: visitor input is never rendered as HTML
+  $("#chat-log").appendChild(m);
+  $("#chat-log").scrollTop = $("#chat-log").scrollHeight;
+  return m;
+}
+
+function renderChatPersona() {
+  const p = PERSONAS[chatState.persona];
+  const log = $("#chat-log");
+  log.innerHTML = "";
+  chatState.history[chatState.persona].forEach(([r, t]) => chatEl(r, t));
+  if (!chatState.greeted[chatState.persona]) { chatState.history[chatState.persona].push(["bot", p.greet]); chatEl("bot", p.greet); chatState.greeted[chatState.persona] = true; }
+  $("#chat-name").textContent = p.name;
+  $("#chat-sub").textContent = p.sub;
+  $("#chat-input").placeholder = p.placeholder;
+  $("#fab-label").textContent = p.name === "Luffy" ? "Luffy" : "Portfolio Assistant";
+  const ico = chatState.persona === "luffy" ? luffySVG(40) : ICON.chat;
+  $("#fab-ico").innerHTML = ico;
+  $("#chat-avatar").innerHTML = chatState.persona === "luffy" ? luffySVG(40) : ICON.chat;
+  $("#chat-avatar").style.background = chatState.persona === "luffy" ? "#1e1230" : "linear-gradient(135deg,#232838,#2d3348)";
+  $("#chat-avatar").style.color = "var(--accent-2)";
+  $("#chat-fab").setAttribute("aria-label", chatState.persona === "luffy" ? "Open chat with Luffy the cat" : "Open Portfolio Assistant chat");
+  $("#chat-suggest").innerHTML = p.suggestions.map((s) => `<button type="button">${esc(s)}</button>`).join("");
+}
+
+async function sendChat(text) {
+  text = text.trim();
+  if (!text) return;
+  const persona = chatState.persona;
+  chatState.history[persona].push(["user", text]);
+  chatEl("user", text);
+  const typing = chatEl("bot", "");
+  typing.innerHTML = '<span class="typing" aria-label="typing"><i></i><i></i><i></i></span>';
+  const res = await routeMessage(text);
+  await wait(persona === "luffy" ? 650 : 450);
+  typing.remove();
+  if (res.action === "secret") { await secretFlow(); return; }
+  chatState.history[persona].push(["bot", res.text]);
+  chatEl("bot", res.text);
+}
+
+function setChatOpen(open) {
+  const chat = $("#chat"), fab = $("#chat-fab");
+  chat.hidden = !open;
+  fab.setAttribute("aria-expanded", String(open));
+  if (open) { renderChatPersona(); $("#chat-input").focus(); }
+}
+
+function initChat() {
+  $("#chat-fab").addEventListener("click", () => setChatOpen($("#chat").hidden));
+  $("#chat-close").addEventListener("click", () => { setChatOpen(false); $("#chat-fab").focus(); });
+  $("#chat").addEventListener("keydown", (e) => { if (e.key === "Escape") { setChatOpen(false); $("#chat-fab").focus(); } });
+  $("#chat-form").addEventListener("submit", (e) => { e.preventDefault(); const i = $("#chat-input"); const v = i.value; i.value = ""; sendChat(v); });
+  $("#chat-suggest").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) sendChat(b.textContent); });
+  renderChatPersona();
+}
+
+/* ==========================================================================
+   MARI WORLD — scene construction
+   ========================================================================== */
+const SVGNS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs = {}, parent) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+// small deterministic PRNG so the skyline looks the same on every visit
+function rng(seed) { return () => ((seed = (seed * 16807) % 2147483647) / 2147483647); }
+
+function buildFarCity() {
+  const g = $("#far-city"), r = rng(7);
+  let x = -20;
+  while (x < 1620) {
+    const w = 30 + r() * 70, h = 120 + r() * 260, y = 640 - h;
+    svg("rect", { x, y, width: w, height: h, fill: "url(#bld2)" }, g);
+    svg("rect", { x: x + 4, y: y + 8, width: w - 8, height: h - 16, fill: r() > .5 ? "url(#win2)" : "url(#win3)", opacity: (.35 + r() * .5).toFixed(2), class: r() > .8 ? "blink-win" : "" }, g);
+    if (r() > .75) svg("rect", { x: x + w / 2 - 1, y: y - 30, width: 2, height: 30, fill: "#3a2b66" }, g), svg("circle", { cx: x + w / 2, cy: y - 32, r: 2.5, fill: "#ff4fd8", class: "blink-win" }, g);
+    x += w + 4 + r() * 10;
+  }
+}
+
+/* PROJECT MISSIONS — each featured project becomes a tower with a neon sign */
+const TOWERS = [
+  { x: 120, w: 150, h: 380, hue: "#ff4fd8" },
+  { x: 420, w: 130, h: 300, hue: "#2ee6ff" },
+  { x: 640, w: 160, h: 420, hue: "#b08cff" },
+  { x: 1340, w: 150, h: 340, hue: "#5eead4" }
+];
+const locations = []; // registry used by the city map and keyboard navigation
+
+function addLoc(g, { id, type, label, ref, hidden: isHidden }) {
+  g.classList.add("loc");
+  g.setAttribute("tabindex", isHidden ? "-1" : "0");
+  g.setAttribute("role", "button");
+  g.setAttribute("aria-label", label);
+  g.dataset.type = type; g.dataset.ref = ref ?? "";
+  g.id = `loc-${id}`;
+  g.addEventListener("click", () => openLocation(type, ref, g));
+  g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLocation(type, ref, g); } });
+  g.addEventListener("mouseenter", () => hoverLocation(type, ref));
+  g.addEventListener("focus", () => hoverLocation(type, ref));
+  locations.push({ id, type, ref, label, el: g, hidden: !!isHidden });
+}
+
+function buildMidCity() {
+  const g = $("#mid-city");
+  // filler mid buildings (non-interactive)
+  [[0, 90, 260], [300, 100, 220], [560, 70, 250], [830, 110, 200], [1150, 90, 240], [1280, 100, 180], [1560, 60, 280]].forEach(([x, w, h]) => {
+    svg("rect", { x, y: 712 - h, width: w, height: h, fill: "url(#bld)" }, g);
+    svg("rect", { x: x + 6, y: 712 - h + 10, width: w - 12, height: h - 20, fill: "url(#win)", opacity: .35 }, g);
+  });
+
+  P.projects.filter((p) => p.featured).slice(0, TOWERS.length).forEach((p, i) => {
+    const t = TOWERS[i], y = 712 - t.h;
+    const tg = svg("g", {}, g);
+    svg("rect", { class: "glow", x: t.x - 14, y: y - 14, width: t.w + 28, height: t.h + 28, rx: 8, fill: t.hue, opacity: .25, filter: "url(#blur6)" }, tg);
+    const body = svg("g", { class: "body" }, tg);
+    svg("rect", { x: t.x, y, width: t.w, height: t.h, fill: "url(#bld)", stroke: t.hue, "stroke-opacity": .35 }, body);
+    svg("rect", { x: t.x + 8, y: y + 70, width: t.w - 16, height: t.h - 80, fill: "url(#win)", opacity: .55 }, body);
+    svg("rect", { class: "focus-ring", x: t.x - 6, y: y - 6, width: t.w + 12, height: t.h + 12, fill: "none", stroke: "none", rx: 6 }, tg);
+    // neon sign
+    const sign = svg("g", { class: `sign s${(i % 3) + 1}` }, tg);
+    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: "#0b0618", stroke: t.hue, "stroke-width": 2 }, sign);
+    const txt = svg("text", { x: t.x + t.w / 2, y: y + 41, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-weight": 700, "font-size": Math.min(16, ((t.w - 30) / p.sign.length - 3) / 0.6).toFixed(1), "letter-spacing": 3, fill: t.hue }, sign);
+    txt.textContent = p.sign;
+    svg("rect", { x: t.x + 10, y: y + 16, width: t.w - 20, height: 38, rx: 4, fill: t.hue, opacity: .12, filter: "url(#blur6)" }, sign);
+    // mission marker
+    const mk = svg("g", { class: "marker" }, tg);
+    svg("path", { d: `M${t.x + t.w / 2} ${y - 46} l12 14 l-12 14 l-12 -14 z`, fill: "none", stroke: t.hue, "stroke-width": 2.5 }, mk);
+    svg("circle", { cx: t.x + t.w / 2, cy: y - 32, r: 3, fill: t.hue }, mk);
+    addLoc(tg, { id: p.id, type: "project", ref: p.id, label: `Mission: ${p.name}` });
+  });
+
+  // CAREER TIMELINE TOWER — one floor per role (top floor = current)
+  const cx = 930, cw = 120, floorH = 70, base = 712;
+  const exp = P.experience;
+  const ctg = svg("g", {}, g);
+  const top = base - exp.length * floorH - 90;
+  svg("rect", { x: cx + cw / 2 - 2, y: top - 70, width: 4, height: 70, fill: "#5a4a99" }, ctg);
+  svg("circle", { cx: cx + cw / 2, cy: top - 74, r: 4, fill: "#ff4fd8", class: "blink-win" }, ctg);
+  svg("rect", { x: cx, y: top, width: cw, height: 90, fill: "url(#bld)", stroke: "#b08cff", "stroke-opacity": .4 }, ctg);
+  const ct = svg("text", { x: cx + cw / 2, y: top + 52, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 13, "font-weight": 700, "letter-spacing": 2, fill: "#d6c8ff", class: "sign s2" }, ctg);
+  ct.textContent = "CAREER";
+  exp.forEach((e, i) => {
+    const fy = top + 90 + i * floorH;
+    const fg = svg("g", {}, ctg);
+    svg("rect", { class: "glow", x: cx - 10, y: fy - 4, width: cw + 20, height: floorH + 8, fill: "#b08cff", opacity: .3, filter: "url(#blur6)" }, fg);
+    const b = svg("g", { class: "body" }, fg);
+    svg("rect", { x: cx, y: fy, width: cw, height: floorH - 4, fill: "#120b2a", stroke: e.current ? "#5eead4" : "#6c5cff", "stroke-opacity": e.current ? .9 : .45 }, b);
+    for (let k = 0; k < 5; k++) svg("rect", { x: cx + 10 + k * 21, y: fy + 18, width: 12, height: 24, fill: e.current ? "#5eead4" : "#ffd27a", opacity: e.current ? .7 : .4 }, b);
+    svg("rect", { class: "focus-ring", x: cx - 4, y: fy - 3, width: cw + 8, height: floorH + 2, fill: "none", stroke: "none" }, fg);
+    addLoc(fg, { id: `floor-${i}`, type: "career", ref: i, label: `Career tower, floor ${exp.length - i}: ${e.role}, ${e.dates}` });
+  });
+}
+
+function buildRooftop() {
+  const g = $("#rooftop-objects");
+  const rails = $("#rails");
+  for (let x = 20; x < 1600; x += 60) svg("line", { x1: x, y1: 712, x2: x, y2: 742 }, rails);
+
+  const obj = (id, type, label, ref, draw, lx, ly, text, extra = {}) => {
+    const og = svg("g", extra.cls ? { class: extra.cls } : {}, g);
+    draw(og);
+    if (text) { const t = svg("text", { class: "loc-label", x: lx, y: ly, "text-anchor": "middle" }, og); t.textContent = text; }
+    addLoc(og, { id, type, ref, label, hidden: extra.hidden });
+    return og;
+  };
+
+  // MISSION ARCHIVE — rooftop terminal
+  obj("archive", "archive", "Mission Archive terminal: smaller projects and experiments", null, (o) => {
+    svg("rect", { class: "glow", x: 150, y: 640, width: 150, height: 130, fill: "#5fd4a0", opacity: .3, filter: "url(#blur6)" }, o);
+    const b = svg("g", { class: "body" }, o);
+    svg("rect", { x: 170, y: 700, width: 110, height: 70, rx: 4, fill: "#0b1410", stroke: "#1f6b4f" }, b);
+    svg("rect", { x: 182, y: 650, width: 86, height: 58, rx: 4, fill: "#03140d", stroke: "#5fd4a0", "stroke-width": 2 }, b);
+    for (let k = 0; k < 4; k++) svg("rect", { x: 190, y: 660 + k * 11, width: 30 + ((k * 23) % 40), height: 4, fill: "#5fd4a0", opacity: .8 }, b);
+    svg("rect", { class: "focus-ring", x: 160, y: 642, width: 130, height: 136, fill: "none", stroke: "none" }, o);
+  }, 225, 800, "MISSION ARCHIVE");
+
+  // SYSTEM CONSOLE — skills
+  obj("console", "console", "System Console: skills and system modules", null, (o) => {
+    svg("rect", { class: "glow", x: 470, y: 650, width: 190, height: 120, fill: "#3c4bff", opacity: .35, filter: "url(#blur6)" }, o);
+    const b = svg("g", { class: "body" }, o);
+    svg("path", { d: "M480 770 L500 700 L630 700 L650 770 Z", fill: "#0a0c1f", stroke: "#3c4bff" }, b);
+    svg("rect", { x: 505, y: 655, width: 120, height: 50, rx: 3, fill: "#04061a", stroke: "#7d8cff", "stroke-width": 2 }, b);
+    [[515, 668, "#5eead4"], [515, 680, "#7d8cff"], [515, 692, "#ff6ad5"]].forEach(([x, y, c], k) => svg("rect", { x, y, width: 50 + k * 18, height: 5, fill: c, opacity: .85 }, b));
+    for (let k = 0; k < 6; k++) svg("circle", { cx: 515 + k * 20, cy: 735, r: 4, fill: ["#5eead4", "#ff6ad5", "#7d8cff"][k % 3], class: k % 2 ? "blink-win" : "" }, b);
+    svg("rect", { class: "focus-ring", x: 475, y: 650, width: 180, height: 126, fill: "none", stroke: "none" }, o);
+  }, 565, 800, "SYSTEM CONSOLE");
+
+  // ACHIEVEMENT VAULT — armoured crate
+  obj("vault", "achievements", "Achievement Vault: encrypted records", null, (o) => {
+    svg("rect", { class: "glow", x: 790, y: 680, width: 150, height: 100, fill: "#f5c26b", opacity: .3, filter: "url(#blur6)" }, o);
+    const b = svg("g", { class: "body" }, o);
+    svg("rect", { x: 805, y: 700, width: 120, height: 70, rx: 6, fill: "#15100a", stroke: "#f5c26b", "stroke-opacity": .7 }, b);
+    svg("circle", { cx: 865, cy: 735, r: 16, fill: "none", stroke: "#f5c26b", "stroke-width": 3 }, b);
+    svg("path", { d: "M865 735 l8 -8", stroke: "#f5c26b", "stroke-width": 3 }, b);
+    svg("rect", { class: "focus-ring", x: 798, y: 694, width: 134, height: 82, fill: "none", stroke: "none" }, o);
+  }, 865, 800, "ACHIEVEMENT VAULT");
+
+  // COMMUNICATION CHANNEL — antenna + dish
+  obj("comms", "comms", "Communication Channel: contact Mari", null, (o) => {
+    svg("rect", { class: "glow", x: 1150, y: 560, width: 170, height: 210, fill: "#2ee6ff", opacity: .3, filter: "url(#blur6)" }, o);
+    const b = svg("g", { class: "body" }, o);
+    svg("path", { d: "M1235 770 L1220 640 L1250 640 Z", fill: "#0b1420", stroke: "#2ee6ff", "stroke-opacity": .6 }, b);
+    svg("path", { d: "M1180 630 Q1235 560 1290 630 Z", fill: "#0b1824", stroke: "#2ee6ff", "stroke-width": 2 }, b);
+    svg("line", { x1: 1235, y1: 610, x2: 1235, y2: 575, stroke: "#2ee6ff", "stroke-width": 2 }, b);
+    svg("circle", { cx: 1235, cy: 572, r: 5, fill: "#2ee6ff", class: "blink-win" }, b);
+    svg("rect", { class: "focus-ring", x: 1170, y: 560, width: 130, height: 214, fill: "none", stroke: "none" }, o);
+  }, 1235, 800, "COMMS CHANNEL");
+
+  // THE LAB — hidden hatch (dormant until the visitor has explored a little)
+  obj("lab", "lab", "A flickering hatch: The Lab", null, (o) => {
+    const b = svg("g", { class: "body" }, o);
+    svg("rect", { x: 1010, y: 760, width: 80, height: 34, rx: 3, fill: "#0b0d06", stroke: "#c6ff3d", "stroke-opacity": .6 }, b);
+    svg("rect", { class: "lab-light", x: 1018, y: 768, width: 64, height: 6, fill: "#c6ff3d", opacity: .8 }, b);
+    svg("text", { x: 1050, y: 788, "text-anchor": "middle", "font-family": "ui-monospace,monospace", "font-size": 10, fill: "#c6ff3d", opacity: .8 }, b).textContent = "? ? ?";
+    svg("rect", { class: "focus-ring", x: 1004, y: 754, width: 92, height: 46, fill: "none", stroke: "none" }, o);
+  }, 0, 0, "", { cls: "lab dormant", hidden: true });
+}
+
+/* ==========================================================================
+   NAMI — ambient guide
+   ========================================================================== */
+const NAMI_LINES = [
+  "Another visitor has entered.",
+  "Would you like to see what Mari has built?",
+  "The city remembers every project.",
+  "Each floor of the tower is a chapter of Mari’s career.",
+  "The console on the rooftop is still humming. Mari left it running.",
+  "There is more here than the public records show."
+];
+const NAMI_HOVER = {
+  project: "Mission archive detected.",
+  career: "Career records. Floor by floor.",
+  archive: "Smaller missions are stored in the terminal.",
+  console: "System modules online.",
+  achievements: "Encrypted records. Partially decrypted for you.",
+  comms: "A channel to Mari is open.",
+  lab: "…you weren’t supposed to find that yet."
+};
+let namiTimer, namiIdx = 0, namiHideTimer;
+function namiSay(text, ms = 5200) {
+  const box = $("#nami-say");
+  $("#nami-text").textContent = text;
+  box.classList.add("show");
+  clearTimeout(namiHideTimer);
+  namiHideTimer = setTimeout(() => box.classList.remove("show"), ms);
+}
+function startNami() {
+  clearInterval(namiTimer);
+  namiTimer = setInterval(() => { namiIdx = (namiIdx + 1) % NAMI_LINES.length; namiSay(NAMI_LINES[namiIdx]); }, 14000);
+}
+
+/* Luffy reacts with small speech bubbles */
+let luffyBubbleTimer;
+function luffySay(text, ms = 4200) {
+  const b = $("#luffy-bubble");
+  if (!$("#chat").hidden) return; // the chat window is open: don't stack bubbles
+  if (!$("#map-list").hidden && innerWidth < 640) return; // don't cover the city map on phones
+  b.textContent = text;
+  b.classList.add("show");
+  clearTimeout(luffyBubbleTimer);
+  luffyBubbleTimer = setTimeout(() => b.classList.remove("show"), ms);
+}
+
+/* ==========================================================================
+   PROJECT MISSIONS + LOCATION DIALOGS
+   ========================================================================== */
+let lastHover = "", visited = new Set(), lastTrigger = null;
+function hoverLocation(type, ref) {
+  const key = type + ref;
+  if (key === lastHover) return;
+  lastHover = key;
+  namiSay(NAMI_HOVER[type] || "", 2600);
+  if (type === "project") {
+    const p = P.projects.find((x) => x.id === ref);
+    if (p && Math.random() > .5) luffySay(`That one’s ${p.sign.toLowerCase()}. Mari stayed up late for it. I supervised.`);
+  }
+}
+
+const wd = $("#wd");
+function openDialog(html, cls = "") {
+  wd.className = `wd ${cls}`;
+  $("#wd-inner").innerHTML = html;
+  wd.showModal();
+  const close = $("#wd-inner .wd-close");
+  close && close.addEventListener("click", () => wd.close());
+  const h = $("#wd-title");
+  if (h) { h.setAttribute("tabindex", "-1"); h.focus(); }
+}
+wd.addEventListener("close", () => { if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus(); });
+wd.addEventListener("click", (e) => { if (e.target === wd) wd.close(); }); // click on backdrop
+
+const head = (kicker, title) => `<div class="wd-head"><div><p class="wd-kicker">${kicker}</p><h2 id="wd-title">${esc(title)}</h2></div><button class="wd-close" type="button" aria-label="Close">✕</button></div>`;
+
+function missionBrief(p) {
+  const i = P.projects.indexOf(p) + 1;
+  return `${head(`Mission brief · ${String(i).padStart(2, "0")}`, p.name)}
+  <p class="mission-hero"><b>OBJECTIVE</b> ${esc(p.description)}</p>
+  <div class="grid2">
+    <div class="panel"><h3>Problem</h3><p>${esc(p.problem)}</p></div>
+    <div class="panel"><h3>Mari’s role</h3><p>${esc(p.role)}</p></div>
+    <div class="panel full"><h3>Architecture</h3><p>${esc(p.architecture)}</p></div>
+    <div class="panel"><h3>Major challenges</h3><ul>${p.challenges.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>
+    <div class="panel"><h3>Result</h3><p>${esc(p.result)}</p></div>
+    <div class="panel"><h3>Technologies</h3><div class="tags">${p.technologies.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div>
+    <div class="panel"><h3>Lessons learned</h3><p>${esc(p.lessons)}</p></div>
+  </div>
+  <div class="actions">
+    ${p.github ? `<a class="wlink" href="${esc(p.github)}" target="_blank" rel="noopener">${ICON.github.replace("<svg", '<svg width="16" height="16"')} GitHub</a>` : ""}
+    ${p.demo ? `<a class="wlink" href="${esc(p.demo)}" target="_blank" rel="noopener">Launch demo ↗</a>` : `<span class="wlink" aria-disabled="true" style="opacity:.5">Demo: classified (soon)</span>`}
+  </div>`;
+}
+
+function openLocation(type, ref, trigger) {
+  lastTrigger = trigger || document.activeElement;
+  visited.add(type);
+  if (visited.size >= 3) wakeLab();
+
+  if (type === "project") {
+    const p = P.projects.find((x) => x.id === ref);
+    namiSay("Opening mission archive…", 2200);
+    openDialog(missionBrief(p), "mission");
+  } else if (type === "archive") {
+    openDialog(`${head("Rooftop terminal", "Mission Archive")}
+      <div class="term"><p class="prompt">ls ./missions --small --experiments</p><p style="color:#5fa886;margin-top:4px">${P.archive.length} records found</p>
+      <div class="arch-grid">${P.archive.map((a) => `<div class="arch"><h3>${esc(a.name)}</h3><p>${esc(a.note)}</p><p class="meta">[${esc(a.tag)}]</p></div>`).join("")}</div></div>`);
+  } else if (type === "console") {
+    openDialog(`${head("Rooftop console", "System Console")}
+      <div class="console"><p class="ln" id="console-ln"></p>
+      <div class="modules">${P.skills.map((c) => `<div class="module"><h3>${esc(c.category.toUpperCase())} <span>● ONLINE</span></h3>${c.items.map(([n, l]) => `<div class="mod-row"><span>${esc(n)}</span><span>${l}%</span></div><div class="mod-bar" role="img" aria-label="${esc(n)} ${l} percent"><i style="--w:${l}%"></i></div>`).join("")}</div>`).join("")}</div></div>`);
+    typeLines($("#console-ln"), ["> boot mari.sys", "> loading modules … ok", `> SYSTEM MODULES ONLINE: ${P.skills.length}`, "> diagnostics: all green. coffee level: low"]);
+  } else if (type === "career") {
+    const exp = P.experience;
+    openDialog(`${head("Career Timeline Tower", exp[ref].role)}
+      <div class="floors">${exp.map((e, i) => `<div class="floor ${i === ref ? "current" : ""}"><span class="lvl">FLOOR ${exp.length - i}</span><div>
+        <h3 style="font-size:1.05rem">${esc(e.role)} <span style="color:#ff9be4;font-weight:500">· ${esc(e.company)}</span></h3>
+        <p style="font:500 .8rem var(--mono);color:#a99bff;margin-top:2px">${esc(e.dates)}</p>
+        ${i === ref ? `<div class="grid2" style="margin-top:12px"><div class="panel"><h3>Responsibilities</h3><ul>${e.responsibilities.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div><div class="panel"><h3>Achievements</h3><ul>${e.achievements.map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div><div class="panel full"><h3>Technologies</h3><div class="tags">${e.technologies.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div></div>` : ""}
+      </div></div>`).join("")}</div>`);
+  } else if (type === "achievements") {
+    openDialog(`${head("Encrypted records", "Achievement Vault")}
+      <div class="vault-grid">${P.achievements.map((a) => `<div class="record"><h3>${esc(a.title)}</h3><p>${esc(a.note)}</p><p class="yr">${esc(a.year)}</p></div>`).join("")}</div>`);
+  } else if (type === "comms") {
+    openDialog(`${head("Communication Channel", "Open a channel to Mari")}
+      <div class="mission-hero" style="border-color:#ff6ad555;color:#ffe6f7">${luffySVG(34)}<span>Luffy: “Channel’s open. Be polite, or I chew the cable.”</span></div>
+      <div class="grid2"><div class="comms-links">
+        <a href="mailto:${esc(P.contact.email)}">${ICON.mail.replace("<svg", '<svg width="18" height="18"')} ${esc(P.contact.email)}</a>
+        <a href="${esc(P.contact.linkedin)}" target="_blank" rel="noopener">${ICON.linkedin.replace("<svg", '<svg width="18" height="18"')} LinkedIn</a>
+        <a href="${esc(P.contact.github)}" target="_blank" rel="noopener">${ICON.github.replace("<svg", '<svg width="18" height="18"')} GitHub</a>
+      </div><div id="world-form-slot"></div></div>`, "comms");
+    $("#world-form-slot").appendChild(buildContactForm("world"));
+  } else if (type === "lab") {
+    wakeLab();
+    namiSay(NAMI_HOVER.lab, 3000);
+    openDialog(`${head("Restricted sub-level", "The Lab")}
+      <p style="color:#b8cc7a;margin:-6px 0 18px">Unfinished things live here. Some of them bite. <span class="glitch" data-text="Do not feed the prototypes.">Do not feed the prototypes.</span></p>
+      <div class="lab-grid">${P.lab.map((x) => `<div class="exp"><h3>${esc(x.name)}</h3><p>${esc(x.note)}</p><span class="st">${esc(x.state)}</span></div>`).join("")}</div>`, "lab");
+  }
+}
+
+function typeLines(el, lines) {
+  if (!el) return;
+  if (reduceMotion) { el.textContent = lines.join("\n"); return; }
+  let li = 0, ci = 0;
+  const tick = () => {
+    if (!document.contains(el) || li >= lines.length) return;
+    el.textContent += lines[li][ci++] || "";
+    if (ci > lines[li].length) { el.textContent += "\n"; li++; ci = 0; }
+    setTimeout(tick, ci === 0 ? 180 : 18);
+  };
+  tick();
+}
+
+function wakeLab() {
+  const lab = locations.find((l) => l.type === "lab");
+  if (!lab || !lab.hidden) return;
+  lab.hidden = false;
+  lab.el.classList.remove("dormant"); lab.el.classList.add("awake");
+  lab.el.setAttribute("tabindex", "0");
+  renderMap(true);
+  setTimeout(() => namiSay("There is more here than the public records show.", 6000), 1200);
+}
+
+/* City map — every visible location as a button (keyboard + mobile friendly) */
+function renderMap(labNew = false) {
+  const names = { project: (l) => P.projects.find((p) => p.id === l.ref).sign, career: (l) => `CAREER · F${P.experience.length - l.ref}`, archive: () => "ARCHIVE", console: () => "CONSOLE", achievements: () => "VAULT", comms: () => "COMMS", lab: () => "THE LAB" };
+  $("#map-list").innerHTML = locations.filter((l) => !l.hidden).map((l) => `<li><button type="button" class="loc-btn ${labNew && l.type === "lab" ? "new" : ""}" data-loc="${l.id}" aria-label="${esc(l.label)}">${esc(names[l.type](l))}</button></li>`).join("");
+}
+function initMap() {
+  renderMap();
+  const t = $("#map-toggle"), list = $("#map-list");
+  const set = (open) => { t.setAttribute("aria-expanded", String(open)); list.hidden = !open; };
+  t.addEventListener("click", () => set(list.hidden));
+  list.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-loc]");
+    if (!b) return;
+    const l = locations.find((x) => x.id === b.dataset.loc);
+    l.el.classList.add("hot"); setTimeout(() => l.el.classList.remove("hot"), 1200);
+    openLocation(l.type, l.ref, b);
+  });
+  list.addEventListener("mouseover", (e) => { const b = e.target.closest("[data-loc]"); if (!b) return; const l = locations.find((x) => x.id === b.dataset.loc); locations.forEach((x) => x.el.classList.toggle("hot", x === l)); hoverLocation(l.type, l.ref); });
+  list.addEventListener("mouseleave", () => locations.forEach((x) => x.el.classList.remove("hot")));
+  // On phones the skyline is swipeable and tappable; the map stays one tap away so it doesn't cover the city.
+}
+
+function centerPan() {
+  requestAnimationFrame(() => { const pan = $("#pan"); pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; });
+}
+/* Fit the skyline: fill wide screens, keep everything visible on tall phones */
+function fitScene() {
+  const a = innerWidth / innerHeight;
+  const pannable = a < 1.05;            // portrait: pan instead of shrinking the city into a strip
+  const wasPannable = document.body.classList.contains("pannable");
+  document.body.classList.toggle("pannable", pannable);
+  if (pannable) {
+    $("#scene").setAttribute("preserveAspectRatio", "xMidYMax slice");
+    if (!wasPannable) centerPan();
+    return;
+  }
+  // slice only when the crop stays inside the safe area (x 80–1520); otherwise show the whole scene
+  $("#scene").setAttribute("preserveAspectRatio", a >= 1.6 ? "xMidYMax slice" : "xMidYMid meet");
+}
+
+/* ==========================================================================
+   RAIN (canvas) — paused when hidden, disabled with reduced motion
+   ========================================================================== */
+const rain = { ctx: null, drops: [], raf: 0, running: false };
+function initRain() {
+  const c = $("#rain");
+  rain.ctx = c.getContext("2d");
+  const size = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+    rain.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(380, (innerWidth * innerHeight) / 5200));
+    rain.drops = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, l: 10 + Math.random() * 18, v: 9 + Math.random() * 9, o: .15 + Math.random() * .35 }));
+  };
+  size();
+  addEventListener("resize", () => { size(); fitScene(); });
+}
+function rainFrame() {
+  const { ctx, drops } = rain;
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
+  ctx.lineWidth = 1;
+  for (const d of drops) {
+    ctx.strokeStyle = `rgba(190,210,255,${d.o})`;
+    ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 2, d.y + d.l); ctx.stroke();
+    d.y += d.v; d.x -= .6;
+    if (d.y > innerHeight) { d.y = -20; d.x = Math.random() * (innerWidth + 40); }
+  }
+  if (rain.running) rain.raf = requestAnimationFrame(rainFrame);
+}
+function startRain() {
+  if (reduceMotion || rain.running) return;
+  rain.running = true; rain.raf = requestAnimationFrame(rainFrame);
+}
+function stopRain() { rain.running = false; cancelAnimationFrame(rain.raf); rain.ctx && rain.ctx.clearRect(0, 0, innerWidth, innerHeight); }
+document.addEventListener("visibilitychange", () => { if (document.hidden) stopRain(); else if (mode === "world") startRain(); });
+
+/* ==========================================================================
+   SWITCHING BETWEEN WORLDS (cinematic transition)
+   ========================================================================== */
+let mode = "pro", worldBuilt = false;
+function buildWorld() {
+  if (worldBuilt) return;
+  buildFarCity(); buildMidCity(); buildRooftop(); initMap(); initRain(); fitScene();
+  worldBuilt = true;
+}
+
+async function enterWorld() {
+  if (mode === "world") return;
+  mode = "world";
+  setChatOpen(false);
+  buildWorld();                                   // lazy: the scene is only built on first visit
+  document.body.classList.add("leaving-pro");     // 1. professional page fades
+  await wait(500);
+  $("#veil").classList.add("on");                 // 2. screen darkens
+  $("#boot-text").textContent = "INITIALISING MARI://WORLD";
+  await wait(800);
+  $("#pro").hidden = true;
+  $("#world").hidden = false;
+  document.body.style.overflow = "hidden";
+  fitScene(); centerPan();                        // measure only once the world is visible
+  scrollTo(0, 0);
+  startRain();                                    // 3. rain appears
+  $("#veil").classList.remove("on");
+  document.body.classList.add("world-on");        // 4. neon skyline fades in
+  chatState.persona = "luffy"; renderChatPersona();
+  $("#chat-fab").style.opacity = "0";
+  $("#world-title").focus({ preventScroll: true });
+  await wait(1300);
+  $("#nami").classList.add("on");                 // 5. Nami hologram activates
+  namiSay(NAMI_LINES[0]);
+  await wait(1400);
+  $("#chat-fab").style.transition = "opacity .6s"; // 6. Luffy appears
+  $("#chat-fab").style.opacity = "1";
+  luffySay("Mrrp. Another one. Click the glowing towers, human. Or click me. I’m more interesting. 🐾", 5200);
+  if (document.body.classList.contains("pannable")) { const h = $("#swipe-hint"); h.classList.add("show"); setTimeout(() => h.classList.remove("show"), 5000); }
+  startNami();
+}
+
+async function exitWorld() {
+  if (mode === "pro") return;
+  mode = "pro";
+  clearInterval(namiTimer);
+  setChatOpen(false);
+  $("#nami-say").classList.remove("show");
+  $("#luffy-bubble").classList.remove("show");
+  $("#nami").classList.remove("on");
+  await wait(300);
+  $("#veil").classList.add("on");
+  $("#boot-text").textContent = "RETURNING TO PUBLIC RECORDS";
+  await wait(800);
+  stopRain();
+  document.body.classList.remove("world-on");
+  $("#world").hidden = true;
+  $("#pro").hidden = false;
+  document.body.style.overflow = "";
+  chatState.persona = "assistant"; renderChatPersona();
+  $("#veil").classList.remove("on");
+  await wait(100);
+  document.body.classList.remove("leaving-pro");
+  $(".pnav [data-enter-world]").focus({ preventScroll: true });
+}
+
+/* ==========================================================================
+   AUTHENTICATION DEMO
+   --------------------------------------------------------------------------
+   !! DEMO ONLY — THIS IS NOT SECURITY !!
+   Real Google Authenticator / TOTP validation must happen on a secure backend.
+   Never store the TOTP secret inside JavaScript or HTML.
+   Never place the authenticator secret in the browser.
+
+   Production flow:
+     Browser
+       → secure HTTPS request  (POST /api/auth/totp  { code })
+       → backend authentication endpoint (rate-limited, lockout after failures)
+       → backend verifies TOTP against the secret stored server-side
+       → secure server session is created (secure, HTTP-only, SameSite cookie)
+       → private content is fetched from the backend only with that session
+   The session should expire after ~8 hours; after that, authentication is
+   required again. The private vault content itself must also live on the
+   backend — anything shipped in this HTML file is public.
+   ========================================================================== */
+const DEMO_CODE = "123456";                   // DEMO AUTHENTICATION ONLY
+const SESSION_MS = 8 * 60 * 60 * 1000;        // 8 hours
+let demoSession = null;                       // { startedAt, expiresAt } — in memory only
+let authAttempts = 0;
+
+async function secretFlow() {
+  chatState.history.luffy.push(["bot", "Identity phrase detected."]);
+  chatEl("sys", "— protected command intercepted locally · not sent to any AI —");
+  chatEl("bot", "Identity phrase detected.");
+  await wait(900);
+  const t = "Hmm. If you really are Mari, prove it.";
+  chatState.history.luffy.push(["bot", t]);
+  chatEl("bot", t);
+  await wait(700);
+  if (demoSession && Date.now() < demoSession.expiresAt) { openVault(); return; }
+  openAuth();
+}
+
+function openAuth() {
+  const otp = $("#otp");
+  otp.innerHTML = Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit ${i + 1} of 6" autocomplete="${i === 0 ? "one-time-code" : "off"}">`).join("");
+  $("#auth-msg").textContent = ""; $("#auth-msg").className = "msgline";
+  const inputs = $$("input", otp);
+  inputs.forEach((inp, i) => {
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/\D/g, "").slice(-1);
+      if (inp.value && inputs[i + 1]) inputs[i + 1].focus();
+    });
+    inp.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !inp.value && inputs[i - 1]) inputs[i - 1].focus();
+      if (e.key === "ArrowLeft" && inputs[i - 1]) inputs[i - 1].focus();
+      if (e.key === "ArrowRight" && inputs[i + 1]) inputs[i + 1].focus();
+    });
+    inp.addEventListener("paste", (e) => {
+      const digits = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+      if (!digits) return;
+      e.preventDefault();
+      digits.split("").forEach((d, k) => inputs[k] && (inputs[k].value = d));
+      (inputs[digits.length] || inputs[5]).focus();
+    });
+  });
+  setChatOpen(false);
+  $("#auth").showModal();
+  inputs[0].focus();
+}
+
+$("#auth-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const code = $$("#otp input").map((i) => i.value).join("");
+  const msg = $("#auth-msg");
+  if (code.length !== 6) { msg.textContent = "Enter all 6 digits."; msg.className = "msgline bad"; return; }
+  if (authAttempts >= 5) { msg.textContent = "Too many attempts. Locked (demo)."; msg.className = "msgline bad"; return; }
+  msg.textContent = "Verifying…"; msg.className = "msgline";
+  // PRODUCTION: const ok = (await fetch("/api/auth/totp", { method: "POST", credentials: "include", body: JSON.stringify({ code }) })).ok;
+  await wait(600);
+  const ok = code === DEMO_CODE; // DEMO AUTHENTICATION ONLY
+  if (!ok) {
+    authAttempts++;
+    msg.textContent = `Verification failed. ${5 - authAttempts} attempt(s) left.`; msg.className = "msgline bad";
+    $("#otp").classList.remove("shake"); void $("#otp").offsetWidth; $("#otp").classList.add("shake");
+    $$("#otp input").forEach((i) => (i.value = "")); $("#otp input").focus();
+    return;
+  }
+  authAttempts = 0;
+  msg.textContent = "Identity verified."; msg.className = "msgline good";
+  demoSession = { startedAt: Date.now(), expiresAt: Date.now() + SESSION_MS };
+  await wait(500);
+  $("#auth").close();
+  openVault();
+});
+$("#auth-cancel").addEventListener("click", () => $("#auth").close());
+$("#auth").addEventListener("close", () => { if (!$("#vault").open) $("#chat-fab").focus(); });
+
+/* ==========================================================================
+   PRIVATE VAULT (placeholder widgets — real content must come from the backend)
+   ========================================================================== */
+let sessionTicker;
+function openVault() {
+  const exp = new Date(demoSession.expiresAt);
+  $("#vault-inner").innerHTML = `
+    <div class="vault-top">
+      <div><p class="wd-kicker" style="color:#5fd4a0">Command center · authenticated</p><h2 id="vault-title">MARI’S VAULT</h2>
+      <p class="sess" id="sess">Demo session expires ${exp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} (8 h)</p></div>
+      <button class="lock-btn" type="button" id="lock-vault">🔒 Lock Vault</button>
+    </div>
+    <div class="vault-grid2">
+      <section class="vw wide" aria-labelledby="v1"><h3 id="v1">PRIVATE DASHBOARD</h3><div class="kpi"><div><b>3</b><span>active builds</span></div><div><b>12</b><span>ideas parked</span></div><div><b>5</b><span>posts drafted</span></div><div><b>91%</b><span>test coverage</span></div></div></section>
+      <section class="vw" aria-labelledby="v2"><h3 id="v2">AI WORKSPACE</h3><ul><li>Portfolio assistant → LLM wiring</li><li>Prompt library for data docs</li><li>Agent that drafts Gold-layer docs</li></ul></section>
+      <section class="vw" aria-labelledby="v3"><h3 id="v3">PERSONAL NOTES</h3><label class="sr-only" for="vnote">Scratch note</label><textarea id="vnote" placeholder="Scratch notes (demo: not saved)"></textarea></section>
+      <section class="vw" aria-labelledby="v4"><h3 id="v4">PRIVATE PROJECT IDEAS</h3><ul><li>Lakehouse cost watchdog</li><li>Property-data Genie space</li><li>Mari’s World: multiplayer rooftop</li></ul></section>
+      <section class="vw" aria-labelledby="v5"><h3 id="v5">WORK IN PROGRESS</h3><ul><li>Unity Catalog grants model</li><li>Template DATA-03: AI Engineer</li></ul></section>
+      <section class="vw" aria-labelledby="v6"><h3 id="v6">BOOKMARKS & PRIVATE LINKS</h3><ul><li>Databricks docs (placeholder)</li><li>Power BI DAX patterns (placeholder)</li><li>Design inspiration board (placeholder)</li></ul></section>
+      <section class="vw wide" aria-labelledby="v7"><h3 id="v7">FUTURE TOOLS</h3><p>Voice-to-SQL · data-quality radar · a Luffy that actually fetches things.</p></section>
+    </div>
+    <p class="vault-note">DEMO: placeholder widgets shipped in this file. In production, vault content is loaded from the backend only after a valid server session exists.</p>`;
+  $("#vault").showModal();
+  $("#lock-vault").addEventListener("click", lockVault);
+  $("#vault-title").setAttribute("tabindex", "-1"); $("#vault-title").focus();
+  clearInterval(sessionTicker);
+  sessionTicker = setInterval(() => { if (demoSession && Date.now() >= demoSession.expiresAt) lockVault(true); }, 30000);
+}
+function lockVault(expired = false) {
+  demoSession = null; // ends the demo private session immediately
+  clearInterval(sessionTicker);
+  $("#vault").close();
+  luffySay(expired ? "Session expired. Vault sealed. I’m back on guard duty." : "Vault locked. I’ll pretend I didn’t see anything. 🐾", 4200);
+  $("#chat-fab").focus();
+}
+$("#vault").addEventListener("cancel", (e) => { e.preventDefault(); lockVault(); }); // Esc locks the vault
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+bindText();
+renderPro();
+initReveal();
+initProNav();
+initChat();
+$$("[data-enter-world]").forEach((b) => b.addEventListener("click", enterWorld));
+$("#back-pro").addEventListener("click", exitWorld);
+document.addEventListener("keydown", (e) => {
+  if (mode !== "world" || e.key !== "Escape") return;
+  if (wd.open || $("#auth").open || $("#vault").open || !$("#chat").hidden) return;
+  const list = $("#map-list"); if (!list.hidden) { $("#map-toggle").click(); }
+});
+</script>
+</body>
+</html>
