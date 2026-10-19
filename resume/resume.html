@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marimuthu R — Resume</title>
+<!--
+  Source for public/resume.pdf. Edit this file, then rebuild the PDF:
+    node resume/build-pdf.mjs
+  Single column, real text, no tables or images: reads cleanly in applicant tracking systems.
+-->
+<style>
+  @page { size: A4; margin: 12mm 14mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 9.9pt/1.36 "Helvetica Neue", Arial, "Liberation Sans", sans-serif; color: #1a1d24; }
+  main { max-width: 180mm; margin: 0 auto; }
+  h1 { margin: 0; font-size: 21pt; letter-spacing: .01em; }
+  .title { margin: 2px 0 6px; font-size: 11pt; color: #2b4c7e; font-weight: 600; }
+  .contact { margin: 0; font-size: 9.2pt; color: #444b57; }
+  .contact a { color: inherit; text-decoration: none; }
+  h2 { margin: 10px 0 5px; padding-bottom: 2px; border-bottom: 1.2px solid #2b4c7e; font-size: 9.6pt; letter-spacing: .14em; text-transform: uppercase; color: #2b4c7e; }
+  p { margin: 0 0 6px; }
+  .role { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .role b { font-size: 10.6pt; }
+  .role span { font-size: 9.2pt; color: #555c68; white-space: nowrap; }
+  .sub { margin: 0 0 3px; color: #444b57; font-style: italic; }
+  ul { margin: 2px 0 8px; padding-left: 15px; }
+  li { margin: 1.5px 0; }
+  .proj { margin-bottom: 5px; break-inside: avoid; }
+  .proj p { margin: 1px 0 0; }
+  .tech { color: #555c68; font-size: 9.2pt; }
+  .skills p { margin: 2px 0; }
+  .skills b { display: inline-block; min-width: 132px; }
+  @media screen { body { background: #eef0f3; padding: 24px 12px; } main { background: #fff; padding: 14mm 15mm; box-shadow: 0 2px 14px #0002; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Marimuthu R</h1>
+  <p class="title">Data Lead · Databricks, Power BI &amp; Data Platforms</p>
+  <p class="contact">Chennai, India (remote) · <a href="mailto:r2004marimuthu@gmail.com">r2004marimuthu@gmail.com</a> · <a href="https://www.linkedin.com/in/zeb-mari">linkedin.com/in/zeb-mari</a> · <a href="https://github.com/M-Aadhi">github.com/M-Aadhi</a></p>
+
+  <h2>Summary</h2>
+  <p>Data Lead who turns scattered operational data into one reliable picture of the business. I own the data warehouse, pipelines and Power BI reporting for a US real estate client, working mostly in Databricks, and I bring engineering discipline (tests, idempotent loads, clear lineage) to business questions people actually need answered.</p>
+
+  <h2>Experience</h2>
+  <div class="role"><b>Data Lead · Zeb</b><span>2024 – Present</span></div>
+  <p class="sub">Real estate client, Texas, USA</p>
+  <ul>
+    <li>Own the client’s data warehouse, ETL pipelines and Power BI reporting.</li>
+    <li>Design Databricks pipelines for properties, leases, payments and maintenance data (PySpark, SQL, Delta Lake).</li>
+    <li>Partner with operations and finance on KPIs: occupancy, collections and delinquency.</li>
+    <li>Replaced spreadsheet reporting with a single governed data model.</li>
+    <li>Built data-quality checks that quarantine bad records instead of hiding them.</li>
+  </ul>
+
+  <h2>Projects</h2>
+  <div class="proj">
+    <b>Real Estate Databricks Lakehouse</b> · <a href="https://github.com/M-Aadhi/real-estate-databricks-lakehouse">github.com/M-Aadhi/real-estate-databricks-lakehouse</a>
+    <p>End-to-end medallion lakehouse (Bronze → validation/quarantine → Silver → Gold KPIs) for 100 properties, 1,058 units and 14k+ payments (synthetic data). Idempotent Delta MERGE loads, window-function deduplication and SCD Type 2 tenant history. 60 automated tests at 91% coverage, with CI that needs no workspace credentials.</p>
+    <p class="tech">Databricks · PySpark · Delta Lake · Unity Catalog · pytest · GitHub Actions</p>
+  </div>
+  <div class="proj">
+    <b>Personal portfolio with a private cloud vault</b>
+    <p>Portfolio site with a scroll-driven creative mode and a private vault: Google Authenticator (TOTP) login verified server-side on a Cloudflare Worker, 8-hour HTTP-only sessions, login rate limiting, and file, image and clipboard sync across devices.</p>
+    <p class="tech">JavaScript · Cloudflare Workers · KV · Playwright</p>
+  </div>
+  <div class="proj">
+    <b>Professional Portfolio Demo Gallery</b> · <a href="https://m-aadhi.github.io/portfolio-demo-gallery/">m-aadhi.github.io/portfolio-demo-gallery</a>
+    <p>Live gallery of 13 portfolio templates for different professions, with search, filters, template IDs, a weekly release process and automated layout, link and journey tests.</p>
+    <p class="tech">HTML · CSS · JavaScript · Playwright · GitHub Pages</p>
+  </div>
+  <div class="proj">
+    <b>LinkedIn Data Skills &amp; Publishing Workflow</b>
+    <p>Claude skills that draft and review LinkedIn posts in my own voice and publish through the Publora API, with a human approval step before anything goes out.</p>
+    <p class="tech">Claude skills · Publora API · Python</p>
+  </div>
+  <div class="proj">
+    <b>E-commerce Weekly Briefing</b>
+    <p>Prototype that turns weekly store data into a short plain-English briefing: KPI calculations and anomaly flags first, then an AI-written summary that cites the source numbers.</p>
+    <p class="tech">Python · SQL · LLM summarisation</p>
+  </div>
+
+  <h2>Skills</h2>
+  <div class="skills">
+    <p><b>Data engineering</b> Databricks, PySpark, Delta Lake, SQL, data warehousing, data modelling</p>
+    <p><b>Analytics &amp; BI</b> Power BI, DAX, KPI design</p>
+    <p><b>Cloud &amp; governance</b> Azure, Unity Catalog, Cloudflare Workers, AWS basics</p>
+    <p><b>Languages</b> Python, SQL, JavaScript, HTML/CSS</p>
+    <p><b>Databases</b> SQL Server, PostgreSQL</p>
+    <p><b>Engineering</b> Git &amp; GitHub, GitHub Actions, pytest, Playwright, REST APIs</p>
+    <p><b>AI</b> LLM workflows, prompt engineering, Claude / AI agents</p>
+  </div>
+</main>
+</body>
+</html>

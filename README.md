@@ -19,6 +19,7 @@ Personal portfolio of **Mari** with two modes over one shared data object:
 | `public/assets/` | `mari.webp` (profile photo) and `world-bg.webp` (Mari's World background). |
 | `src/worker.js` | Cloudflare Worker: serves `public/` and the private vault API under `/api/*`. |
 | `wrangler.jsonc` | Worker settings (name, KV storage, optional R2). No secrets in here. |
+| `resume/resume.html` | Resume source. `node resume/build-pdf.mjs` rebuilds `public/resume.pdf` (the site's Resume button). |
 | `tools/totp-setup.html` | Offline page that creates the Google Authenticator secret. Never deployed. |
 | `tests/` | Unit tests for the authenticator code (`npm test`). |
 
