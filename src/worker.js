@@ -21,6 +21,7 @@ const CLIP_MAX = 200;
 // Only these are ever shown inline (as <img>). Everything else, SVG and HTML included, downloads.
 const INLINE_IMAGES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"]);
 const COOKIE = "__Host-mv";
+const BUILD = "2026-10-20.1";   // shown on /api/health so you can tell which code is live
 
 export default {
   async fetch(req, env) {
@@ -40,13 +41,17 @@ async function api(req, env, url) {
   const method = req.method;
 
   if (path === "/api/health" && method === "GET") {
+    const raw = await readSecret(env);
+    const key = secretBytes(raw);
     // Setup diagnostics only: says whether each piece is configured, never the secret itself.
     return json({
       ok: true,
+      build: BUILD,
       vault: Boolean(env.TOTP_SECRET),
-      secretValid: Boolean(secretBytes(env)),
+      secretSource: secretSource(env),
+      secretValid: Boolean(key),
       // Only when the secret is unusable: a safe hint (length and kinds of bad characters, never the characters)
-      ...(env.TOTP_SECRET && !secretBytes(env) ? { secretHint: secretHint(env.TOTP_SECRET) } : {}),
+      ...(env.TOTP_SECRET && !key ? { secretHint: secretHint(raw) } : {}),
       storageReady: Boolean(env.VAULT),
       storage: env.FILES ? "r2" : "kv",
       maxFile: fileLimit(env)
@@ -105,7 +110,7 @@ async function api(req, env, url) {
 async function login(req, env) {
   if (!env.TOTP_SECRET) return json({ error: "Vault is not configured: add the TOTP_SECRET secret to the Worker." }, 503);
   if (!env.VAULT) return json({ error: "Vault storage is not connected: the Worker has no VAULT KV binding." }, 503);
-  const key = secretBytes(env);
+  const key = secretBytes(await readSecret(env));
   if (!key) return json({ error: "TOTP_SECRET is not a valid authenticator secret. Re-create it with tools/totp-setup.html and paste only the letters and digits." }, 503);
   const ip = req.headers.get("CF-Connecting-IP") || "unknown";
   const ipKey = `rl:ip:${ip}`;
@@ -181,10 +186,31 @@ export function normalizeSecret(raw) {
   return s.replace(/[\s=-]/g, "").toUpperCase();
 }
 
-/** Decoded TOTP key, or null when TOTP_SECRET is missing or not valid base32 (at least 80 bits). */
-function secretBytes(env) {
+/**
+ * TOTP_SECRET can be a plain Worker secret (a string) or a Secrets Store binding (an object whose
+ * async get() returns the string). Returns the text, or null when it can't be read.
+ */
+async function readSecret(env) {
+  const s = env.TOTP_SECRET;
+  if (typeof s === "string") return s;
+  if (s && typeof s.get === "function") {
+    try { return String(await s.get()); } catch { return null; }
+  }
+  return s == null ? null : s;
+}
+
+function secretSource(env) {
+  const s = env.TOTP_SECRET;
+  if (s == null) return "missing";
+  if (typeof s === "string") return "secret";
+  if (typeof s.get === "function") return "secrets-store";
+  return typeof s;
+}
+
+/** Decoded TOTP key, or null when the secret text is missing or not valid base32 (at least 80 bits). */
+function secretBytes(raw) {
   try {
-    const bytes = base32Decode(normalizeSecret(env.TOTP_SECRET));
+    const bytes = base32Decode(normalizeSecret(raw));
     return bytes.length >= 10 ? bytes : null;
   } catch {
     return null;

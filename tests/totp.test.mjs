@@ -89,3 +89,15 @@ test("secretHint explains a bad secret without revealing it", async () => {
   assert.match(secretHint("ABC").problem, /too short/);
   assert.match(secretHint({}).problem, /not plain text/);
 });
+
+test("a Secrets Store binding (object with async get) works as TOTP_SECRET", async () => {
+  const worker = (await import("../src/worker.js")).default;
+  const store = { get: async () => SECRET };
+  const h = await (await worker.fetch(new Request("https://vault.test/api/health"), { TOTP_SECRET: store, VAULT: memoryKV() })).json();
+  assert.equal(h.secretSource, "secrets-store");
+  assert.equal(h.secretValid, true);
+  assert.ok(h.build);
+  const code = await hotp(base32Decode(SECRET), Math.floor(Date.now() / 30000));
+  const r = await worker.fetch(post(code), { TOTP_SECRET: store, VAULT: memoryKV() });
+  assert.equal(r.status, 200);
+});
